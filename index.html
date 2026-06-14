@@ -313,163 +313,6 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   </div>
 
   <div id="ui-bl">물고기를 클릭하면 정보를 볼 수 있습니다</div>
-
-
-    <div id="panel-tabs">
-      <div class="ptab active" data-tab="fish">🐟 물고기</div>
-      <div class="ptab" data-tab="bg">🌊 배경</div>
-    </div>
-    <div id="panel-body">
-
-      <!-- 물고기 탭 -->
-      <div class="tab-content active" id="tab-fish">
-        <div class="psec">
-          <span class="psec-label">이미지 업로드</span>
-          <div class="upload-zone" id="fish-upload-zone">
-            <input type="file" id="fish-file" accept="image/png,image/webp,image/gif">
-            <div class="uz-icon">🐠</div>
-            <div class="uz-text">PNG 투명 배경 이미지<br>클릭하거나 드래그</div>
-          </div>
-          <img id="fish-preview" class="preview-thumb" src="" alt="preview">
-        </div>
-
-        <div class="psec">
-          <span class="psec-label">이름 (한국어)</span>
-          <input class="pinput" type="text" id="fish-name" placeholder="예: 고래상어">
-        </div>
-        <div class="psec">
-          <span class="psec-label">학명</span>
-          <input class="pinput" type="text" id="fish-latin" placeholder="예: Rhincodon typus">
-        </div>
-        <div class="psec">
-          <span class="psec-label">설명</span>
-          <textarea class="pinput" id="fish-desc" placeholder="물고기 설명..."></textarea>
-        </div>
-        <div class="psec">
-          <span class="psec-label">수심</span>
-          <input class="pinput" type="text" id="fish-dep" placeholder="예: 수심 0–200m">
-        </div>
-
-        <div class="psec">
-          <span class="psec-label">크기 티어</span>
-          <select class="pinput" id="fish-tier">
-            <option value="xl">XL — 초대형 (고래상어급)</option>
-            <option value="lg">LG — 대형 (참치, 상어류)</option>
-            <option value="sl" selected>SL — 준대형 (나폴레옹, 바라쿠다)</option>
-            <option value="md">MD — 중형 (바리, 복어)</option>
-            <option value="sm">SM — 소형 / 군집어</option>
-          </select>
-        </div>
-        <div class="psec">
-          <span class="psec-label">배치 레이어</span>
-          <select class="pinput" id="fish-layer">
-            <option value="near">Near — 근경 (선명, 크게)</option>
-            <option value="mid" selected>Mid — 중경</option>
-            <option value="far">Far — 원경 (흐릿, 작게)</option>
-            <option value="bot">Bot — 바닥 (가오리류)</option>
-          </select>
-        </div>
-        <div class="psec">
-          <span class="psec-label">마릿수</span>
-          <input class="pinput" type="number" id="fish-count" value="1" min="1" max="30">
-        </div>
-        <div class="psec">
-          <span class="psec-label">유영 속도</span>
-          <select class="pinput" id="fish-speed">
-            <option value="0.12">매우 느림 (고래상어)</option>
-            <option value="0.3">느림 (만타, 가오리)</option>
-            <option value="0.55" selected>보통</option>
-            <option value="0.8">빠름 (참치류)</option>
-            <option value="1.2">매우 빠름 (군집어)</option>
-          </select>
-        </div>
-
-        <button class="pbtn pbtn-primary gap" id="fish-add-btn">+ 수조에 추가</button>
-
-        <div style="margin-top:24px;margin-bottom:8px">
-          <span class="psec-label">현재 등록된 물고기</span>
-        </div>
-        <div id="fish-list"></div>
-      </div>
-
-      <!-- 배경 탭 -->
-      <div class="tab-content" id="tab-bg">
-        <div class="psec">
-          <span class="psec-label">배경 레이어 (클릭하여 업로드)</span>
-          <div class="bg-grid">
-
-            <div class="bg-slot" id="slot-bg-base">
-              <input type="file" accept="image/*" data-slot="bg-base">
-              <div class="bg-slot-label">BASE<br><span style="font-size:8px;opacity:.6">그라디언트 배경</span></div>
-              <div class="bg-slot-empty" id="prev-bg-base-empty">🎨</div>
-              <img id="prev-bg-base" class="bg-slot-preview" style="display:none" src="" alt="">
-              <button class="bg-slot-clear" data-clear="bg-base">×</button>
-            </div>
-
-            <div class="bg-slot" id="slot-bg-caustic">
-              <input type="file" accept="image/*" data-slot="bg-caustic">
-              <div class="bg-slot-label">CAUSTIC<br><span style="font-size:8px;opacity:.6">수광 줄기</span></div>
-              <div class="bg-slot-empty" id="prev-bg-caustic-empty">✨</div>
-              <img id="prev-bg-caustic" class="bg-slot-preview" style="display:none" src="" alt="">
-              <button class="bg-slot-clear" data-clear="bg-caustic">×</button>
-            </div>
-
-            <div class="bg-slot" id="slot-bg-volume">
-              <input type="file" accept="image/*" data-slot="bg-volume">
-              <div class="bg-slot-label">VOLUMETRIC<br><span style="font-size:8px;opacity:.6">빛 산란 안개</span></div>
-              <div class="bg-slot-empty" id="prev-bg-volume-empty">🌫</div>
-              <img id="prev-bg-volume" class="bg-slot-preview" style="display:none" src="" alt="">
-              <button class="bg-slot-clear" data-clear="bg-volume">×</button>
-            </div>
-
-            <div class="bg-slot" id="slot-mid-obj">
-              <input type="file" accept="image/*" data-slot="mid-obj">
-              <div class="bg-slot-label">MID OBJECTS<br><span style="font-size:8px;opacity:.6">중경 산호/바위</span></div>
-              <div class="bg-slot-empty" id="prev-mid-obj-empty">🪸</div>
-              <img id="prev-mid-obj" class="bg-slot-preview" style="display:none" src="" alt="">
-              <button class="bg-slot-clear" data-clear="mid-obj">×</button>
-            </div>
-
-            <div class="bg-slot" id="slot-floor-base">
-              <input type="file" accept="image/*" data-slot="floor-base">
-              <div class="bg-slot-label">FLOOR BASE<br><span style="font-size:8px;opacity:.6">바닥 모래</span></div>
-              <div class="bg-slot-empty" id="prev-floor-base-empty">🏖</div>
-              <img id="prev-floor-base" class="bg-slot-preview" style="display:none" src="" alt="">
-              <button class="bg-slot-clear" data-clear="floor-base">×</button>
-            </div>
-
-            <div class="bg-slot" id="slot-floor-obj">
-              <input type="file" accept="image/*" data-slot="floor-obj">
-              <div class="bg-slot-label">FLOOR OBJECTS<br><span style="font-size:8px;opacity:.6">바닥 산호/해초</span></div>
-              <div class="bg-slot-empty" id="prev-floor-obj-empty">🌿</div>
-              <img id="prev-floor-obj" class="bg-slot-preview" style="display:none" src="" alt="">
-              <button class="bg-slot-clear" data-clear="floor-obj">×</button>
-            </div>
-
-            <div class="bg-slot" id="slot-shimmer" style="grid-column:1/-1">
-              <input type="file" accept="image/*" data-slot="shimmer">
-              <div class="bg-slot-label">SHIMMER &nbsp;<span style="font-size:8px;opacity:.6">수면 반사광 · screen 블렌딩 · 투명도 자동 애니메이션</span></div>
-              <div class="bg-slot-empty" id="prev-shimmer-empty">💧</div>
-              <img id="prev-shimmer" class="bg-slot-preview" style="display:none;height:40px" src="" alt="">
-              <button class="bg-slot-clear" data-clear="shimmer">×</button>
-            </div>
-
-            <div class="bg-slot" id="slot-frame" style="grid-column:1/-1">
-              <input type="file" accept="image/*" data-slot="frame">
-              <div class="bg-slot-label">FRAME &nbsp;<span style="font-size:8px;opacity:.6">수조 프레임 · 최상단 · 특수효과 없음 · 선택사항</span></div>
-              <div class="bg-slot-empty" id="prev-frame-empty">🖼</div>
-              <img id="prev-frame" class="bg-slot-preview" style="display:none;height:40px" src="" alt="">
-              <button class="bg-slot-clear" data-clear="frame">×</button>
-            </div>
-
-          </div>
-        </div>
-
-        <button class="pbtn pbtn-danger" id="clear-all-bg">모든 배경 초기화</button>
-      </div>
-
-    </div>
-  </div>
 </div>
 
 <script>
@@ -494,10 +337,6 @@ function resize(){
 }
 resize();
 window.addEventListener('resize',()=>{resize();rebuildFish();});
-
-
-  catch(e){ alert('저장 용량 초과. 이미지 크기를 줄여보세요.'); }
-}
 
 // ══════════════════════════════════════════
 //  물고기 인스턴스
@@ -743,3 +582,113 @@ loop();
   }
 })();
 
+// ══════════════════════════════════════════
+//  GitHub tanks.json 연동
+// ══════════════════════════════════════════
+const GH_USER_KEY = 'aquive_gh_user';
+const GH_REPO_KEY = 'aquive_gh_repo';
+function getGhUser(){ return localStorage.getItem(GH_USER_KEY)||''; }
+function getGhRepo(){ return localStorage.getItem(GH_REPO_KEY)||''; }
+
+let remoteData = null;
+
+async function loadTanksJson(){
+  const user = getGhUser();
+  const repo = getGhRepo();
+  if(!user || !repo) return null;
+  try{
+    const url = `https://raw.githubusercontent.com/${user}/${repo}/main/data/tanks.json?t=${Date.now()}`;
+    const res = await fetch(url);
+    if(!res.ok) return null;
+    const json = await res.json();
+    remoteData = json.tanks || {};
+    return remoteData;
+  } catch(e){ return null; }
+}
+
+function applyBgFromData(bg){
+  const MAP = {
+    'base':     {el:'layer-bg-base',    def:'default-bg'},
+    'caustic':  {el:'layer-bg-caustic', def:'default-caustic'},
+    'volume':   {el:'layer-bg-volume',  def:null},
+    'midobj':   {el:'layer-mid-obj',    def:null},
+    'floor':    {el:'layer-floor-base', def:null},
+    'floorobj': {el:'layer-floor-obj',  def:null},
+    'shimmer':  {el:'layer-shimmer-img',def:null},
+    'frame':    {el:'layer-frame-img',  def:null},
+  };
+  Object.entries(MAP).forEach(([key, map])=>{
+    const el = document.getElementById(map.el);
+    if(!el) return;
+    const src = bg ? bg[key] : null;
+    if(src){
+      el.src = src;
+      el.style.display = 'block';
+      if(map.def){ const d=document.getElementById(map.def); if(d) d.style.display='none'; }
+    } else {
+      el.src = '';
+      el.style.display = 'none';
+      if(map.def){ const d=document.getElementById(map.def); if(d) d.style.display='block'; }
+    }
+  });
+}
+
+function applyFishFromData(fishArr){
+  FISH.length = 0;
+  if(!fishArr || !fishArr.length) return;
+  fishArr.forEach(fd => { FISH.push(...buildInstance(fd)); });
+  const layerOrder = {far:0, bot:1, mid:2, near:3};
+  FISH.sort((a,b) => (layerOrder[a.fd.layer]||2)-(layerOrder[b.fd.layer]||2));
+  const uiTr = document.getElementById('ui-tr');
+  if(uiTr) uiTr.textContent = FISH.length + ' specimens';
+}
+
+async function applyTankData(tankId){
+  const localKey = 'aquive_tank_data';
+  let local = {};
+  try{ local = JSON.parse(localStorage.getItem(localKey)||'{}'); } catch(e){}
+  const localTank  = local[tankId];
+  const remoteTank = remoteData ? remoteData[tankId] : null;
+  const bg   = localTank?.bg   || remoteTank?.bg   || {};
+  const fish = (localTank?.fish?.length) ? localTank.fish : (remoteTank?.fish || []);
+  applyBgFromData(bg);
+  applyFishFromData(fish);
+}
+
+async function switchTankWithData(idx){
+  if(idx === currentTankIdx) return;
+  const overlay = document.getElementById('tank-overlay');
+  if(overlay) overlay.classList.add('fade-in');
+  setTimeout(async ()=>{
+    currentTankIdx = idx;
+    updateNavUI();
+    await applyTankData(idx);
+    if(overlay) overlay.classList.remove('fade-in');
+  }, 350);
+}
+
+// 화살표 이벤트 오버라이드
+document.getElementById('nav-prev')?.addEventListener('click', ()=>{
+  if(currentTankIdx > 0){
+    const t = TANKS[currentTankIdx-1];
+    if(!isTankUnlocked(t)){ showLockToast(t); return; }
+    switchTankWithData(currentTankIdx-1);
+  }
+}, true);
+document.getElementById('nav-next')?.addEventListener('click', ()=>{
+  if(currentTankIdx < TANKS.length-1){
+    const t = TANKS[currentTankIdx+1];
+    if(!isTankUnlocked(t)){ showLockToast(t); return; }
+    switchTankWithData(currentTankIdx+1);
+  }
+}, true);
+
+// 초기 로드
+(async function(){
+  await loadTanksJson();
+  await applyTankData(0);
+})();
+
+</script>
+</body>
+</html>
