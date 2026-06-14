@@ -655,6 +655,82 @@ async function applyTankData(tankId){
   applyFishFromData(fish);
 }
 
+
+// ── 수조 데이터 ──
+const TANKS = [
+  {id:0,  name:'대수조',     nameEn:'GRAND OCEAN TANK',   unlock:0},
+  {id:1,  name:'연안 수조',  nameEn:'COASTAL TANK',       unlock:-50},
+  {id:2,  name:'산호초관',   nameEn:'CORAL REEF',         unlock:-100},
+  {id:3,  name:'열대어관',   nameEn:'TROPICAL FISH',      unlock:-250},
+  {id:4,  name:'대형어관',   nameEn:'OCEAN GIANTS',       unlock:-500},
+  {id:5,  name:'가오리관',   nameEn:'STINGRAY BAY',       unlock:-700},
+  {id:6,  name:'극지어관',   nameEn:'POLAR ZONE',         unlock:-1000},
+  {id:7,  name:'심해어관',   nameEn:'DEEP SEA',           unlock:-1200},
+  {id:8,  name:'두족류관',   nameEn:'CEPHALOPOD ZONE',    unlock:-1500},
+  {id:9,  name:'해파리관',   nameEn:'JELLYFISH HALL',     unlock:-2000},
+  {id:10, name:'발광생물관', nameEn:'BIOLUMINESCENCE',    unlock:-3000},
+  {id:11, name:'해구관',     nameEn:'HADAL ZONE',         unlock:-4000},
+  {id:12, name:'멸종 보관소',nameEn:'EXTINCTION ARCHIVE', unlock:-4000, autoUnlock:true},
+];
+
+let currentTankIdx = 0;
+
+function getDepth(){
+  try{ return JSON.parse(localStorage.getItem('aquive_depth')||'{"depth":0}').depth; }
+  catch(e){ return 0; }
+}
+
+function isTankUnlocked(tank){
+  const depth = getDepth();
+  if(tank.autoUnlock) return depth >= 4000;
+  return depth >= Math.abs(tank.unlock);
+}
+
+function buildNavDots(){
+  const wrap = document.getElementById('tank-nav-dots');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  TANKS.forEach((tank,i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot'+(i===currentTankIdx?' active':'')+(!isTankUnlocked(tank)?' locked':'');
+    dot.title = tank.name;
+    dot.addEventListener('click', ()=> tryNav(i));
+    wrap.appendChild(dot);
+  });
+}
+
+function updateNavUI(){
+  const tank = TANKS[currentTankIdx];
+  const nameEl = document.getElementById('tank-nav-name');
+  if(nameEl) nameEl.textContent = tank.name+' · '+tank.nameEn;
+  const tankNameEl = document.getElementById('ui-tank-name');
+  if(tankNameEl) tankNameEl.textContent = tank.name+' · '+tank.nameEn;
+  const prevBtn = document.getElementById('nav-prev');
+  const nextBtn = document.getElementById('nav-next');
+  if(prevBtn) prevBtn.disabled = currentTankIdx===0;
+  if(nextBtn) nextBtn.disabled = currentTankIdx===TANKS.length-1;
+  buildNavDots();
+}
+
+function showLockToast(tank){
+  const toast = document.getElementById('lock-toast');
+  const msg   = document.getElementById('lock-msg');
+  if(!toast||!msg) return;
+  const needed  = Math.abs(tank.unlock);
+  const current = getDepth();
+  const diff    = needed-current;
+  msg.innerHTML = tank.name+'<br>수심 '+tank.unlock+'m 도달 시 해금<br><span style="color:rgba(120,190,255,0.5);font-size:10px">현재 -'+current+'m · '+diff+'m 더 필요</span>';
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=> toast.classList.remove('show'), 2800);
+}
+
+function tryNav(idx){
+  const tank = TANKS[idx];
+  if(!isTankUnlocked(tank)){ showLockToast(tank); return; }
+  switchTankWithData(idx);
+}
+
 async function switchTankWithData(idx){
   if(idx === currentTankIdx) return;
   const overlay = document.getElementById('tank-overlay');
@@ -667,21 +743,13 @@ async function switchTankWithData(idx){
   }, 350);
 }
 
-// 화살표 이벤트 오버라이드
+// 화살표 이벤트
 document.getElementById('nav-prev')?.addEventListener('click', ()=>{
-  if(currentTankIdx > 0){
-    const t = TANKS[currentTankIdx-1];
-    if(!isTankUnlocked(t)){ showLockToast(t); return; }
-    switchTankWithData(currentTankIdx-1);
-  }
-}, true);
+  if(currentTankIdx > 0) tryNav(currentTankIdx-1);
+});
 document.getElementById('nav-next')?.addEventListener('click', ()=>{
-  if(currentTankIdx < TANKS.length-1){
-    const t = TANKS[currentTankIdx+1];
-    if(!isTankUnlocked(t)){ showLockToast(t); return; }
-    switchTankWithData(currentTankIdx+1);
-  }
-}, true);
+  if(currentTankIdx < TANKS.length-1) tryNav(currentTankIdx+1);
+});
 
 // 초기 로드
 (async function(){
