@@ -1,3 +1,17 @@
 {
-  "tanks": []
+  "tanks": [
+    {"id": 0, "name": "대수조", "nameEn": "GRAND OCEAN TANK", "fish": [], "bg": {}},
+    {"id": 1, "name": "연안 수조", "nameEn": "COASTAL TANK", "fish": [], "bg": {}},
+    {"id": 2, "name": "산호초관", "nameEn": "CORAL REEF", "fish": [], "bg": {}},
+    {"id": 3, "name": "열대어관", "nameEn": "TROPICAL FISH", "fish": [], "bg": {}},
+    {"id": 4, "name": "대형어관", "nameEn": "OCEAN GIANTS", "fish": [], "bg": {}},
+    {"id": 5, "name": "가오리관", "nameEn": "STINGRAY BAY", "fish": [], "bg": {}},
+    {"id": 6, "name": "극지어관", "nameEn": "POLAR ZONE", "fish": [], "bg": {}},
+    {"id": 7, "name": "심해어관", "nameEn": "DEEP SEA", "fish": [], "bg": {}},
+    {"id": 8, "name": "두족류관", "nameEn": "CEPHALOPOD ZONE", "fish": [], "bg": {}},
+    {"id": 9, "name": "해파리관", "nameEn": "JELLYFISH HALL", "fish": [], "bg": {}},
+    {"id": 10, "name": "발광생물관", "nameEn": "BIOLUMINESCENCE", "fish": [], "bg": {}},
+    {"id": 11, "name": "해구관", "nameEn": "HADAL ZONE", "fish": [], "bg": {}},
+    {"id": 12, "name": "멸종 보관소", "nameEn": "EXTINCTION ARCHIVE", "fish": [], "bg": {}}
+  ]
 }
