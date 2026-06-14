@@ -1222,6 +1222,143 @@ document.getElementById('nav-next')?.addEventListener('click', () => {
 // 초기화
 updateNavUI();
 
+
+// ══════════════════════════════════════════
+//  GitHub tanks.json 연동
+// ══════════════════════════════════════════
+const GH_USER_KEY = 'aquive_gh_user';
+const GH_REPO_KEY = 'aquive_gh_repo';
+
+function getGhUser(){ return localStorage.getItem(GH_USER_KEY)||''; }
+function getGhRepo(){ return localStorage.getItem(GH_REPO_KEY)||''; }
+
+let remoteData = null; // tanks.json 데이터 캐시
+
+async function loadTanksJson(){
+  const user = getGhUser();
+  const repo = getGhRepo();
+  if(!user || !repo) return null;
+  try{
+    const url = `https://raw.githubusercontent.com/${user}/${repo}/main/data/tanks.json?t=${Date.now()}`;
+    const res = await fetch(url);
+    if(!res.ok) return null;
+    const json = await res.json();
+    remoteData = json.tanks || {};
+    return remoteData;
+  } catch(e){ return null; }
+}
+
+async function applyTankData(tankId){
+  // 1. 로컬 데이터 우선 (admin에서 등록한 것)
+  const localKey = 'aquive_tank_data';
+  let local = null;
+  try{ local = JSON.parse(localStorage.getItem(localKey)||'{}'); } catch(e){}
+
+  const localTank = local?.[tankId];
+  const remoteTank = remoteData?.[tankId];
+
+  // 2. 배경 적용 — 로컬 우선, 없으면 remote URL
+  const bg = localTank?.bg || remoteTank?.bg || {};
+  applyBgFromData(bg);
+
+  // 3. 물고기 적용 — 로컬 우선, 없으면 remote
+  const fish = localTank?.fish?.length ? localTank.fish : (remoteTank?.fish || []);
+  applyFishFromData(fish);
+}
+
+function applyBgFromData(bg){
+  const BG_LAYER_MAP_REMOTE = {
+    'base':     'layer-bg-base',
+    'caustic':  'layer-bg-caustic',
+    'volume':   'layer-bg-volume',
+    'midobj':   'layer-mid-obj',
+    'floor':    'layer-floor-base',
+    'floorobj': 'layer-floor-obj',
+    'shimmer':  'layer-shimmer-img',
+    'frame':    'layer-frame-img',
+  };
+
+  const defaultEls = {
+    'base': 'default-bg',
+    'caustic': 'default-caustic',
+  };
+
+  Object.entries(BG_LAYER_MAP_REMOTE).forEach(([key, elId])=>{
+    const el = document.getElementById(elId);
+    if(!el) return;
+    const src = bg[key];
+    if(src){
+      el.src = src;
+      el.style.display = 'block';
+      if(defaultEls[key]) {
+        const def = document.getElementById(defaultEls[key]);
+        if(def) def.style.display = 'none';
+      }
+    } else {
+      el.src = '';
+      el.style.display = 'none';
+      if(defaultEls[key]) {
+        const def = document.getElementById(defaultEls[key]);
+        if(def) def.style.display = 'block';
+      }
+    }
+  });
+}
+
+function applyFishFromData(fishArr){
+  // 기존 FISH 인스턴스 클리어
+  FISH.length = 0;
+  animFrames && animFrames.forEach(id => cancelAnimationFrame(id));
+
+  fishArr.forEach(fd => {
+    FISH.push(...buildInstance(fd));
+  });
+
+  const layerOrder = {far:0, bot:1, mid:2, near:3};
+  FISH.sort((a,b) => (layerOrder[a.fd.layer]||2) - (layerOrder[b.fd.layer]||2));
+
+  const uiTr = document.getElementById('ui-tr');
+  if(uiTr) uiTr.textContent = FISH.length + ' specimens';
+}
+
+// 수조 전환 시 데이터 교체
+const _origSwitchTank = typeof switchTank !== 'undefined' ? switchTank : null;
+
+async function switchTankWithData(idx){
+  if(idx === currentTankIdx) return;
+  const overlay = document.getElementById('tank-overlay');
+  overlay.classList.add('fade-in');
+
+  setTimeout(async () => {
+    currentTankIdx = idx;
+    updateNavUI();
+    await applyTankData(idx);
+    overlay.classList.remove('fade-in');
+  }, 350);
+}
+
+// 초기 로드
+(async function(){
+  await loadTanksJson();
+  await applyTankData(0);
+
+  // switchTank 오버라이드
+  document.getElementById('nav-prev')?.addEventListener('click', ()=>{
+    if(currentTankIdx > 0) {
+      const t = TANKS[currentTankIdx - 1];
+      if(!isTankUnlocked(t)){ showLockToast(t); return; }
+      switchTankWithData(currentTankIdx - 1);
+    }
+  }, true);
+  document.getElementById('nav-next')?.addEventListener('click', ()=>{
+    if(currentTankIdx < TANKS.length - 1) {
+      const t = TANKS[currentTankIdx + 1];
+      if(!isTankUnlocked(t)){ showLockToast(t); return; }
+      switchTankWithData(currentTankIdx + 1);
+    }
+  }, true);
+})();
+
 </script>
 </body>
 </html>
