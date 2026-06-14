@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AQUIVE — 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f0f4f8;
+  --bg2:#ffffff;
+  --bg3:#f5f7fa;
+  --border:rgba(0,80,180,0.1);
+  --border2:rgba(0,80,180,0.25);
+  --accent:rgba(20,90,200,0.9);
+  --accent-dim:rgba(40,100,220,0.6);
+  --text:rgba(20,40,80,0.9);
+  --text-dim:rgba(40,70,130,0.6);
+  --text-muted:rgba(80,110,160,0.5);
+  --red:rgba(200,40,40,0.8);
+  --green:rgba(20,150,80,0.9);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oxanium','Noto Sans KR',sans-serif}
+.login-box{box-shadow:0 4px 24px rgba(0,40,120,0.08)}
+
+/* ── 로그인 ── */
+#login-screen{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg);z-index:100;
+}
+.login-box{
+  width:340px;padding:40px;
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  text-align:center;
+}
+.login-box h1{
+  font-size:18px;font-weight:700;letter-spacing:.2em;
+  color:var(--accent);margin-bottom:6px;
+}
+.login-box p{font-size:11px;color:var(--text-muted);letter-spacing:.12em;margin-bottom:28px}
+.login-box input{
+  width:100%;padding:11px 14px;margin-bottom:12px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-size:13px;font-family:inherit;outline:none;
+  transition:border .2s;
+}
+.login-box input:focus{border-color:var(--border2)}
+.login-box input::placeholder{color:var(--text-muted)}
+.login-error{font-size:11px;color:var(--red);margin-bottom:10px;display:none}
+.btn-primary{
+  width:100%;padding:11px;border:none;border-radius:8px;
+  background:rgba(60,120,255,0.35);border:1px solid rgba(80,150,255,0.3);
+  color:var(--accent);font-size:12px;font-weight:600;letter-spacing:.14em;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.btn-primary:hover{background:rgba(60,120,255,0.55);border-color:rgba(100,170,255,0.5)}
+
+/* ── 레이아웃 ── */
+#app{display:none;height:100vh;flex-direction:column}
+#app.show{display:flex}
+
+/* ── 상단 헤더 ── */
+#header{
+  height:54px;flex-shrink:0;
+  background:var(--bg2);border-bottom:1px solid var(--border2);box-shadow:0 1px 4px rgba(0,40,120,0.06);
+  display:flex;align-items:center;padding:0 24px;gap:16px;
+}
+#header h1{font-size:13px;font-weight:700;letter-spacing:.22em;color:var(--accent)}
+#header .sep{color:var(--border2);font-size:18px}
+#header .subtitle{font-size:11px;color:var(--text-muted);letter-spacing:.14em}
+#header .spacer{flex:1}
+#save-status{font-size:11px;letter-spacing:.12em;color:var(--text-muted)}
+#logout-btn{
+  padding:6px 14px;border-radius:6px;font-size:11px;letter-spacing:.1em;
+  background:transparent;border:1px solid var(--border);color:var(--text-dim);
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+#logout-btn:hover{border-color:var(--border2);color:var(--text)}
+
+/* ── 메인 영역 ── */
+#main{display:flex;flex:1;overflow:hidden}
+
+/* ── 사이드바 (수조 목록) ── */
+#sidebar{
+  width:200px;flex-shrink:0;
+  background:var(--bg2);border-right:1px solid var(--border2);
+  overflow-y:auto;padding:16px 0;
+}
+.sidebar-label{
+  font-size:9px;letter-spacing:.2em;color:var(--text-muted);
+  padding:0 16px 8px;text-transform:uppercase;
+}
+.tank-item{
+  padding:10px 16px;cursor:pointer;
+  font-size:12px;font-weight:500;letter-spacing:.08em;
+  color:var(--text-dim);transition:all .15s;
+  border-left:2px solid transparent;
+  display:flex;align-items:center;gap:8px;
+}
+.tank-item:hover{color:var(--text);background:rgba(80,160,255,0.05)}
+.tank-item.active{
+  color:var(--accent);background:rgba(80,160,255,0.08);
+  border-left-color:var(--accent-dim);
+}
+.tank-item .lock-icon{font-size:10px;opacity:0.5}
+.tank-item .fish-count{
+  margin-left:auto;font-size:10px;
+  color:var(--text-muted);
+}
+
+/* ── 콘텐츠 영역 ── */
+#content{flex:1;overflow-y:auto;padding:24px}
+#content::-webkit-scrollbar{width:4px}
+#content::-webkit-scrollbar-track{background:transparent}
+#content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── 섹션 ── */
+.section{margin-bottom:28px}
+.section-title{
+  font-size:10px;font-weight:600;letter-spacing:.2em;
+  color:var(--text-muted);text-transform:uppercase;
+  margin-bottom:14px;padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── 배경 레이어 그리드 ── */
+.bg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bg-slot{
+  background:var(--bg3);border:1px dashed var(--border);
+  border-radius:8px;overflow:hidden;cursor:pointer;
+  position:relative;transition:border .2s;
+}
+.bg-slot:hover{border-color:var(--border2)}
+.bg-slot.loaded{border-style:solid;border-color:rgba(60,200,120,0.3)}
+.bg-slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.bg-slot-label{
+  font-size:9px;letter-spacing:.14em;color:var(--text-muted);
+  padding:8px 10px 4px;text-transform:uppercase;
+}
+.bg-slot-sub{font-size:8px;color:rgba(100,150,200,0.25);padding:0 10px 6px;line-height:1.4}
+.bg-slot-preview{
+  width:100%;height:60px;object-fit:cover;display:none;
+}
+.bg-slot-preview.show{display:block}
+.bg-slot-empty{
+  width:100%;height:60px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;opacity:0.25;
+}
+.bg-slot.loaded .bg-slot-empty{display:none}
+.bg-slot-del{
+  position:absolute;top:4px;right:4px;
+  width:18px;height:18px;border-radius:50%;
+  background:rgba(0,0,0,0.6);border:none;
+  color:rgba(255,100,100,0.7);font-size:11px;
+  cursor:pointer;display:none;align-items:center;justify-content:center;
+  line-height:1;
+}
+.bg-slot.loaded .bg-slot-del{display:flex}
+.bg-slot-del:hover{color:var(--red)}
+
+/* ── 물고기 등록 폼 ── */
+.fish-form{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:18px;margin-bottom:16px;
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row.full{grid-template-columns:1fr}
+.form-row.three{grid-template-columns:1fr 1fr 1fr}
+.form-group label{
+  display:block;font-size:9px;letter-spacing:.16em;
+  color:var(--text-muted);margin-bottom:5px;text-transform:uppercase;
+}
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width:100%;padding:8px 11px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-size:12px;font-family:inherit;outline:none;
+  transition:border .2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{border-color:var(--border2)}
+.form-group input::placeholder,
+.form-group textarea::placeholder{color:var(--text-muted)}
+.form-group select{cursor:pointer}
+.form-group textarea{resize:vertical;min-height:60px}
+
+/* ── 이미지 업로드 존 ── */
+.img-upload{
+  border:1px dashed var(--border);border-radius:8px;
+  padding:16px;text-align:center;cursor:pointer;
+  position:relative;transition:all .2s;background:var(--bg2);
+}
+.img-upload:hover{border-color:var(--border2)}
+.img-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.img-upload.has-img{border-style:solid;border-color:rgba(60,200,120,0.3)}
+.img-upload-icon{font-size:22px;margin-bottom:4px;opacity:0.4}
+.img-upload-text{font-size:11px;color:var(--text-muted);line-height:1.5}
+.img-preview{
+  width:100%;max-height:80px;object-fit:contain;
+  border-radius:4px;display:none;margin-top:8px;
+}
+.img-preview.show{display:block}
+
+.btn-add{
+  width:100%;padding:10px;border:none;border-radius:8px;margin-top:4px;
+  background:rgba(60,120,255,0.3);border:1px solid rgba(80,150,255,0.25);
+  color:var(--accent);font-size:11px;font-weight:600;letter-spacing:.14em;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.btn-add:hover{background:rgba(60,120,255,0.5)}
+.btn-add:disabled{opacity:0.3;cursor:default}
+
+/* ── 물고기 목록 ── */
+.fish-list{display:flex;flex-direction:column;gap:8px}
+.fish-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:12px 14px;
+  display:flex;align-items:center;gap:12px;
+}
+.fish-thumb{
+  width:64px;height:32px;object-fit:contain;
+  background:rgba(0,20,60,0.4);border-radius:4px;flex-shrink:0;
+}
+.fish-info{flex:1;min-width:0}
+.fish-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.fish-meta{font-size:10px;color:var(--text-muted);letter-spacing:.08em}
+.fish-del{
+  background:none;border:none;color:rgba(200,80,80,0.5);
+  font-size:18px;cursor:pointer;flex-shrink:0;padding:0 4px;
+  transition:color .2s;
+}
+.fish-del:hover{color:var(--red)}
+.empty-state{
+  text-align:center;padding:32px;
+  font-size:11px;color:var(--text-muted);letter-spacing:.12em;
+  border:1px dashed var(--border);border-radius:8px;
+}
+
+/* ── 토스트 ── */
+#toast{
+  position:fixed;bottom:28px;right:28px;
+  padding:12px 18px;border-radius:8px;
+  font-size:12px;letter-spacing:.1em;
+  background:var(--bg2);border:1px solid var(--border2);
+  color:var(--text);z-index:200;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .25s,transform .25s;
+  pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.success{border-color:rgba(60,200,120,0.4);color:var(--green)}
+#toast.error{border-color:rgba(255,80,80,0.3);color:var(--red)}
+
+/* ── 업로드 진행 ── */
+#upload-progress{
+  position:fixed;inset:0;z-index:150;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+}
+#upload-progress.show{display:flex}
+.progress-box{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:12px;padding:28px 36px;text-align:center;min-width:260px;
+}
+.progress-title{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:6px;letter-spacing:.1em}
+.progress-msg{font-size:11px;color:var(--text-muted);letter-spacing:.1em;margin-bottom:16px}
+.progress-bar-wrap{background:var(--bg3);border-radius:4px;height:4px;overflow:hidden}
+.progress-bar{height:100%;background:var(--accent-dim);border-radius:4px;transition:width .3s;width:0%}
+
+/* ── 설정 섹션 ── */
+.settings-box{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:18px;margin-bottom:12px;
+}
+.settings-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid var(--border);
+}
+.settings-row:last-child{border-bottom:none}
+.settings-key{font-size:11px;color:var(--text-dim);letter-spacing:.1em}
+.settings-val{
+  font-size:11px;color:var(--text-muted);letter-spacing:.08em;
+  font-family:'Courier New',monospace;
+}
+.settings-val.ok{color:var(--green)}
+.settings-val.err{color:var(--red)}
+.token-input-wrap{display:flex;gap:8px;margin-top:10px}
+.token-input-wrap input{
+  flex:1;padding:8px 11px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-size:12px;font-family:'Courier New',monospace;outline:none;
+}
+.btn-sm{
+  padding:8px 14px;border-radius:6px;font-size:11px;letter-spacing:.1em;
+  background:rgba(60,120,255,0.25);border:1px solid rgba(80,150,255,0.2);
+  color:var(--accent);cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;
+}
+.btn-sm:hover{background:rgba(60,120,255,0.45)}
+.btn-danger{
+  background:rgba(180,40,40,0.2);border-color:rgba(200,60,60,0.25);color:var(--red);
+}
+.btn-danger:hover{background:rgba(180,40,40,0.4)}
+</style>
+</head>
+<body>
+
+<!-- ── 로그인 ── -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>AQUIVE</h1>
+    <p>ADMIN PANEL · 관리자 전용</p>
+    <input type="password" id="pw-input" placeholder="비밀번호 입력" autocomplete="current-password">
+    <div class="login-error" id="login-error">비밀번호가 틀렸습니다</div>
+    <button class="btn-primary" id="login-btn">입장</button>
+  </div>
+</div>
+
+<!-- ── 앱 ── -->
+<div id="app">
+  <div id="header">
+    <h1>AQUIVE</h1>
+    <span class="sep">·</span>
+    <span class="subtitle">ADMIN PANEL</span>
+    <div class="spacer"></div>
+    <span id="save-status"></span>
+    <button id="logout-btn">로그아웃</button>
+  </div>
+
+  <div id="main">
+    <!-- 사이드바 -->
+    <div id="sidebar">
+      <div class="sidebar-label">수조 목록</div>
+      <div id="tank-list"></div>
+    </div>
+
+    <!-- 콘텐츠 -->
+    <div id="content">
+      <div id="page-tank" style="display:none">
+
+        <!-- 배경 레이어 -->
+        <div class="section">
+          <div class="section-title">배경 레이어</div>
+          <div class="bg-grid" id="bg-grid"></div>
+        </div>
+
+        <!-- 물고기 등록 -->
+        <div class="section">
+          <div class="section-title">물고기 등록</div>
+          <div class="fish-form">
+            <div class="form-row full" style="margin-bottom:12px">
+              <div class="form-group">
+                <label>이미지 (PNG 투명 배경)</label>
+                <div class="img-upload" id="fish-img-zone">
+                  <input type="file" id="fish-img-input" accept="image/png,image/webp">
+                  <div class="img-upload-icon">🐠</div>
+                  <div class="img-upload-text">클릭하거나 드래그<br>PNG 투명 배경 권장</div>
+                  <img class="img-preview" id="fish-img-preview" src="" alt="">
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>이름 (한국어)</label>
+                <input type="text" id="f-name" placeholder="예: 고래상어">
+              </div>
+              <div class="form-group">
+                <label>학명</label>
+                <input type="text" id="f-latin" placeholder="예: Rhincodon typus">
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>설명</label>
+                <textarea id="f-desc" placeholder="물고기 설명..."></textarea>
+              </div>
+            </div>
+            <div class="form-row three">
+              <div class="form-group">
+                <label>크기 티어</label>
+                <select id="f-tier">
+                  <option value="xl">XL — 초대형</option>
+                  <option value="lg">LG — 대형</option>
+                  <option value="sl">SL — 준대형</option>
+                  <option value="md" selected>MD — 중형</option>
+                  <option value="sm">SM — 소형</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>레이어</label>
+                <select id="f-layer">
+                  <option value="near">Near — 근경</option>
+                  <option value="mid" selected>Mid — 중경</option>
+                  <option value="far">Far — 원경</option>
+                  <option value="bot">Bot — 바닥</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>마릿수</label>
+                <input type="number" id="f-count" value="1" min="1" max="30">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>수심</label>
+                <input type="text" id="f-dep" placeholder="예: 수심 0–200m">
+              </div>
+              <div class="form-group">
+                <label>유영 속도</label>
+                <select id="f-speed">
+                  <option value="0.12">매우 느림</option>
+                  <option value="0.3">느림</option>
+                  <option value="0.55" selected>보통</option>
+                  <option value="0.8">빠름</option>
+                  <option value="1.2">매우 빠름</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn-add" id="fish-add-btn">+ 이 수조에 물고기 추가</button>
+          </div>
+        </div>
+
+        <!-- 물고기 목록 -->
+        <div class="section">
+          <div class="section-title">등록된 물고기 <span id="fish-count-label" style="color:var(--text-muted);font-weight:400"></span></div>
+          <div class="fish-list" id="fish-list"></div>
+        </div>
+
+      </div>
+
+      <!-- 설정 페이지 -->
+      <div id="page-settings" style="display:none">
+        <div class="section">
+          <div class="section-title">GitHub 연동 설정</div>
+          <div class="settings-box">
+            <div class="settings-row">
+              <span class="settings-key">GitHub 사용자명</span>
+              <span class="settings-val" id="st-user">—</span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-key">레포지토리</span>
+              <span class="settings-val" id="st-repo">—</span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-key">연결 상태</span>
+              <span class="settings-val" id="st-status">확인 중...</span>
+            </div>
+          </div>
+
+          <div class="settings-box">
+            <div class="settings-row" style="border:none;padding-bottom:0">
+              <span class="settings-key">GitHub Personal Access Token</span>
+            </div>
+            <div class="token-input-wrap">
+              <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx">
+              <button class="btn-sm" id="token-save-btn">저장</button>
+              <button class="btn-sm" id="token-test-btn">연결 테스트</button>
+            </div>
+          </div>
+
+          <div class="settings-box">
+            <div class="settings-row" style="border:none;padding-bottom:0">
+              <span class="settings-key">GitHub 사용자명 / 레포 이름</span>
+            </div>
+            <div class="token-input-wrap" style="margin-top:10px">
+              <input type="text" id="gh-user-input" placeholder="사용자명 (예: norang1225)" style="font-family:inherit">
+              <input type="text" id="gh-repo-input" placeholder="레포명 (예: aquive)" style="font-family:inherit">
+              <button class="btn-sm" id="gh-save-btn">저장</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">관리자 비밀번호 변경</div>
+          <div class="settings-box">
+            <div class="token-input-wrap">
+              <input type="password" id="new-pw-input" placeholder="새 비밀번호">
+              <button class="btn-sm" id="pw-change-btn">변경</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 업로드 진행 -->
+<div id="upload-progress">
+  <div class="progress-box">
+    <div class="progress-title">GitHub에 업로드 중</div>
+    <div class="progress-msg" id="progress-msg">이미지 변환 중...</div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  설정
+// ══════════════════════════════════════════
+const ADMIN_PW_KEY  = 'aquive_admin_pw';
+const TOKEN_KEY     = 'aquive_gh_token';
+const GH_USER_KEY   = 'aquive_gh_user';
+const GH_REPO_KEY   = 'aquive_gh_repo';
+const DATA_KEY      = 'aquive_tank_data';
+
+const DEFAULT_PW    = 'aquive2024';
+
+const TANKS = [
+  {id:0,  name:'대수조',     nameEn:'GRAND OCEAN TANK',   unlock:0},
+  {id:1,  name:'연안 수조',  nameEn:'COASTAL TANK',       unlock:-50},
+  {id:2,  name:'산호초관',   nameEn:'CORAL REEF',         unlock:-100},
+  {id:3,  name:'열대어관',   nameEn:'TROPICAL FISH',      unlock:-250},
+  {id:4,  name:'대형어관',   nameEn:'OCEAN GIANTS',       unlock:-500},
+  {id:5,  name:'가오리관',   nameEn:'STINGRAY BAY',       unlock:-700},
+  {id:6,  name:'극지어관',   nameEn:'POLAR ZONE',         unlock:-1000},
+  {id:7,  name:'심해어관',   nameEn:'DEEP SEA',           unlock:-1200},
+  {id:8,  name:'두족류관',   nameEn:'CEPHALOPOD ZONE',    unlock:-1500},
+  {id:9,  name:'해파리관',   nameEn:'JELLYFISH HALL',     unlock:-2000},
+  {id:10, name:'발광생물관', nameEn:'BIOLUMINESCENCE',    unlock:-3000},
+  {id:11, name:'해구관',     nameEn:'HADAL ZONE',         unlock:-4000},
+  {id:12, name:'멸종 보관소',nameEn:'EXTINCTION ARCHIVE', unlock:-4000},
+];
+
+const BG_SLOTS = [
+  {key:'base',    label:'BASE',       sub:'배경 기본색',      emoji:'🎨'},
+  {key:'caustic', label:'CAUSTIC',    sub:'수면 빛 줄기',     emoji:'✨'},
+  {key:'volume',  label:'VOLUMETRIC', sub:'수중 빛 산란',     emoji:'🌫'},
+  {key:'midobj',  label:'MID OBJ',    sub:'중경 바위·산호',   emoji:'🪸'},
+  {key:'floor',   label:'FLOOR BASE', sub:'바닥 모래',        emoji:'🏖'},
+  {key:'floorobj',label:'FLOOR OBJ',  sub:'바닥 산호·해초',   emoji:'🌿'},
+  {key:'shimmer', label:'SHIMMER',    sub:'유리 반사광',      emoji:'💧'},
+  {key:'frame',   label:'FRAME',      sub:'수조 프레임',      emoji:'🖼'},
+];
+
+// ══════════════════════════════════════════
+//  상태
+// ══════════════════════════════════════════
+let currentTankId = 0;
+let tankData = {};      // { tankId: { fish:[], bg:{} } }
+let pendingFishImg = null;
+
+// ══════════════════════════════════════════
+//  localStorage 헬퍼
+// ══════════════════════════════════════════
+function getToken(){ return localStorage.getItem(TOKEN_KEY)||''; }
+function getGhUser(){ return localStorage.getItem(GH_USER_KEY)||''; }
+function getGhRepo(){ return localStorage.getItem(GH_REPO_KEY)||''; }
+function loadData(){
+  try{ return JSON.parse(localStorage.getItem(DATA_KEY)||'{}'); }
+  catch(e){ return {}; }
+}
+function saveData(){
+  try{ localStorage.setItem(DATA_KEY, JSON.stringify(tankData)); }
+  catch(e){ showToast('로컬 저장 용량 초과. 이미지 크기를 줄여보세요.','error'); }
+}
+function getTankData(id){
+  if(!tankData[id]) tankData[id] = {fish:[], bg:{}};
+  return tankData[id];
+}
+
+// ══════════════════════════════════════════
+//  로그인
+// ══════════════════════════════════════════
+document.getElementById('login-btn').addEventListener('click', tryLogin);
+document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') tryLogin(); });
+
+function tryLogin(){
+  const pw = document.getElementById('pw-input').value;
+  const stored = localStorage.getItem(ADMIN_PW_KEY) || DEFAULT_PW;
+  if(pw === stored){
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').classList.add('show');
+    init();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+document.getElementById('logout-btn').addEventListener('click', ()=>{
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pw-input').value = '';
+});
+
+// ══════════════════════════════════════════
+//  초기화
+// ══════════════════════════════════════════
+function init(){
+  tankData = loadData();
+  buildSidebar();
+  selectTank(0);
+  loadSettings();
+}
+
+// ══════════════════════════════════════════
+//  사이드바
+// ══════════════════════════════════════════
+function buildSidebar(){
+  const list = document.getElementById('tank-list');
+  list.innerHTML = '';
+
+  TANKS.forEach(tank => {
+    const d = getTankData(tank.id);
+    const count = d.fish.length;
+    const el = document.createElement('div');
+    el.className = 'tank-item' + (tank.id === currentTankId ? ' active' : '');
+    el.dataset.id = tank.id;
+    el.innerHTML = `
+      <span>${tank.name}</span>
+      ${count > 0 ? `<span class="fish-count">${count}</span>` : ''}
+    `;
+    el.addEventListener('click', () => selectTank(tank.id));
+    list.appendChild(el);
+  });
+
+  // 설정 항목
+  const sep = document.createElement('div');
+  sep.style.cssText = 'height:1px;background:rgba(80,160,255,0.08);margin:12px 0';
+  list.appendChild(sep);
+
+  const settingsItem = document.createElement('div');
+  settingsItem.className = 'tank-item';
+  settingsItem.innerHTML = '<span>⚙ 설정</span>';
+  settingsItem.addEventListener('click', () => openSettings());
+  list.appendChild(settingsItem);
+}
+
+function selectTank(id){
+  currentTankId = id;
+  document.querySelectorAll('.tank-item').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.id) === id);
+  });
+  document.getElementById('page-tank').style.display = 'block';
+  document.getElementById('page-settings').style.display = 'none';
+  renderBgSlots();
+  renderFishList();
+  resetFishForm();
+}
+
+function openSettings(){
+  document.querySelectorAll('.tank-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-tank').style.display = 'none';
+  document.getElementById('page-settings').style.display = 'block';
+  loadSettings();
+}
+
+// ══════════════════════════════════════════
+//  배경 슬롯
+// ══════════════════════════════════════════
+function renderBgSlots(){
+  const grid = document.getElementById('bg-grid');
+  grid.innerHTML = '';
+  const d = getTankData(currentTankId);
+
+  BG_SLOTS.forEach(slot => {
+    const src = d.bg[slot.key] || null;
+    const el = document.createElement('div');
+    el.className = 'bg-slot' + (src ? ' loaded' : '');
+    el.innerHTML = `
+      <input type="file" accept="image/*" data-slot="${slot.key}">
+      <div class="bg-slot-label">${slot.label}</div>
+      <div class="bg-slot-sub">${slot.sub}</div>
+      <div class="bg-slot-empty">${slot.emoji}</div>
+      <img class="bg-slot-preview ${src?'show':''}" src="${src||''}" alt="">
+      <button class="bg-slot-del" data-slot="${slot.key}">×</button>
+    `;
+    // 파일 업로드
+    el.querySelector('input').addEventListener('change', e => {
+      const file = e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const b64 = ev.target.result;
+        d.bg[slot.key] = b64;
+        saveData();
+        uploadBgToGithub(slot.key, b64, file.name);
+        renderBgSlots();
+      };
+      reader.readAsDataURL(file);
+    });
+    // 삭제
+    el.querySelector('.bg-slot-del').addEventListener('click', e => {
+      e.stopPropagation();
+      delete d.bg[slot.key];
+      saveData();
+      renderBgSlots();
+    });
+    grid.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════════
+//  물고기 폼
+// ══════════════════════════════════════════
+const fishImgInput = document.getElementById('fish-img-input');
+const fishImgZone  = document.getElementById('fish-img-zone');
+const fishImgPrev  = document.getElementById('fish-img-preview');
+
+fishImgInput.addEventListener('change', e => {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingFishImg = {src: ev.target.result, name: file.name};
+    fishImgPrev.src = ev.target.result;
+    fishImgPrev.classList.add('show');
+    fishImgZone.classList.add('has-img');
+    fishImgZone.querySelector('.img-upload-text').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+});
+
+// 드래그앤드롭
+fishImgZone.addEventListener('dragover', e => { e.preventDefault(); fishImgZone.style.borderColor='rgba(100,180,255,0.5)'; });
+fishImgZone.addEventListener('dragleave', () => { fishImgZone.style.borderColor=''; });
+fishImgZone.addEventListener('drop', e => {
+  e.preventDefault(); fishImgZone.style.borderColor='';
+  const file = e.dataTransfer.files[0]; if(!file) return;
+  const dt = new DataTransfer(); dt.items.add(file);
+  fishImgInput.files = dt.files;
+  fishImgInput.dispatchEvent(new Event('change'));
+});
+
+document.getElementById('fish-add-btn').addEventListener('click', addFish);
+
+function addFish(){
+  if(!pendingFishImg){ showToast('이미지를 먼저 업로드해주세요.','error'); return; }
+  const name  = document.getElementById('f-name').value.trim() || '이름 없음';
+  const latin = document.getElementById('f-latin').value.trim();
+  const desc  = document.getElementById('f-desc').value.trim();
+  const dep   = document.getElementById('f-dep').value.trim();
+  const tier  = document.getElementById('f-tier').value;
+  const layer = document.getElementById('f-layer').value;
+  const count = parseInt(document.getElementById('f-count').value) || 1;
+  const speed = parseFloat(document.getElementById('f-speed').value) || 0.55;
+
+  const img = new Image();
+  img.onload = () => {
+    const fish = {
+      id: Date.now(),
+      name, latin, desc, dep, tier, layer, count, speed,
+      src: pendingFishImg.src,
+      imgW: img.naturalWidth,
+      imgH: img.naturalHeight,
+      fileName: pendingFishImg.name,
+    };
+    const d = getTankData(currentTankId);
+    d.fish.push(fish);
+    saveData();
+    uploadFishToGithub(fish);
+    renderFishList();
+    buildSidebar();
+    resetFishForm();
+    showToast(`${name} 등록 완료`, 'success');
+  };
+  img.src = pendingFishImg.src;
+}
+
+function resetFishForm(){
+  pendingFishImg = null;
+  fishImgInput.value = '';
+  fishImgPrev.src = ''; fishImgPrev.classList.remove('show');
+  fishImgZone.classList.remove('has-img');
+  fishImgZone.querySelector('.img-upload-text').textContent = '클릭하거나 드래그\nPNG 투명 배경 권장';
+  ['f-name','f-latin','f-desc','f-dep'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-tier').value = 'md';
+  document.getElementById('f-layer').value = 'mid';
+  document.getElementById('f-count').value = '1';
+  document.getElementById('f-speed').value = '0.55';
+}
+
+// ══════════════════════════════════════════
+//  물고기 목록
+// ══════════════════════════════════════════
+function renderFishList(){
+  const list  = document.getElementById('fish-list');
+  const label = document.getElementById('fish-count-label');
+  const d = getTankData(currentTankId);
+  label.textContent = d.fish.length > 0 ? `(${d.fish.length}종)` : '';
+
+  if(!d.fish.length){
+    list.innerHTML = '<div class="empty-state">아직 등록된 물고기가 없습니다</div>';
+    return;
+  }
+  list.innerHTML = d.fish.map(f => `
+    <div class="fish-card">
+      <img class="fish-thumb" src="${f.src}" alt="${f.name}">
+      <div class="fish-info">
+        <div class="fish-name">${f.name}</div>
+        <div class="fish-meta">${f.tier.toUpperCase()} · ${f.layer} · ×${f.count} · ${f.latin||'—'}</div>
+      </div>
+      <button class="fish-del" data-id="${f.id}">×</button>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.fish-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.dataset.id);
+      const d2 = getTankData(currentTankId);
+      d2.fish = d2.fish.filter(f => f.id !== id);
+      saveData();
+      renderFishList();
+      buildSidebar();
+    });
+  });
+}
+
+// ══════════════════════════════════════════
+//  GitHub API 업로드
+// ══════════════════════════════════════════
+async function uploadToGithub(path, content, message){
+  const token = getToken();
+  const user  = getGhUser();
+  const repo  = getGhRepo();
+  if(!token || !user || !repo){
+    showToast('설정에서 GitHub 토큰과 사용자명을 먼저 입력해주세요.', 'error');
+    return false;
+  }
+
+  // 기존 파일 SHA 확인 (업데이트 시 필요)
+  let sha = null;
+  try{
+    const check = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`,{
+      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
+    });
+    if(check.ok){ const j = await check.json(); sha = j.sha; }
+  } catch(e){}
+
+  const body = { message, content };
+  if(sha) body.sha = sha;
+
+  const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`,{
+    method:'PUT',
+    headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
+  return res.ok;
+}
+
+async function uploadFishToGithub(fish){
+  const user = getGhUser(); const repo = getGhRepo(); const token = getToken();
+  if(!token||!user||!repo) return;
+
+  showProgress('이미지 업로드 중...', 30);
+  const b64 = fish.src.split(',')[1];
+  const ext  = fish.fileName.split('.').pop();
+  const path = `images/fish/tank${currentTankId}_${fish.id}.${ext}`;
+
+  const ok1 = await uploadToGithub(path, b64, `Add fish: ${fish.name}`);
+  setProgress(60);
+
+  // tanks.json 업데이트
+  await updateTanksJson();
+  setProgress(100);
+  hideProgress();
+
+  if(ok1) showToast('GitHub에 업로드 완료 ✓', 'success');
+  else showToast('이미지 업로드 실패. 토큰을 확인해주세요.', 'error');
+}
+
+async function uploadBgToGithub(slotKey, b64src, fileName){
+  const user = getGhUser(); const repo = getGhRepo(); const token = getToken();
+  if(!token||!user||!repo) return;
+
+  showProgress('배경 이미지 업로드 중...', 20);
+  const b64  = b64src.split(',')[1];
+  const ext  = fileName.split('.').pop();
+  const path = `images/bg/tank${currentTankId}_${slotKey}.${ext}`;
+
+  const ok = await uploadToGithub(path, b64, `Add bg: tank${currentTankId} ${slotKey}`);
+  setProgress(70);
+  await updateTanksJson();
+  setProgress(100);
+  hideProgress();
+
+  if(ok) showToast('배경 업로드 완료 ✓', 'success');
+  else showToast('배경 업로드 실패.', 'error');
+}
+
+async function updateTanksJson(){
+  const user = getGhUser(); const repo = getGhRepo();
+  // 이미지 src(base64) 제외하고 메타만 저장
+  const export_data = {};
+  TANKS.forEach(tank => {
+    const d = getTankData(tank.id);
+    export_data[tank.id] = {
+      fish: d.fish.map(f => ({
+        id: f.id, name: f.name, latin: f.latin, desc: f.desc,
+        dep: f.dep, tier: f.tier, layer: f.layer,
+        count: f.count, speed: f.speed,
+        imgW: f.imgW, imgH: f.imgH,
+        src: `https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/tank${Object.keys(export_data).length > 0 ? '' : ''}`
+      })),
+      bg: {}
+    };
+  });
+
+  // 실제로는 경로만 저장
+  const clean = {};
+  TANKS.forEach(tank => {
+    const d = getTankData(tank.id);
+    clean[tank.id] = {
+      fish: d.fish.map(f => {
+        const ext = f.fileName?.split('.').pop() || 'png';
+        return {
+          id:f.id, name:f.name, latin:f.latin, desc:f.desc,
+          dep:f.dep, tier:f.tier, layer:f.layer,
+          count:f.count, speed:f.speed, imgW:f.imgW, imgH:f.imgH,
+          src:`https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/tank${tank.id}_${f.id}.${ext}`
+        };
+      }),
+      bg: Object.fromEntries(
+        Object.entries(d.bg).map(([k]) => {
+          return [k, `https://raw.githubusercontent.com/${user}/${repo}/main/images/bg/tank${tank.id}_${k}.png`];
+        })
+      )
+    };
+  });
+
+  const json = JSON.stringify({tanks: clean}, null, 2);
+  const b64  = btoa(unescape(encodeURIComponent(json)));
+  await uploadToGithub('data/tanks.json', b64, 'Update tanks.json');
+}
+
+// ══════════════════════════════════════════
+//  설정
+// ══════════════════════════════════════════
+function loadSettings(){
+  const token = getToken();
+  const user  = getGhUser();
+  const repo  = getGhRepo();
+  if(document.getElementById('token-input'))
+    document.getElementById('token-input').value = token ? '••••••••••••••••' : '';
+  if(document.getElementById('gh-user-input'))
+    document.getElementById('gh-user-input').value = user;
+  if(document.getElementById('gh-repo-input'))
+    document.getElementById('gh-repo-input').value = repo;
+  if(document.getElementById('st-user'))
+    document.getElementById('st-user').textContent = user || '—';
+  if(document.getElementById('st-repo'))
+    document.getElementById('st-repo').textContent = repo || '—';
+}
+
+document.getElementById('token-save-btn')?.addEventListener('click', () => {
+  const val = document.getElementById('token-input').value.trim();
+  if(val && !val.startsWith('•')){
+    localStorage.setItem(TOKEN_KEY, val);
+    showToast('토큰 저장 완료', 'success');
+  }
+});
+
+document.getElementById('token-test-btn')?.addEventListener('click', async () => {
+  const token = getToken();
+  const user  = getGhUser();
+  const repo  = getGhRepo();
+  const stEl  = document.getElementById('st-status');
+  if(!token||!user||!repo){ showToast('토큰, 사용자명, 레포명을 모두 입력해주세요.','error'); return; }
+  stEl.textContent = '확인 중...'; stEl.className = 'settings-val';
+  try{
+    const res = await fetch(`https://api.github.com/repos/${user}/${repo}`,{
+      headers:{ Authorization:`token ${token}` }
+    });
+    if(res.ok){
+      stEl.textContent = '연결됨 ✓'; stEl.className = 'settings-val ok';
+      showToast('GitHub 연결 성공! ✓', 'success');
+    } else {
+      stEl.textContent = '연결 실패'; stEl.className = 'settings-val err';
+      showToast('연결 실패. 토큰과 레포명을 확인해주세요.', 'error');
+    }
+  } catch(e){
+    stEl.textContent = '오류'; stEl.className = 'settings-val err';
+  }
+});
+
+document.getElementById('gh-save-btn')?.addEventListener('click', () => {
+  const user = document.getElementById('gh-user-input').value.trim();
+  const repo = document.getElementById('gh-repo-input').value.trim();
+  if(user) localStorage.setItem(GH_USER_KEY, user);
+  if(repo) localStorage.setItem(GH_REPO_KEY, repo);
+  loadSettings();
+  showToast('저장 완료', 'success');
+});
+
+document.getElementById('pw-change-btn')?.addEventListener('click', () => {
+  const pw = document.getElementById('new-pw-input').value.trim();
+  if(!pw){ showToast('비밀번호를 입력해주세요.', 'error'); return; }
+  localStorage.setItem(ADMIN_PW_KEY, pw);
+  document.getElementById('new-pw-input').value = '';
+  showToast('비밀번호 변경 완료', 'success');
+});
+
+// ══════════════════════════════════════════
+//  UI 헬퍼
+// ══════════════════════════════════════════
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className = '', 3000);
+}
+
+function showProgress(msg, pct){
+  document.getElementById('upload-progress').classList.add('show');
+  document.getElementById('progress-msg').textContent = msg;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+function setProgress(pct){
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+function hideProgress(){
+  setTimeout(() => {
+    document.getElementById('upload-progress').classList.remove('show');
+    document.getElementById('progress-bar').style.width = '0%';
+  }, 600);
+}
+</script>
+</body>
+</html>
