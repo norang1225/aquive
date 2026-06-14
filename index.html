@@ -587,8 +587,10 @@ loop();
 // ══════════════════════════════════════════
 const GH_USER_KEY = 'aquive_gh_user';
 const GH_REPO_KEY = 'aquive_gh_repo';
-function getGhUser(){ return localStorage.getItem(GH_USER_KEY)||''; }
-function getGhRepo(){ return localStorage.getItem(GH_REPO_KEY)||''; }
+const GH_USER_FIXED = 'norang1225';  // GitHub 사용자명
+const GH_REPO_FIXED = 'aquive';      // 레포 이름
+function getGhUser(){ return localStorage.getItem(GH_USER_KEY)||GH_USER_FIXED; }
+function getGhRepo(){ return localStorage.getItem(GH_REPO_KEY)||GH_REPO_FIXED; }
 
 let remoteData = null;
 
