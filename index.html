@@ -585,12 +585,13 @@ loop();
 // ══════════════════════════════════════════
 //  GitHub tanks.json 연동
 // ══════════════════════════════════════════
+// GitHub 설정 — 항상 이 값으로 고정
 const GH_USER_KEY = 'aquive_gh_user';
 const GH_REPO_KEY = 'aquive_gh_repo';
-const GH_USER_FIXED = 'norang1225';  // GitHub 사용자명
-const GH_REPO_FIXED = 'aquive';      // 레포 이름
-function getGhUser(){ return localStorage.getItem(GH_USER_KEY)||GH_USER_FIXED; }
-function getGhRepo(){ return localStorage.getItem(GH_REPO_KEY)||GH_REPO_FIXED; }
+localStorage.setItem(GH_USER_KEY, 'norang1225');
+localStorage.setItem(GH_REPO_KEY, 'aquive');
+function getGhUser(){ return 'norang1225'; }
+function getGhRepo(){ return 'aquive'; }
 
 let remoteData = null;
 
