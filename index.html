@@ -608,7 +608,21 @@ async function loadTanksJson(){
   } catch(e){ return null; }
 }
 
+
+function fixImageUrl(url){
+  if(!url) return url;
+  if(url.includes('cdn.jsdelivr.net')) return url;
+  if(url.includes('raw.githubusercontent.com')){
+    // https://raw.githubusercontent.com/USER/REPO/main/... → jsdelivr
+    return url
+      .replace('https://raw.githubusercontent.com/', 'https://cdn.jsdelivr.net/gh/')
+      .replace('/main/', '@main/');
+  }
+  return url;
+}
+
 function applyBgFromData(bg){
+  console.log('[AQUIVE] applyBgFromData:', JSON.stringify(bg));
   const MAP = {
     'base':     {el:'layer-bg-base',    def:'default-bg'},
     'caustic':  {el:'layer-bg-caustic', def:'default-caustic'},
@@ -622,7 +636,7 @@ function applyBgFromData(bg){
   Object.entries(MAP).forEach(([key, map])=>{
     const el = document.getElementById(map.el);
     if(!el) return;
-    const src = bg ? bg[key] : null;
+    const src = fixImageUrl(bg ? bg[key] : null);
     if(src){
       el.src = src;
       el.style.display = 'block';
@@ -636,8 +650,10 @@ function applyBgFromData(bg){
 }
 
 function applyFishFromData(fishArr){
+  console.log('[AQUIVE] applyFishFromData:', fishArr?.length, fishArr?.[0]?.src);
   FISH.length = 0;
   if(!fishArr || !fishArr.length) return;
+  fishArr = fishArr.map(f => ({...f, src: fixImageUrl(f.src)}));
   fishArr.forEach(fd => { FISH.push(...buildInstance(fd)); });
   const layerOrder = {far:0, bot:1, mid:2, near:3};
   FISH.sort((a,b) => (layerOrder[a.fd.layer]||2)-(layerOrder[b.fd.layer]||2));
