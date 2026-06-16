@@ -872,7 +872,14 @@ async function uploadBgToGithub(slotKey, b64src, fileName){
   showProgress('배경 이미지 업로드 중...', 20);
   const b64  = b64src.split(',')[1];
   const ext  = fileName.split('.').pop();
-  const path = `images/bg/tank${currentTankId}_${slotKey}.${ext}`;
+  const ghFileName = `tank${currentTankId}_${slotKey}.${ext}`;
+  const path = `images/bg/${ghFileName}`;
+
+  // 실제 파일명 저장 (확장자 보존)
+  const d = getTankData(currentTankId);
+  if(!d.bgFileNames) d.bgFileNames = {};
+  d.bgFileNames[slotKey] = ghFileName;
+  saveData();
 
   const ok = await uploadToGithub(path, b64, `Add bg: tank${currentTankId} ${slotKey}`);
   setProgress(70);
@@ -886,39 +893,25 @@ async function uploadBgToGithub(slotKey, b64src, fileName){
 
 async function updateTanksJson(){
   const user = getGhUser(); const repo = getGhRepo();
-  // 이미지 src(base64) 제외하고 메타만 저장
-  const export_data = {};
-  TANKS.forEach(tank => {
-    const d = getTankData(tank.id);
-    export_data[tank.id] = {
-      fish: d.fish.map(f => ({
-        id: f.id, name: f.name, latin: f.latin, desc: f.desc,
-        dep: f.dep, tier: f.tier, layer: f.layer,
-        count: f.count, speed: f.speed,
-        imgW: f.imgW, imgH: f.imgH,
-        src: `https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/tank${Object.keys(export_data).length > 0 ? '' : ''}`
-      })),
-      bg: {}
-    };
-  });
-
-  // 실제로는 경로만 저장
   const clean = {};
   TANKS.forEach(tank => {
     const d = getTankData(tank.id);
     clean[tank.id] = {
       fish: d.fish.map(f => {
         const ext = f.fileName?.split('.').pop() || 'png';
+        const fileName = `tank${tank.id}_${f.id}.${ext}`;
         return {
           id:f.id, name:f.name, latin:f.latin, desc:f.desc,
           dep:f.dep, tier:f.tier, layer:f.layer,
           count:f.count, speed:f.speed, imgW:f.imgW, imgH:f.imgH,
-          src:`https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/tank${tank.id}_${f.id}.${ext}`
+          src:`https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/fish/${fileName}`
         };
       }),
       bg: Object.fromEntries(
-        Object.entries(d.bg).map(([k]) => {
-          return [k, `https://raw.githubusercontent.com/${user}/${repo}/main/images/bg/tank${tank.id}_${k}.png`];
+        Object.entries(d.bg).map(([k, v]) => {
+          // v는 base64 src — fileName은 bgFileNames에서 가져옴
+          const fileName = d.bgFileNames?.[k] || `tank${tank.id}_${k}.png`;
+          return [k, `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/bg/${fileName}`];
         })
       )
     };
