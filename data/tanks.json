@@ -2,7 +2,9 @@
   "tanks": {
     "0": {
       "fish": [],
-      "bg": {}
+      "bg": {
+        "base": "https://cdn.jsdelivr.net/gh/norang1225/aquive@main/images/bg/tank0_base.jpg"
+      }
     },
     "1": {
       "fish": [],
