@@ -1,22 +1,7 @@
 {
   "tanks": {
     "0": {
-      "fish": [
-        {
-          "id": 1781716732962,
-          "name": "이름 없음",
-          "latin": "",
-          "desc": "",
-          "dep": "",
-          "tier": "md",
-          "layer": "mid",
-          "count": 1,
-          "speed": 0.55,
-          "imgW": 1440,
-          "imgH": 900,
-          "src": "https://cdn.jsdelivr.net/gh/norang1225/aquive@main/images/fish/tank0_1781716732962.png"
-        }
-      ],
+      "fish": [],
       "bg": {
         "base": "https://cdn.jsdelivr.net/gh/norang1225/aquive@main/images/bg/tank0_base.jpg"
       }
