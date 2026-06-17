@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>AQUIVE — Grand Ocean Tank</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Oxanium:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#042840}
+body{font-family:'Raleway',sans-serif;user-select:none}
+
+#wrap{width:100vw;height:100vh;position:relative;overflow:hidden}
+
+/* ── 배경 레이어 ── */
+#layer-bg-base    {position:absolute;inset:0;z-index:1}
+#layer-bg-caustic {position:absolute;inset:0;z-index:3;mix-blend-mode:screen;pointer-events:none;animation:caustic-sway 5s ease-in-out infinite alternate}
+#layer-bg-volume  {position:absolute;inset:0;z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
+#layer-mid-obj    {position:absolute;inset:0;z-index:8;pointer-events:none}
+#layer-floor-base {position:absolute;bottom:0;left:0;right:0;z-index:25;pointer-events:none}
+#layer-floor-obj  {position:absolute;bottom:0;left:0;right:0;z-index:28;pointer-events:none}
+
+@keyframes caustic-sway{
+  from{transform:skewX(-2.5deg) scaleX(0.96) translateX(-8px);opacity:0.75}
+  to  {transform:skewX(2.5deg)  scaleX(1.04) translateX(8px); opacity:1}
+}
+
+/* ── 수면 반사 shimmer 이미지 레이어 ── */
+#layer-shimmer-img{
+  position:absolute;inset:0;z-index:50;pointer-events:none;
+  width:100%;height:100%;object-fit:cover;
+  display:none;
+  animation:shimmer-breathe 5s ease-in-out infinite alternate;
+}
+@keyframes shimmer-breathe{
+  from{ opacity:0.3; }
+  to  { opacity:0.7; }
+}
+  to  { opacity:0.7; }
+}
+  30%  { opacity:0.72; }
+  60%  { opacity:0.88; }
+  100% { opacity:0.5; }
+}
+
+
+
+/* ── 프레임 이미지 레이어 ── */
+#layer-frame-img{
+  position:absolute;inset:0;z-index:55;pointer-events:none;
+  width:100%;height:100%;object-fit:cover;
+  display:none;
+}
+/* ── 기본 그라디언트 배경 (PNG 없을 때) ── */
+#default-bg{
+  position:absolute;inset:0;z-index:0;
+  background:linear-gradient(180deg,
+    #2ab8f0 0%,#18a0e0 10%,#1080c8 28%,
+    #0c60a0 55%,#084878 80%,#042840 100%
+  );
+}
+/* 기본 수광 */
+#default-caustic{
+  position:absolute;inset:0;z-index:0;
+  background:radial-gradient(ellipse 70% 55% at 50% -5%,rgba(200,245,255,0.3) 0%,transparent 100%);
+  pointer-events:none;
+}
+
+/* ── 캔버스 ── */
+#cvs-far{position:absolute;inset:0;z-index:10}
+#cvs-mid{position:absolute;inset:0;z-index:20}
+#cvs-fg {position:absolute;inset:0;z-index:30}
+
+/* ── 수면 ── */
+#surface-overlay{
+  position:absolute;top:0;left:0;right:0;height:22%;
+  z-index:35;pointer-events:none;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(160,235,255,0.2) 0%,transparent 100%);
+}
+
+/* ── 기포 ── */
+#bubbles1{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:hidden}
+#bubbles2{position:absolute;inset:0;z-index:38;pointer-events:none;overflow:hidden}
+.bub1,.bub2{
+  position:absolute;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.2) 0%,rgba(200,240,255,0.06) 55%,transparent 100%);
+}
+
+/* ── 수류 캔버스 ── */
+
+/* ── 팝업 ── */
+#popup{
+  position:fixed;z-index:200;
+  background:rgba(0,15,45,0.9);
+  border:1px solid rgba(120,210,255,0.2);
+  border-radius:12px;padding:18px 22px;max-width:250px;
+  color:#c0e8ff;pointer-events:none;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .25s,transform .25s;
+  backdrop-filter:blur(14px);
+  box-shadow:0 8px 40px rgba(0,50,140,0.35);
+}
+#popup.on{opacity:1;transform:translateY(0)}
+#popup h3{font-family:'Cinzel',serif;font-size:14px;color:#e8f8ff;margin-bottom:3px;letter-spacing:.07em}
+#popup .lat{font-size:11px;color:rgba(150,215,255,0.5);font-style:italic;margin-bottom:10px}
+#popup p{font-size:12px;color:rgba(180,230,255,0.75);line-height:1.65}
+#popup .badge{display:inline-block;margin-top:10px;font-size:10px;padding:2px 10px;border:1px solid rgba(120,210,255,0.2);border-radius:20px;color:rgba(140,215,255,0.6)}
+
+/* ── UI 라벨 ── */
+#ui-tl{position:fixed;top:26px;left:34px;z-index:90;line-height:1;font-family:'Oxanium','Noto Sans KR',sans-serif}
+#ui-tank-name{
+  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(230,245,255,0.8);
+  margin-bottom:9px;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:'tnum' 1;
+  text-shadow:
+    -0.5px -0.5px 2px rgba(255,255,255,0.5),
+     0.5px  0.5px 2px rgba(0,10,35,0.85);
+}
+#ui-depth-wrap{display:flex;align-items:baseline;gap:4px}
+#ui-depth{
+  font-family:'Oxanium',sans-serif;font-size:32px;font-weight:700;
+  letter-spacing:.02em;
+  color:rgba(230,245,255,0.85);
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:'tnum' 1;
+  text-shadow:
+    -0.5px -0.5px 2px rgba(255,255,255,0.5),
+     0.5px  0.5px 2px rgba(0,10,35,0.85);
+  transition:all 0.6s ease;
+}
+#ui-depth-unit{
+  font-family:'Oxanium',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.06em;
+  color:rgba(230,245,255,0.85);
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:'tnum' 1;
+  text-shadow:
+    -0.5px -0.5px 2px rgba(255,255,255,0.5),
+     0.5px  0.5px 2px rgba(0,10,35,0.85);
+}
+#ui-visit{
+  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:.12em;
+  color:rgba(230,245,255,0.8);
+  margin-top:7px;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:'tnum' 1;
+  text-shadow:
+    -0.5px -0.5px 2px rgba(255,255,255,0.5),
+     0.5px  0.5px 2px rgba(0,10,35,0.85);
+}
+#ui-tr{position:fixed;top:26px;right:34px;z-index:90;font-size:10px;letter-spacing:.18em;color:rgba(160,220,255,0.28)}
+#ui-bl{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:90;font-size:10px;letter-spacing:.18em;color:rgba(150,215,255,0.22);white-space:nowrap}
+
+/* ══════════════════════════════════════
+   편집 패널
+══════════════════════════════════════ */
+
+
+/* ── 수조 네비게이션 ── */
+#tank-nav{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
+  z-index:90;display:flex;align-items:center;gap:16px;
+}
+.nav-arrow{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(0,20,60,0.5);
+  border:1px solid rgba(100,200,255,0.2);
+  color:rgba(180,230,255,0.6);
+  font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;backdrop-filter:blur(8px);
+}
+.nav-arrow:hover{
+  background:rgba(0,40,100,0.7);
+  border-color:rgba(140,220,255,0.5);
+  color:rgba(220,245,255,0.95);
+}
+.nav-arrow:disabled{
+  opacity:0.2;cursor:default;pointer-events:none;
+}
+#tank-nav-info{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+#tank-nav-name{
+  font-family:'Oxanium','Noto Sans KR',sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:.18em;
+  color:rgba(230,245,255,0.8);
+  text-shadow:-0.5px -0.5px 2px rgba(255,255,255,0.5),0.5px 0.5px 2px rgba(0,10,35,0.85);
+  white-space:nowrap;
+}
+#tank-nav-dots{display:flex;gap:5px;align-items:center}
+.nav-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(150,210,255,0.25);
+  transition:all .3s;cursor:pointer;
+}
+.nav-dot.active{
+  width:18px;border-radius:3px;
+  background:rgba(180,230,255,0.7);
+}
+.nav-dot.locked{
+  background:rgba(100,150,200,0.15);
+  border:1px solid rgba(100,180,255,0.15);
+}
+
+/* ── 수조 전환 오버레이 ── */
+#tank-overlay{
+  position:fixed;inset:0;z-index:85;
+  background:#000818;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.35s ease;
+}
+#tank-overlay.fade-in{opacity:1;pointer-events:all;}
+
+/* ── 잠금 수조 토스트 ── */
+#lock-toast{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:95;
+  background:rgba(0,10,30,0.9);
+  border:1px solid rgba(100,180,255,0.2);
+  border-radius:10px;padding:16px 24px;
+  text-align:center;
+  backdrop-filter:blur(14px);
+  opacity:0;pointer-events:none;
+  transition:opacity 0.25s;
+}
+#lock-toast.show{opacity:1}
+#lock-toast .lock-icon{font-size:24px;margin-bottom:8px}
+#lock-toast .lock-msg{
+  font-family:'Oxanium','Noto Sans KR',sans-serif;
+  font-size:12px;letter-spacing:.14em;
+  color:rgba(180,225,255,0.7);line-height:1.7;
+}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <!-- 기본 배경 (PNG 없을 때) -->
+  <div id="default-bg"></div>
+  <div id="default-caustic"></div>
+
+  <!-- 배경 이미지 레이어 -->
+  <img id="layer-bg-base"    src="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0;z-index:1">
+  <img id="layer-bg-volume"  src="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0;z-index:2;mix-blend-mode:screen">
+  <img id="layer-bg-caustic" src="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0;z-index:3;mix-blend-mode:screen">
+  <img id="layer-mid-obj"    src="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0;z-index:8">
+
+  <!-- 기포 1 (mid-obj 위, 물고기 아래) -->
+  <div id="bubbles1"></div>
+
+  <!-- 물고기 캔버스 -->
+  <canvas id="cvs-far"></canvas>
+  <canvas id="cvs-mid"></canvas>
+
+  <!-- 바닥 레이어 -->
+  <img id="layer-floor-base" src="" style="width:100%;height:auto;object-fit:cover;display:none;position:absolute;bottom:0;left:0;right:0;z-index:25">
+  <img id="layer-floor-obj"  src="" style="width:100%;height:auto;object-fit:cover;display:none;position:absolute;bottom:0;left:0;right:0;z-index:28">
+
+  <!-- 근경 물고기 -->
+  <canvas id="cvs-fg"></canvas>
+
+  <!-- 수면 오버레이 -->
+  <div id="surface-overlay"></div>
+
+  <!-- 기포 2 (물고기 위) -->
+  <div id="bubbles2"></div>
+
+  <!-- 유리 반사광 & 프레임 (최상단) -->
+  <img id="layer-shimmer-img" src="" alt=""
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:50;pointer-events:none;">
+  <img id="layer-frame-img" src="" alt=""
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:55;pointer-events:none;">
+
+  <!-- 팝업 -->
+  <div id="popup">
+    <h3 id="p-name"></h3>
+    <div class="lat" id="p-lat"></div>
+    <p id="p-desc"></p>
+    <span class="badge" id="p-dep"></span>
+  </div>
+
+  <!-- UI 라벨 -->
+  <div id="ui-tl">
+    <div id="ui-tank-name">대형 수조 &nbsp;·&nbsp; GRAND OCEAN TANK</div>
+    <div id="ui-depth-wrap">
+      <div id="ui-depth">0</div>
+      <div id="ui-depth-unit">m</div>
+    </div>
+    <div id="ui-visit"></div>
+  </div>
+  <div id="ui-tr">0 specimens</div>
+  <!-- 수조 네비게이션 -->
+  <div id="tank-nav">
+    <button class="nav-arrow" id="nav-prev">&#8592;</button>
+    <div id="tank-nav-info">
+      <div id="tank-nav-name">대수조 · GRAND OCEAN TANK</div>
+      <div id="tank-nav-dots"></div>
+    </div>
+    <button class="nav-arrow" id="nav-next">&#8594;</button>
+  </div>
+
+  <!-- 전환 오버레이 -->
+  <div id="tank-overlay"></div>
+
+  <!-- 잠금 토스트 -->
+  <div id="lock-toast">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-msg" id="lock-msg"></div>
+  </div>
+
+  <div id="ui-bl">물고기를 클릭하면 정보를 볼 수 있습니다</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  티어 배율
+// ══════════════════════════════════════════
+const TIER_SCALE = {xl:4.0, lg:2.2, sl:1.5, md:0.58, sm:0.32};
+
+// ══════════════════════════════════════════
+//  캔버스
+// ══════════════════════════════════════════
+const farCvs = document.getElementById('cvs-far');
+const midCvs = document.getElementById('cvs-mid');
+const fgCvs  = document.getElementById('cvs-fg');
+const farCtx = farCvs.getContext('2d');
+const midCtx = midCvs.getContext('2d');
+const fgCtx  = fgCvs.getContext('2d');
+
+function resize(){
+  const vw=window.innerWidth,vh=window.innerHeight;
+  [farCvs,midCvs,fgCvs].forEach(c=>{c.width=vw;c.height=vh});
+}
+resize();
+window.addEventListener('resize',()=>{resize();rebuildFish();});
+
+// ══════════════════════════════════════════
+//  물고기 인스턴스
+// ══════════════════════════════════════════
+let FISH = [];   // 런타임 인스턴스
+let fishData = [];
+
+function buildInstance(fd){
+  // fd: {id, name, latin, desc, dep, tier, layer, count, speed, src}
+  const vw=farCvs.width, vh=farCvs.height;
+  const tierScl = TIER_SCALE[fd.tier]||1;
+  let depthScl, yMin, yMax, da;
+  switch(fd.layer){
+    case 'far':  depthScl=0.52; yMin=vh*.05; yMax=vh*.52; da=0.48; break;
+    case 'bot':  depthScl=0.82; yMin=vh*.78; yMax=vh*.91; da=0.82; break;
+    case 'near': depthScl=1.12; yMin=vh*.08; yMax=vh*.88; da=1.0;  break;
+    default:     depthScl=0.9;  yMin=vh*.12; yMax=vh*.78; da=0.78;
+  }
+  // 기준 크기: 이미지 원본 비율 유지, 너비 200px 기준
+  const baseW = 200;
+  const baseH = fd.imgH && fd.imgW ? baseW * (fd.imgH/fd.imgW) : 80;
+  const w = baseW * tierScl * depthScl;
+  const h = baseH * tierScl * depthScl;
+
+  const img = new Image();
+  img.src = fd.src;
+
+  const instances = [];
+  for(let i=0;i<fd.count;i++){
+    instances.push({
+      fd, img, w, h, da,
+      x: Math.random()*(vw+w*2)-w,
+      y: yMin+Math.random()*(yMax-yMin),
+      yMin, yMax,
+      dir: Math.random()>.5?1:-1,
+      t: Math.random()*300,
+      phase: Math.random()*Math.PI*2,
+      sm: 0.82+Math.random()*.36,
+    });
+  }
+  return instances;
+}
+
+
+// ══════════════════════════════════════════
+//  수심 시스템
+//  - 방문마다 -10m, 최대 -4000m
+//  - localStorage 기반 (로그인 연동 전 임시)
+// ══════════════════════════════════════════
+const DEPTH_PER_VISIT = 10;
+const MAX_DEPTH = 4000;
+
+function getDepthData() {
+  try {
+    return JSON.parse(localStorage.getItem('aquive_depth') || '{"visits":0,"depth":0}');
+  } catch(e) { return {visits:0, depth:0}; }
+}
+function saveDepthData(obj) {
+  try { localStorage.setItem('aquive_depth', JSON.stringify(obj)); } catch(e) {}
+}
+
+function recordVisit() {
+  const data = getDepthData();
+  // 같은 세션 중복 카운트 방지
+  const lastVisit = localStorage.getItem('aquive_last_session');
+  const sessionKey = Math.floor(Date.now() / (1000 * 60 * 30)).toString(); // 30분 단위 세션
+  if(lastVisit !== sessionKey) {
+    data.visits = Math.min(data.visits + 1, MAX_DEPTH / DEPTH_PER_VISIT);
+    data.depth  = data.visits * DEPTH_PER_VISIT;
+    saveDepthData(data);
+    localStorage.setItem('aquive_last_session', sessionKey);
+  }
+  return data;
+}
+
+function renderDepth() {
+  const data = getDepthData();
+  const depthEl = document.getElementById('ui-depth');
+  const visitEl = document.getElementById('ui-visit');
+  if(!depthEl) return;
+
+  // 숫자 카운트업 애니메이션
+  const target = -data.depth;
+  let current = 0;
+  const step = target / 40;
+  let frame = 0;
+  function countUp() {
+    frame++;
+    current += step;
+    if(frame >= 40) {
+      depthEl.textContent = target.toLocaleString();
+    } else {
+      depthEl.textContent = Math.round(current).toLocaleString();
+      requestAnimationFrame(countUp);
+    }
+  }
+  if(data.depth === 0) {
+    depthEl.textContent = '0';
+  } else {
+    requestAnimationFrame(countUp);
+  }
+
+  // 방문 횟수 표시
+  const remaining = MAX_DEPTH / DEPTH_PER_VISIT - data.visits;
+  if(visitEl) {
+    if(data.depth >= MAX_DEPTH) {
+      visitEl.textContent = '최대 수심 도달 · ―4,000m';
+    } else {
+      visitEl.textContent = `${data.visits}회 방문 · 다음 방문까지 ―${DEPTH_PER_VISIT}m`;
+    }
+  }
+}
+
+// 방문 기록 + 렌더
+recordVisit();
+renderDepth();
+
+function rebuildFish(){
+  FISH = [];
+  fishData.forEach(fd=>{
+    FISH.push(...buildInstance(fd));
+  });
+  const layerOrder={far:0,bot:1,mid:2,near:3};
+  FISH.sort((a,b)=>(layerOrder[a.fd.layer]||2)-(layerOrder[b.fd.layer]||2));
+  document.getElementById('ui-tr').textContent = FISH.length + ' specimens';
+}
+rebuildFish();
+
+// ══════════════════════════════════════════
+//  팝업
+// ══════════════════════════════════════════
+const popup = document.getElementById('popup');
+let popT;
+function showPopup(fd,mx,my){
+  document.getElementById('p-name').textContent = fd.name;
+  document.getElementById('p-lat').textContent  = fd.latin;
+  document.getElementById('p-desc').textContent = fd.desc;
+  document.getElementById('p-dep').textContent  = fd.dep;
+  const pw=252,ph=172;
+  let px=mx+18, py=my-ph/2;
+  if(px+pw>window.innerWidth-10) px=mx-pw-18;
+  if(py<10) py=10;
+  if(py+ph>window.innerHeight-10) py=window.innerHeight-ph-10;
+  popup.style.left=px+'px'; popup.style.top=py+'px';
+  popup.classList.add('on');
+  clearTimeout(popT);
+  popT=setTimeout(()=>popup.classList.remove('on'),5500);
+}
+
+[farCvs,midCvs,fgCvs].forEach(cvs=>{
+  cvs.addEventListener('click',e=>{
+    const mx=e.clientX,my=e.clientY;
+    // 가장 위(near)부터 역순으로 체크
+    for(let i=FISH.length-1;i>=0;i--){
+      const f=FISH[i];
+      // 실제 렌더 좌표 — dir 상관없이 x는 항상 왼쪽 끝
+      const fx = f.x;
+      const fy = f.y - f.h/2;
+      // 히트 영역을 실제보다 20% 넉넉하게 (움직이는 물고기 클릭 편의)
+      const pad = 0.1;
+      const hx = fx - f.w * pad;
+      const hy = fy - f.h * pad;
+      const hw = f.w * (1 + pad * 2);
+      const hh = f.h * (1 + pad * 2);
+      if(mx>=hx && mx<=hx+hw && my>=hy && my<=hy+hh){
+        showPopup(f.fd,mx,my); break;
+      }
+    }
+  });
+});
+
+
+// ══════════════════════════════════════════
+//  메인 루프
+// ══════════════════════════════════════════
+let t=0;
+function loop(){
+  const vw=farCvs.width,vh=farCvs.height;
+  t+=0.016;
+
+  farCtx.clearRect(0,0,vw,vh);
+  midCtx.clearRect(0,0,vw,vh);
+  fgCtx.clearRect(0,0,vw,vh);
+
+  FISH.forEach(f=>{
+    f.t+=0.016;
+    f.x += f.dir*f.fd.speed*f.sm*60*0.016;
+    f.y += Math.sin(f.t*.42+f.phase)*.55;
+    if(f.y<f.yMin) f.y=f.yMin;
+    if(f.y>f.yMax) f.y=f.yMax;
+    if(f.x> vw+f.w*2){f.dir=-1; f.x=vw+f.w;}
+    if(f.x<-f.w*3)  {f.dir=1;  f.x=-f.w*2;}
+
+    if(!f.img.complete||!f.img.naturalWidth) return;
+
+    const snake=Math.sin(f.t*2.8+f.phase)*.028;
+    let tc;
+    switch(f.fd.layer){
+      case 'far':  tc=farCtx; break;
+      case 'near': tc=fgCtx;  break;
+      default:     tc=midCtx;
+    }
+
+    tc.save();
+    tc.globalAlpha=f.da;
+    tc.translate(f.x, f.y-f.h/2);
+    if(f.dir===1){tc.translate(f.w,0);tc.scale(-1,1);}
+    tc.translate(f.w/2,f.h/2);
+    tc.rotate(snake);
+    tc.translate(-f.w/2,-f.h/2);
+    tc.drawImage(f.img,0,0,f.w,f.h);
+    tc.restore();
+  });
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+// ══════════════════════════════════════════
+//  기포
+// ══════════════════════════════════════════
+(function(){
+  const s=document.createElement('style');
+  s.textContent=`@keyframes bup{0%{transform:translateY(0) translateX(0);opacity:.7}35%{transform:translateY(-30vh) translateX(5px);opacity:.4}100%{transform:translateY(-102vh) translateX(-3px);opacity:0}}`;
+  document.head.appendChild(s);
+
+  // 기포1 — mid-obj 위, 작고 적게
+  const bl1=document.getElementById('bubbles1');
+  for(let i=0;i<8;i++){
+    const b=document.createElement('div');b.className='bub1';
+    const sz=3+Math.random()*5,dur=11+Math.random()*14,left=Math.random()*96,delay=Math.random()*-25;
+    b.style.cssText=`width:${sz}px;height:${sz}px;left:${left}%;bottom:-40px;animation:bup ${dur}s ${delay}s linear infinite;opacity:${0.3+Math.random()*.3};position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.2) 0%,rgba(200,240,255,0.06) 55%,transparent 100%)`;
+    bl1.appendChild(b);
+  }
+
+  // 기포2 — 물고기 위, 보통 크기
+  const bl2=document.getElementById('bubbles2');
+  for(let i=0;i<14;i++){
+    const b=document.createElement('div');b.className='bub2';
+    const sz=4+Math.random()*10,dur=9+Math.random()*16,left=Math.random()*96,delay=Math.random()*-25;
+    b.style.cssText=`width:${sz}px;height:${sz}px;left:${left}%;bottom:-40px;animation:bup ${dur}s ${delay}s linear infinite;opacity:${0.5+Math.random()*.4};position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.2) 0%,rgba(200,240,255,0.06) 55%,transparent 100%)`;
+    bl2.appendChild(b);
+  }
+})();
+
+// ══════════════════════════════════════════
+//  GitHub tanks.json 연동
+// ══════════════════════════════════════════
+// GitHub 설정 — 항상 이 값으로 고정
+const GH_USER_KEY = 'aquive_gh_user';
+const GH_REPO_KEY = 'aquive_gh_repo';
+localStorage.setItem(GH_USER_KEY, 'norang1225');
+localStorage.setItem(GH_REPO_KEY, 'aquive');
+function getGhUser(){ return 'norang1225'; }
+function getGhRepo(){ return 'aquive'; }
+
+let remoteData = null;
+
+async function loadTanksJson(){
+  const user = getGhUser();
+  const repo = getGhRepo();
+  if(!user || !repo) return null;
+  try{
+    const url = `https://raw.githubusercontent.com/${user}/${repo}/main/data/tanks.json?t=${Date.now()}`;
+    const res = await fetch(url);
+    if(!res.ok) return null;
+    const json = await res.json();
+    remoteData = json.tanks || {};
+    return remoteData;
+  } catch(e){ return null; }
+}
+
+
+function fixImageUrl(url){
+  if(!url) return url;
+  // jsdelivr → raw로 변환 (jsdelivr 캐시 문제)
+  if(url.includes('cdn.jsdelivr.net')){
+    return url
+      .replace('https://cdn.jsdelivr.net/gh/', 'https://raw.githubusercontent.com/')
+      .replace('@main/', '/main/');
+  }
+  return url;
+}
+
+function applyBgFromData(bg){
+  console.log('[AQUIVE] applyBgFromData:', JSON.stringify(bg));
+  const MAP = {
+    'base':     {el:'layer-bg-base',    def:'default-bg'},
+    'caustic':  {el:'layer-bg-caustic', def:'default-caustic'},
+    'volume':   {el:'layer-bg-volume',  def:null},
+    'midobj':   {el:'layer-mid-obj',    def:null},
+    'floor':    {el:'layer-floor-base', def:null},
+    'floorobj': {el:'layer-floor-obj',  def:null},
+    'shimmer':  {el:'layer-shimmer-img',def:null},
+    'frame':    {el:'layer-frame-img',  def:null},
+  };
+  Object.entries(MAP).forEach(([key, map])=>{
+    const el = document.getElementById(map.el);
+    if(!el) return;
+    const src = fixImageUrl(bg ? bg[key] : null);
+    if(src){
+      el.src = src;
+      el.style.display = 'block';
+      if(map.def){ const d=document.getElementById(map.def); if(d) d.style.display='none'; }
+    } else {
+      el.src = '';
+      el.style.display = 'none';
+      if(map.def){ const d=document.getElementById(map.def); if(d) d.style.display='block'; }
+    }
+  });
+}
+
+function applyFishFromData(fishArr){
+  console.log('[AQUIVE] applyFishFromData:', fishArr?.length, fishArr?.[0]?.src);
+  FISH.length = 0;
+  if(!fishArr || !fishArr.length) return;
+  fishArr = fishArr.map(f => ({...f, src: fixImageUrl(f.src)}));
+  fishArr.forEach(fd => { FISH.push(...buildInstance(fd)); });
+  const layerOrder = {far:0, bot:1, mid:2, near:3};
+  FISH.sort((a,b) => (layerOrder[a.fd.layer]||2)-(layerOrder[b.fd.layer]||2));
+  const uiTr = document.getElementById('ui-tr');
+  if(uiTr) uiTr.textContent = FISH.length + ' specimens';
+}
+
+async function applyTankData(tankId){
+  const localKey = 'aquive_tank_data';
+  let local = {};
+  try{ local = JSON.parse(localStorage.getItem(localKey)||'{}'); } catch(e){}
+  const localTank  = local[tankId];
+  const remoteTank = remoteData ? remoteData[tankId] : null;
+  const bg   = localTank?.bg   || remoteTank?.bg   || {};
+  const fish = (localTank?.fish?.length) ? localTank.fish : (remoteTank?.fish || []);
+  applyBgFromData(bg);
+  applyFishFromData(fish);
+}
+
+
+// ── 수조 데이터 ──
+const TANKS = [
+  {id:0,  name:'대수조',     nameEn:'GRAND OCEAN TANK',   unlock:0},
+  {id:1,  name:'연안 수조',  nameEn:'COASTAL TANK',       unlock:-50},
+  {id:2,  name:'산호초관',   nameEn:'CORAL REEF',         unlock:-100},
+  {id:3,  name:'열대어관',   nameEn:'TROPICAL FISH',      unlock:-250},
+  {id:4,  name:'대형어관',   nameEn:'OCEAN GIANTS',       unlock:-500},
+  {id:5,  name:'가오리관',   nameEn:'STINGRAY BAY',       unlock:-700},
+  {id:6,  name:'극지어관',   nameEn:'POLAR ZONE',         unlock:-1000},
+  {id:7,  name:'심해어관',   nameEn:'DEEP SEA',           unlock:-1200},
+  {id:8,  name:'두족류관',   nameEn:'CEPHALOPOD ZONE',    unlock:-1500},
+  {id:9,  name:'해파리관',   nameEn:'JELLYFISH HALL',     unlock:-2000},
+  {id:10, name:'발광생물관', nameEn:'BIOLUMINESCENCE',    unlock:-3000},
+  {id:11, name:'해구관',     nameEn:'HADAL ZONE',         unlock:-4000},
+  {id:12, name:'멸종 보관소',nameEn:'EXTINCTION ARCHIVE', unlock:-4000, autoUnlock:true},
+];
+
+let currentTankIdx = 0;
+
+function getDepth(){
+  try{ return JSON.parse(localStorage.getItem('aquive_depth')||'{"depth":0}').depth; }
+  catch(e){ return 0; }
+}
+
+function isTankUnlocked(tank){
+  const depth = getDepth();
+  if(tank.autoUnlock) return depth >= 4000;
+  return depth >= Math.abs(tank.unlock);
+}
+
+function buildNavDots(){
+  const wrap = document.getElementById('tank-nav-dots');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  TANKS.forEach((tank,i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot'+(i===currentTankIdx?' active':'')+(!isTankUnlocked(tank)?' locked':'');
+    dot.title = tank.name;
+    dot.addEventListener('click', ()=> tryNav(i));
+    wrap.appendChild(dot);
+  });
+}
+
+function updateNavUI(){
+  const tank = TANKS[currentTankIdx];
+  const nameEl = document.getElementById('tank-nav-name');
+  if(nameEl) nameEl.textContent = tank.name+' · '+tank.nameEn;
+  const tankNameEl = document.getElementById('ui-tank-name');
+  if(tankNameEl) tankNameEl.textContent = tank.name+' · '+tank.nameEn;
+  const prevBtn = document.getElementById('nav-prev');
+  const nextBtn = document.getElementById('nav-next');
+  if(prevBtn) prevBtn.disabled = currentTankIdx===0;
+  if(nextBtn) nextBtn.disabled = currentTankIdx===TANKS.length-1;
+  buildNavDots();
+}
+
+function showLockToast(tank){
+  const toast = document.getElementById('lock-toast');
+  const msg   = document.getElementById('lock-msg');
+  if(!toast||!msg) return;
+  const needed  = Math.abs(tank.unlock);
+  const current = getDepth();
+  const diff    = needed-current;
+  msg.innerHTML = tank.name+'<br>수심 '+tank.unlock+'m 도달 시 해금<br><span style="color:rgba(120,190,255,0.5);font-size:10px">현재 -'+current+'m · '+diff+'m 더 필요</span>';
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=> toast.classList.remove('show'), 2800);
+}
+
+function tryNav(idx){
+  const tank = TANKS[idx];
+  if(!isTankUnlocked(tank)){ showLockToast(tank); return; }
+  switchTankWithData(idx);
+}
+
+async function switchTankWithData(idx){
+  if(idx === currentTankIdx) return;
+  const overlay = document.getElementById('tank-overlay');
+  if(overlay) overlay.classList.add('fade-in');
+  setTimeout(async ()=>{
+    currentTankIdx = idx;
+    updateNavUI();
+    await applyTankData(idx);
+    if(overlay) overlay.classList.remove('fade-in');
+  }, 350);
+}
+
+// 화살표 이벤트
+document.getElementById('nav-prev')?.addEventListener('click', ()=>{
+  if(currentTankIdx > 0) tryNav(currentTankIdx-1);
+});
+document.getElementById('nav-next')?.addEventListener('click', ()=>{
+  if(currentTankIdx < TANKS.length-1) tryNav(currentTankIdx+1);
+});
+
+// 초기 로드
+(async function(){
+  await loadTanksJson();
+  await applyTankData(0);
+})();
+
+</script>
+</body>
+</html>
