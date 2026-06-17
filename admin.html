@@ -687,11 +687,18 @@ function renderBgSlots(){
       reader.readAsDataURL(file);
     });
     // 삭제
-    el.querySelector('.bg-slot-del').addEventListener('click', e => {
+    el.querySelector('.bg-slot-del').addEventListener('click', async e => {
       e.stopPropagation();
       delete d.bg[slot.key];
+      const fileName = d.bgFileNames?.[slot.key];
+      if(d.bgFileNames) delete d.bgFileNames[slot.key];
       saveData();
       renderBgSlots();
+
+      // GitHub에서도 파일 삭제 + tanks.json 갱신
+      if(fileName) await deleteFromGithub(`images/bg/${fileName}`);
+      await updateTanksJson();
+      showToast('배경 삭제 완료', 'success');
     });
     grid.appendChild(el);
   });
@@ -801,13 +808,22 @@ function renderFishList(){
   `).join('');
 
   list.querySelectorAll('.fish-del').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const id = parseInt(btn.dataset.id);
       const d2 = getTankData(currentTankId);
+      const fish = d2.fish.find(f => f.id === id);
       d2.fish = d2.fish.filter(f => f.id !== id);
       saveData();
       renderFishList();
       buildSidebar();
+
+      // GitHub에서도 파일 삭제 + tanks.json 갱신
+      if(fish?.fileName){
+        const ext = fish.fileName.split('.').pop();
+        await deleteFromGithub(`images/fish/tank${currentTankId}_${id}.${ext}`);
+      }
+      await updateTanksJson();
+      showToast('물고기 삭제 완료', 'success');
     });
   });
 }
@@ -844,6 +860,29 @@ async function uploadToGithub(path, content, message){
   return res.ok;
 }
 
+async function deleteFromGithub(path){
+  const token = getToken();
+  const user  = getGhUser();
+  const repo  = getGhRepo();
+  if(!token || !user || !repo) return false;
+
+  let sha = null;
+  try{
+    const check = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`,{
+      headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
+    });
+    if(check.ok){ const j = await check.json(); sha = j.sha; }
+    else return true;
+  } catch(e){ return false; }
+
+  const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`,{
+    method:'DELETE',
+    headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+    body: JSON.stringify({ message:`Delete ${path}`, sha })
+  });
+  return res.ok;
+}
+
 async function uploadFishToGithub(fish){
   const user = getGhUser(); const repo = getGhRepo(); const token = getToken();
   if(!token||!user||!repo) return;
@@ -851,12 +890,22 @@ async function uploadFishToGithub(fish){
   showProgress('이미지 업로드 중...', 30);
   const b64 = fish.src.split(',')[1];
   const ext  = fish.fileName.split('.').pop();
-  const path = `images/fish/tank${currentTankId}_${fish.id}.${ext}`;
+  const ghFileName = `tank${currentTankId}_${fish.id}.${ext}`;
+  const path = `images/fish/${ghFileName}`;
+
+  // CDN URL을 fish 객체에 저장
+  const cdnUrl = `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/fish/${ghFileName}`;
+  fish.src = cdnUrl;
+  fish.cdnUrl = cdnUrl;
+
+  // localStorage도 CDN URL로 업데이트
+  const d = getTankData(currentTankId);
+  const idx = d.fish.findIndex(f => f.id === fish.id);
+  if(idx !== -1){ d.fish[idx].src = cdnUrl; d.fish[idx].cdnUrl = cdnUrl; }
+  saveData();
 
   const ok1 = await uploadToGithub(path, b64, `Add fish: ${fish.name}`);
   setProgress(60);
-
-  // tanks.json 업데이트
   await updateTanksJson();
   setProgress(100);
   hideProgress();
@@ -875,10 +924,14 @@ async function uploadBgToGithub(slotKey, b64src, fileName){
   const ghFileName = `tank${currentTankId}_${slotKey}.${ext}`;
   const path = `images/bg/${ghFileName}`;
 
-  // 실제 파일명 저장 (확장자 보존)
+  const cdnUrl = `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/bg/${ghFileName}`;
+
+  // 실제 파일명 + CDN URL 저장
   const d = getTankData(currentTankId);
   if(!d.bgFileNames) d.bgFileNames = {};
   d.bgFileNames[slotKey] = ghFileName;
+  // bg에 CDN URL로 저장
+  d.bg[slotKey] = cdnUrl;
   saveData();
 
   const ok = await uploadToGithub(path, b64, `Add bg: tank${currentTankId} ${slotKey}`);
@@ -908,11 +961,14 @@ async function updateTanksJson(){
         };
       }),
       bg: Object.fromEntries(
-        Object.entries(d.bg).map(([k, v]) => {
-          // v는 base64 src — fileName은 bgFileNames에서 가져옴
-          const fileName = d.bgFileNames?.[k] || `tank${tank.id}_${k}.png`;
-          return [k, `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/bg/${fileName}`];
-        })
+        Object.entries(d.bg)
+          .filter(([k, v]) => v && !v.startsWith('data:') && !v.startsWith('blob:'))
+          .map(([k, v]) => {
+            // 이미 CDN URL이면 그대로, raw URL이면 변환
+            if(v.includes('cdn.jsdelivr.net')) return [k, v];
+            const fileName = d.bgFileNames?.[k] || `tank${tank.id}_${k}.png`;
+            return [k, `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/bg/${fileName}`];
+          })
       )
     };
   });
