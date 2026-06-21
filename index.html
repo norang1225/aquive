@@ -105,6 +105,69 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #popup p{font-size:12px;color:rgba(180,230,255,0.75);line-height:1.65}
 #popup .badge{display:inline-block;margin-top:10px;font-size:10px;padding:2px 10px;border:1px solid rgba(120,210,255,0.2);border-radius:20px;color:rgba(140,215,255,0.6)}
 
+/* ── 줌 추적 카드 ── */
+#zoom-overlay{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(0,8,25,0);
+  pointer-events:none;
+  transition:background .4s ease;
+}
+#zoom-overlay.on{
+  pointer-events:all;
+  background:rgba(0,8,25,0.55);
+  backdrop-filter:blur(2px);
+}
+#zoom-card{
+  position:fixed;
+  display:flex;align-items:center;gap:0;
+  background:rgba(5,20,50,0.92);
+  border:1px solid rgba(120,210,255,0.22);
+  border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,30,90,0.5);
+  backdrop-filter:blur(18px);
+  opacity:0;transform:scale(0.85);
+  transition:opacity .45s cubic-bezier(.2,.8,.2,1), transform .45s cubic-bezier(.2,.8,.2,1), left .35s ease, top .35s ease;
+  overflow:hidden;
+  width:560px;height:280px;
+  left:50%;top:50%;
+  margin-left:-280px;margin-top:-140px;
+}
+#zoom-overlay.on #zoom-card{opacity:1;transform:scale(1)}
+#zoom-close{
+  position:absolute;top:12px;right:14px;z-index:5;
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(0,15,45,0.6);border:1px solid rgba(120,210,255,0.25);
+  color:rgba(200,235,255,0.7);font-size:16px;line-height:1;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+#zoom-close:hover{background:rgba(0,30,80,0.8);color:#fff}
+#zoom-fish-stage{
+  flex:0 0 55%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 50%, rgba(60,140,220,0.18) 0%, transparent 70%);
+  position:relative;
+}
+#zoom-fish-img{
+  max-width:82%;max-height:82%;object-fit:contain;
+  filter:drop-shadow(0 12px 30px rgba(0,20,60,0.5));
+}
+#zoom-info{
+  flex:1;padding:26px 28px 26px 8px;
+  color:#c8eaff;min-width:0;
+}
+#zoom-info h3{font-family:'Cinzel',serif;font-size:19px;color:#eaf8ff;margin-bottom:5px;letter-spacing:.06em}
+#zoom-info #zoom-lat{font-size:12px;color:rgba(150,215,255,0.55);font-style:italic;margin-bottom:14px}
+#zoom-info p{font-size:13px;color:rgba(190,230,255,0.8);line-height:1.7;margin-bottom:14px}
+#zoom-info .badge{display:inline-block;font-size:10px;padding:3px 12px;border:1px solid rgba(120,210,255,0.25);border-radius:20px;color:rgba(150,215,255,0.65)}
+
+@media (max-width: 700px){
+  #zoom-card{width:90vw;height:auto;flex-direction:column;margin-left:-45vw;left:50%;}
+  #zoom-fish-stage{flex:0 0 160px;width:100%;}
+  #zoom-info{padding:18px 20px}
+}
+
+
 /* ── UI 라벨 ── */
 #ui-tl{position:fixed;top:26px;left:34px;z-index:90;line-height:1;font-family:'Oxanium','Noto Sans KR',sans-serif}
 #ui-tank-name{
@@ -281,6 +344,22 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     <div class="lat" id="p-lat"></div>
     <p id="p-desc"></p>
     <span class="badge" id="p-dep"></span>
+  </div>
+
+  <!-- 줌 추적 카드 -->
+  <div id="zoom-overlay">
+    <div id="zoom-card">
+      <button id="zoom-close">×</button>
+      <div id="zoom-fish-stage">
+        <img id="zoom-fish-img" src="" alt="">
+      </div>
+      <div id="zoom-info">
+        <h3 id="zoom-name"></h3>
+        <div id="zoom-lat"></div>
+        <p id="zoom-desc"></p>
+        <span id="zoom-dep" class="badge"></span>
+      </div>
+    </div>
   </div>
 
   <!-- UI 라벨 -->
@@ -502,10 +581,80 @@ function showPopup(fd,mx,my){
       const hw = f.w * (1 + pad * 2);
       const hh = f.h * (1 + pad * 2);
       if(mx>=hx && mx<=hx+hw && my>=hy && my<=hy+hh){
-        showPopup(f.fd,mx,my); break;
+        openZoomCard(f); break;
       }
     }
   });
+});
+
+// ══════════════════════════════════════════
+//  줌 추적 카드
+// ══════════════════════════════════════════
+const zoomOverlay = document.getElementById('zoom-overlay');
+const zoomCard     = document.getElementById('zoom-card');
+let trackedFish    = null;
+let zoomRaf        = null;
+
+function openZoomCard(f){
+  trackedFish = f;
+  document.getElementById('zoom-fish-img').src  = f.fd.src || '';
+  document.getElementById('zoom-name').textContent = f.fd.name || '';
+  document.getElementById('zoom-lat').textContent  = f.fd.latin || '';
+  document.getElementById('zoom-desc').textContent = f.fd.desc || '';
+  document.getElementById('zoom-dep').textContent  = f.fd.dep || '';
+
+  zoomOverlay.classList.add('on');
+  positionZoomCard(); // 첫 위치 즉시 반영
+
+  if(zoomRaf) cancelAnimationFrame(zoomRaf);
+  trackLoop();
+}
+
+function positionZoomCard(){
+  if(!trackedFish) return;
+  const cardW = zoomCard.offsetWidth  || 560;
+  const cardH = zoomCard.offsetHeight || 280;
+
+  // 물고기 중심 좌표
+  const fx = trackedFish.x + trackedFish.w/2;
+  const fy = trackedFish.y - trackedFish.h/2;
+
+  let left = fx - cardW/2;
+  let top  = fy - cardH - 40; // 물고기 위쪽에 카드 띄우기
+
+  // 화면 경계 보정
+  if(left < 16) left = 16;
+  if(left + cardW > window.innerWidth - 16) left = window.innerWidth - cardW - 16;
+  if(top < 16) top = fy + 60; // 위쪽 공간 부족하면 물고기 아래로
+  if(top + cardH > window.innerHeight - 16) top = window.innerHeight - cardH - 16;
+
+  zoomCard.style.left = left + 'px';
+  zoomCard.style.top  = top + 'px';
+  zoomCard.style.marginLeft = '0';
+  zoomCard.style.marginTop  = '0';
+}
+
+function trackLoop(){
+  if(!trackedFish || !zoomOverlay.classList.contains('on')) return;
+  positionZoomCard();
+  zoomRaf = requestAnimationFrame(trackLoop);
+}
+
+function closeZoomCard(){
+  zoomOverlay.classList.remove('on');
+  trackedFish = null;
+  if(zoomRaf) cancelAnimationFrame(zoomRaf);
+}
+
+document.getElementById('zoom-close').addEventListener('click', e=>{
+  e.stopPropagation();
+  closeZoomCard();
+});
+zoomOverlay.addEventListener('click', e=>{
+  if(e.target === zoomOverlay) closeZoomCard();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape') closeZoomCard();
 });
 
 
