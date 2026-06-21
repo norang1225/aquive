@@ -105,68 +105,66 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #popup p{font-size:12px;color:rgba(180,230,255,0.75);line-height:1.65}
 #popup .badge{display:inline-block;margin-top:10px;font-size:10px;padding:2px 10px;border:1px solid rgba(120,210,255,0.2);border-radius:20px;color:rgba(140,215,255,0.6)}
 
-/* ── 줌 추적 카드 ── */
-#zoom-overlay{
+/* ── 돋보기 렌즈 ── */
+#lens-overlay{
   position:fixed;inset:0;z-index:300;
   background:rgba(0,8,25,0);
   pointer-events:none;
-  transition:background .4s ease;
+  transition:background .35s ease;
+  display:flex;align-items:center;justify-content:center;
 }
-#zoom-overlay.on{
+#lens-overlay.on{
   pointer-events:all;
-  background:rgba(0,8,25,0.55);
+  background:rgba(0,8,25,0.6);
   backdrop-filter:blur(2px);
 }
-#zoom-card{
-  position:fixed;
+#lens-card{
   display:flex;align-items:center;gap:0;
-  background:rgba(5,20,50,0.92);
+  background:rgba(5,20,50,0.94);
   border:1px solid rgba(120,210,255,0.22);
-  border-radius:16px;
+  border-radius:18px;
   box-shadow:0 20px 60px rgba(0,30,90,0.5);
   backdrop-filter:blur(18px);
   opacity:0;transform:scale(0.85);
-  transition:opacity .45s cubic-bezier(.2,.8,.2,1), transform .45s cubic-bezier(.2,.8,.2,1), left .35s ease, top .35s ease;
+  transition:opacity .4s cubic-bezier(.2,.8,.2,1), transform .4s cubic-bezier(.2,.8,.2,1);
   overflow:hidden;
-  width:560px;height:280px;
-  left:50%;top:50%;
-  margin-left:-280px;margin-top:-140px;
+  width:580px;max-width:90vw;
 }
-#zoom-overlay.on #zoom-card{opacity:1;transform:scale(1)}
-#zoom-close{
-  position:absolute;top:12px;right:14px;z-index:5;
-  width:28px;height:28px;border-radius:50%;
+#lens-overlay.on #lens-card{opacity:1;transform:scale(1)}
+#lens-close{
+  position:absolute;top:14px;right:16px;z-index:5;
+  width:30px;height:30px;border-radius:50%;
   background:rgba(0,15,45,0.6);border:1px solid rgba(120,210,255,0.25);
-  color:rgba(200,235,255,0.7);font-size:16px;line-height:1;
+  color:rgba(200,235,255,0.7);font-size:17px;line-height:1;
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   transition:all .2s;
 }
-#zoom-close:hover{background:rgba(0,30,80,0.8);color:#fff}
-#zoom-fish-stage{
-  flex:0 0 55%;height:100%;
+#lens-close:hover{background:rgba(0,30,80,0.8);color:#fff}
+#lens-fish-stage{
+  flex:0 0 45%;min-height:260px;
   display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle at 50% 50%, rgba(60,140,220,0.18) 0%, transparent 70%);
+  background:radial-gradient(circle at 50% 50%, rgba(60,140,220,0.2) 0%, transparent 70%);
   position:relative;
 }
-#zoom-fish-img{
-  max-width:82%;max-height:82%;object-fit:contain;
-  filter:drop-shadow(0 12px 30px rgba(0,20,60,0.5));
+#lens-fish-img{
+  max-width:80%;max-height:80%;object-fit:contain;
+  filter:drop-shadow(0 14px 32px rgba(0,20,60,0.55));
+  transform:scale(1.7);
 }
-#zoom-info{
-  flex:1;padding:26px 28px 26px 8px;
+#lens-info{
+  flex:1;padding:30px 32px 30px 10px;
   color:#c8eaff;min-width:0;
 }
-#zoom-info h3{font-family:'Cinzel',serif;font-size:19px;color:#eaf8ff;margin-bottom:5px;letter-spacing:.06em}
-#zoom-info #zoom-lat{font-size:12px;color:rgba(150,215,255,0.55);font-style:italic;margin-bottom:14px}
-#zoom-info p{font-size:13px;color:rgba(190,230,255,0.8);line-height:1.7;margin-bottom:14px}
-#zoom-info .badge{display:inline-block;font-size:10px;padding:3px 12px;border:1px solid rgba(120,210,255,0.25);border-radius:20px;color:rgba(150,215,255,0.65)}
+#lens-info h3{font-family:'Cinzel',serif;font-size:20px;color:#eaf8ff;margin-bottom:6px;letter-spacing:.06em}
+#lens-info #lens-lat{font-size:12px;color:rgba(150,215,255,0.55);font-style:italic;margin-bottom:15px}
+#lens-info p{font-size:13px;color:rgba(190,230,255,0.8);line-height:1.7;margin-bottom:15px}
+#lens-info .badge{display:inline-block;font-size:10px;padding:3px 12px;border:1px solid rgba(120,210,255,0.25);border-radius:20px;color:rgba(150,215,255,0.65)}
 
 @media (max-width: 700px){
-  #zoom-card{width:90vw;height:auto;flex-direction:column;margin-left:-45vw;left:50%;}
-  #zoom-fish-stage{flex:0 0 160px;width:100%;}
-  #zoom-info{padding:18px 20px}
+  #lens-card{flex-direction:column;width:88vw;}
+  #lens-fish-stage{flex:0 0 200px;width:100%;}
+  #lens-info{padding:20px 22px}
 }
-
 
 /* ── UI 라벨 ── */
 #ui-tl{position:fixed;top:26px;left:34px;z-index:90;line-height:1;font-family:'Oxanium','Noto Sans KR',sans-serif}
@@ -346,18 +344,18 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     <span class="badge" id="p-dep"></span>
   </div>
 
-  <!-- 줌 추적 카드 -->
-  <div id="zoom-overlay">
-    <div id="zoom-card">
-      <button id="zoom-close">×</button>
-      <div id="zoom-fish-stage">
-        <img id="zoom-fish-img" src="" alt="">
+  <!-- 돋보기 렌즈 카드 -->
+  <div id="lens-overlay">
+    <div id="lens-card">
+      <button id="lens-close">×</button>
+      <div id="lens-fish-stage">
+        <img id="lens-fish-img" src="" alt="">
       </div>
-      <div id="zoom-info">
-        <h3 id="zoom-name"></h3>
-        <div id="zoom-lat"></div>
-        <p id="zoom-desc"></p>
-        <span id="zoom-dep" class="badge"></span>
+      <div id="lens-info">
+        <h3 id="lens-name"></h3>
+        <div id="lens-lat"></div>
+        <p id="lens-desc"></p>
+        <span id="lens-dep" class="badge"></span>
       </div>
     </div>
   </div>
@@ -581,80 +579,49 @@ function showPopup(fd,mx,my){
       const hw = f.w * (1 + pad * 2);
       const hh = f.h * (1 + pad * 2);
       if(mx>=hx && mx<=hx+hw && my>=hy && my<=hy+hh){
-        openZoomCard(f); break;
+        openLensCard(f); break;
       }
     }
   });
 });
 
 // ══════════════════════════════════════════
-//  줌 추적 카드
+//  돋보기 렌즈 카드 (물고기 정지 + 화면 중앙 고정)
 // ══════════════════════════════════════════
-const zoomOverlay = document.getElementById('zoom-overlay');
-const zoomCard     = document.getElementById('zoom-card');
-let trackedFish    = null;
-let zoomRaf        = null;
+const lensOverlay = document.getElementById('lens-overlay');
+let frozenFish = null;
 
-function openZoomCard(f){
-  trackedFish = f;
-  document.getElementById('zoom-fish-img').src  = f.fd.src || '';
-  document.getElementById('zoom-name').textContent = f.fd.name || '';
-  document.getElementById('zoom-lat').textContent  = f.fd.latin || '';
-  document.getElementById('zoom-desc').textContent = f.fd.desc || '';
-  document.getElementById('zoom-dep').textContent  = f.fd.dep || '';
+function openLensCard(f){
+  // 다른 물고기가 이미 멈춰있다면 먼저 풀어주기
+  if(frozenFish) frozenFish.frozen = false;
 
-  zoomOverlay.classList.add('on');
-  positionZoomCard(); // 첫 위치 즉시 반영
+  frozenFish = f;
+  f.frozen = true;
 
-  if(zoomRaf) cancelAnimationFrame(zoomRaf);
-  trackLoop();
+  document.getElementById('lens-fish-img').src  = f.fd.src || '';
+  document.getElementById('lens-name').textContent = f.fd.name || '';
+  document.getElementById('lens-lat').textContent  = f.fd.latin || '';
+  document.getElementById('lens-desc').textContent = f.fd.desc || '';
+  document.getElementById('lens-dep').textContent  = f.fd.dep || '';
+
+  lensOverlay.classList.add('on');
 }
 
-function positionZoomCard(){
-  if(!trackedFish) return;
-  const cardW = zoomCard.offsetWidth  || 560;
-  const cardH = zoomCard.offsetHeight || 280;
-
-  // 물고기 중심 좌표
-  const fx = trackedFish.x + trackedFish.w/2;
-  const fy = trackedFish.y - trackedFish.h/2;
-
-  let left = fx - cardW/2;
-  let top  = fy - cardH - 40; // 물고기 위쪽에 카드 띄우기
-
-  // 화면 경계 보정
-  if(left < 16) left = 16;
-  if(left + cardW > window.innerWidth - 16) left = window.innerWidth - cardW - 16;
-  if(top < 16) top = fy + 60; // 위쪽 공간 부족하면 물고기 아래로
-  if(top + cardH > window.innerHeight - 16) top = window.innerHeight - cardH - 16;
-
-  zoomCard.style.left = left + 'px';
-  zoomCard.style.top  = top + 'px';
-  zoomCard.style.marginLeft = '0';
-  zoomCard.style.marginTop  = '0';
+function closeLensCard(){
+  lensOverlay.classList.remove('on');
+  if(frozenFish) frozenFish.frozen = false;
+  frozenFish = null;
 }
 
-function trackLoop(){
-  if(!trackedFish || !zoomOverlay.classList.contains('on')) return;
-  positionZoomCard();
-  zoomRaf = requestAnimationFrame(trackLoop);
-}
-
-function closeZoomCard(){
-  zoomOverlay.classList.remove('on');
-  trackedFish = null;
-  if(zoomRaf) cancelAnimationFrame(zoomRaf);
-}
-
-document.getElementById('zoom-close').addEventListener('click', e=>{
+document.getElementById('lens-close').addEventListener('click', e=>{
   e.stopPropagation();
-  closeZoomCard();
+  closeLensCard();
 });
-zoomOverlay.addEventListener('click', e=>{
-  if(e.target === zoomOverlay) closeZoomCard();
+lensOverlay.addEventListener('click', e=>{
+  if(e.target === lensOverlay) closeLensCard();
 });
 document.addEventListener('keydown', e=>{
-  if(e.key === 'Escape') closeZoomCard();
+  if(e.key === 'Escape') closeLensCard();
 });
 
 
@@ -671,13 +638,15 @@ function loop(){
   fgCtx.clearRect(0,0,vw,vh);
 
   FISH.forEach(f=>{
-    f.t+=0.016;
-    f.x += f.dir*f.fd.speed*f.sm*60*0.016;
-    f.y += Math.sin(f.t*.42+f.phase)*.55;
-    if(f.y<f.yMin) f.y=f.yMin;
-    if(f.y>f.yMax) f.y=f.yMax;
-    if(f.x> vw+f.w*2){f.dir=-1; f.x=vw+f.w;}
-    if(f.x<-f.w*3)  {f.dir=1;  f.x=-f.w*2;}
+    if(!f.frozen){
+      f.t+=0.016;
+      f.x += f.dir*f.fd.speed*f.sm*60*0.016;
+      f.y += Math.sin(f.t*.42+f.phase)*.55;
+      if(f.y<f.yMin) f.y=f.yMin;
+      if(f.y>f.yMax) f.y=f.yMax;
+      if(f.x> vw+f.w*2){f.dir=-1; f.x=vw+f.w;}
+      if(f.x<-f.w*3)  {f.dir=1;  f.x=-f.w*2;}
+    }
 
     if(!f.img.complete||!f.img.naturalWidth) return;
 
