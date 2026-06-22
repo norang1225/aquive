@@ -105,67 +105,6 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #popup p{font-size:12px;color:rgba(180,230,255,0.75);line-height:1.65}
 #popup .badge{display:inline-block;margin-top:10px;font-size:10px;padding:2px 10px;border:1px solid rgba(120,210,255,0.2);border-radius:20px;color:rgba(140,215,255,0.6)}
 
-/* ── 돋보기 렌즈 ── */
-#lens-overlay{
-  position:fixed;inset:0;z-index:300;
-  background:rgba(0,8,25,0);
-  pointer-events:none;
-  transition:background .35s ease;
-  display:flex;align-items:center;justify-content:center;
-}
-#lens-overlay.on{
-  pointer-events:all;
-  background:rgba(0,8,25,0.6);
-  backdrop-filter:blur(2px);
-}
-#lens-card{
-  display:flex;align-items:center;gap:0;
-  background:rgba(5,20,50,0.94);
-  border:1px solid rgba(120,210,255,0.22);
-  border-radius:18px;
-  box-shadow:0 20px 60px rgba(0,30,90,0.5);
-  backdrop-filter:blur(18px);
-  opacity:0;transform:scale(0.85);
-  transition:opacity .4s cubic-bezier(.2,.8,.2,1), transform .4s cubic-bezier(.2,.8,.2,1);
-  overflow:hidden;
-  width:580px;max-width:90vw;
-}
-#lens-overlay.on #lens-card{opacity:1;transform:scale(1)}
-#lens-close{
-  position:absolute;top:14px;right:16px;z-index:5;
-  width:30px;height:30px;border-radius:50%;
-  background:rgba(0,15,45,0.6);border:1px solid rgba(120,210,255,0.25);
-  color:rgba(200,235,255,0.7);font-size:17px;line-height:1;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:all .2s;
-}
-#lens-close:hover{background:rgba(0,30,80,0.8);color:#fff}
-#lens-fish-stage{
-  flex:0 0 45%;min-height:260px;
-  display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle at 50% 50%, rgba(60,140,220,0.2) 0%, transparent 70%);
-  position:relative;
-}
-#lens-fish-img{
-  max-width:80%;max-height:80%;object-fit:contain;
-  filter:drop-shadow(0 14px 32px rgba(0,20,60,0.55));
-  transform:scale(1.7);
-}
-#lens-info{
-  flex:1;padding:30px 32px 30px 10px;
-  color:#c8eaff;min-width:0;
-}
-#lens-info h3{font-family:'Cinzel',serif;font-size:20px;color:#eaf8ff;margin-bottom:6px;letter-spacing:.06em}
-#lens-info #lens-lat{font-size:12px;color:rgba(150,215,255,0.55);font-style:italic;margin-bottom:15px}
-#lens-info p{font-size:13px;color:rgba(190,230,255,0.8);line-height:1.7;margin-bottom:15px}
-#lens-info .badge{display:inline-block;font-size:10px;padding:3px 12px;border:1px solid rgba(120,210,255,0.25);border-radius:20px;color:rgba(150,215,255,0.65)}
-
-@media (max-width: 700px){
-  #lens-card{flex-direction:column;width:88vw;}
-  #lens-fish-stage{flex:0 0 200px;width:100%;}
-  #lens-info{padding:20px 22px}
-}
-
 /* ── UI 라벨 ── */
 #ui-tl{position:fixed;top:26px;left:34px;z-index:90;line-height:1;font-family:'Oxanium','Noto Sans KR',sans-serif}
 #ui-tank-name{
@@ -212,7 +151,53 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     -0.5px -0.5px 2px rgba(255,255,255,0.5),
      0.5px  0.5px 2px rgba(0,10,35,0.85);
 }
-#ui-tr{position:fixed;top:26px;right:34px;z-index:90;font-size:10px;letter-spacing:.18em;color:rgba(160,220,255,0.28)}
+#ui-tr{position:fixed;top:132px;right:34px;z-index:90;font-size:10px;letter-spacing:.18em;color:rgba(160,220,255,0.28)}
+
+/* ── 지도 토글 버튼 ── */
+#map-toggle{
+  position:fixed;top:24px;right:34px;z-index:91;
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(0,20,55,0.55);
+  border:1px solid rgba(120,210,255,0.25);
+  color:rgba(190,230,255,0.75);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(10px);
+  transition:all .2s;
+}
+#map-toggle:hover{
+  background:rgba(0,45,110,0.7);
+  border-color:rgba(150,220,255,0.55);
+  color:rgba(225,245,255,0.95);
+}
+#map-toggle svg{width:18px;height:18px}
+#map-toggle.hide-self{opacity:0;pointer-events:none}
+
+/* ── 도감 토글 버튼 ── */
+#dex-toggle{
+  position:fixed;top:78px;right:34px;z-index:91;
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(0,20,55,0.55);
+  border:1px solid rgba(120,210,255,0.25);
+  color:rgba(190,230,255,0.75);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(10px);
+  transition:all .2s;
+}
+#dex-toggle:hover{
+  background:rgba(0,45,110,0.7);
+  border-color:rgba(150,220,255,0.55);
+  color:rgba(225,245,255,0.95);
+}
+#dex-toggle svg{width:18px;height:18px}
+#dex-badge{
+  position:absolute;bottom:-3px;right:-3px;
+  min-width:16px;height:16px;border-radius:8px;padding:0 4px;
+  background:rgba(255,205,110,0.95);
+  color:rgba(40,25,5,0.95);
+  font-family:'Oxanium',sans-serif;font-size:8.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
 #ui-bl{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:90;font-size:10px;letter-spacing:.18em;color:rgba(150,215,255,0.22);white-space:nowrap}
 
 /* ══════════════════════════════════════
@@ -280,7 +265,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #lock-toast{
   position:fixed;top:50%;left:50%;
   transform:translate(-50%,-50%);
-  z-index:95;
+  z-index:130;
   background:rgba(0,10,30,0.9);
   border:1px solid rgba(100,180,255,0.2);
   border-radius:10px;padding:16px 24px;
@@ -295,6 +280,299 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   font-family:'Oxanium','Noto Sans KR',sans-serif;
   font-size:12px;letter-spacing:.14em;
   color:rgba(180,225,255,0.7);line-height:1.7;
+}
+
+/* ══════════════════════════════════════
+   건물 지도
+══════════════════════════════════════ */
+#map-overlay{
+  position:fixed;inset:0;z-index:120;
+  background:rgba(2,10,26,0.78);
+  backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+  display:flex;align-items:center;justify-content:center;
+  padding:40px 24px;
+}
+#map-overlay.open{opacity:1;pointer-events:all}
+
+#map-panel{
+  position:relative;
+  width:min(880px, 92vw);
+  max-height:88vh;
+  background:linear-gradient(165deg, rgba(6,26,52,0.97) 0%, rgba(3,16,36,0.99) 100%);
+  border:1px solid rgba(120,200,255,0.22);
+  border-radius:18px;
+  box-shadow:0 30px 90px rgba(0,10,40,0.6), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  padding:26px 30px 22px;
+  transform:translateY(14px) scale(0.97);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  overflow:hidden;
+}
+#map-overlay.open #map-panel{transform:translateY(0) scale(1)}
+
+@media (max-width:640px){
+  #map-overlay{padding:14px}
+  #map-panel{width:100%;max-height:94vh;padding:18px 14px 14px;border-radius:14px}
+  #map-title{font-size:14px}
+  #map-title .sub{font-size:8px;letter-spacing:.16em;margin-top:3px}
+  #map-floor-tabs{margin:12px 0 10px}
+  .floor-tab{padding:6px 13px;font-size:9px}
+  #map-legend{font-size:9px;gap:12px;margin-top:10px}
+  #map-stage{max-height:none}
+}
+
+#map-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:4px;
+}
+#map-title{
+  font-family:'Cinzel',serif;font-size:17px;letter-spacing:.12em;
+  color:rgba(230,245,255,0.92);
+}
+#map-title .sub{
+  display:block;font-family:'Oxanium',sans-serif;font-size:9px;
+  letter-spacing:.24em;color:rgba(140,200,255,0.45);margin-top:4px;
+  text-transform:uppercase;
+}
+#map-close{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(120,200,255,0.18);
+  color:rgba(180,220,255,0.6);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:all .2s;flex-shrink:0;
+}
+#map-close:hover{background:rgba(255,90,90,0.12);border-color:rgba(255,120,120,0.3);color:rgba(255,180,180,0.85)}
+
+#map-floor-tabs{
+  display:flex;gap:6px;margin:16px 0 14px;
+}
+.floor-tab{
+  padding:7px 16px;border-radius:20px;
+  font-family:'Oxanium',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:.14em;color:rgba(160,210,255,0.45);
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(120,200,255,0.12);
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.floor-tab:hover{color:rgba(200,230,255,0.7);border-color:rgba(140,210,255,0.3)}
+.floor-tab.active{
+  color:rgba(15,30,55,0.95);
+  background:rgba(190,230,255,0.85);
+  border-color:rgba(190,230,255,0.85);
+}
+
+#map-stage{
+  position:relative;width:100%;
+  aspect-ratio:880/640;
+  max-height:62vh;
+  border-radius:12px;
+  overflow:hidden;
+  background:radial-gradient(ellipse 90% 70% at 50% 10%, rgba(20,55,95,0.5) 0%, rgba(4,18,38,0.9) 70%);
+  border:1px solid rgba(100,170,230,0.12);
+}
+#map-stage svg{width:100%;height:100%;display:block}
+
+.map-room{cursor:pointer;transition:filter .2s}
+.map-room:hover .room-fill{filter:brightness(1.25)}
+.map-room:hover .room-label{fill:rgba(235,248,255,0.98)}
+.map-room.current .room-fill{filter:brightness(1.1)}
+.map-room.locked{cursor:default}
+.map-room.locked:hover .room-fill{filter:none}
+
+.room-fill{transition:filter .2s, opacity .2s}
+.room-label{
+  font-family:'Oxanium','Noto Sans KR',sans-serif;
+  pointer-events:none;user-select:none;
+}
+.room-pulse{
+  pointer-events:none;
+  animation:room-pulse-anim 2.2s ease-in-out infinite;
+}
+@keyframes room-pulse-anim{
+  0%,100%{opacity:.9;stroke-width:2}
+  50%{opacity:.25;stroke-width:5}
+}
+
+#map-legend{
+  display:flex;align-items:center;gap:18px;
+  margin-top:14px;font-size:10px;letter-spacing:.08em;
+  color:rgba(160,210,255,0.4);flex-wrap:wrap;
+}
+#map-legend span{display:flex;align-items:center;gap:6px}
+.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+#map-tooltip{
+  position:absolute;z-index:5;
+  background:rgba(2,12,30,0.95);
+  border:1px solid rgba(130,205,255,0.3);
+  border-radius:10px;padding:10px 14px;
+  pointer-events:none;opacity:0;transition:opacity .15s;
+  transform:translate(-50%,-100%);
+  white-space:nowrap;
+}
+#map-tooltip.show{opacity:1}
+#map-tooltip .tt-name{
+  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.08em;color:rgba(225,245,255,0.92);
+}
+#map-tooltip .tt-en{
+  font-family:'Oxanium',sans-serif;font-size:8px;letter-spacing:.12em;
+  color:rgba(140,200,255,0.5);margin-top:2px;text-transform:uppercase;
+}
+#map-tooltip .tt-lock{
+  font-size:9px;color:rgba(255,150,150,0.6);margin-top:5px;letter-spacing:.06em;
+}
+
+/* ══════════════════════════════════════
+   도감 (Specimen Codex)
+══════════════════════════════════════ */
+#dex-overlay{
+  position:fixed;inset:0;z-index:120;
+  background:rgba(2,10,26,0.78);
+  backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+  display:flex;align-items:center;justify-content:center;
+  padding:40px 24px;
+}
+#dex-overlay.open{opacity:1;pointer-events:all}
+
+#dex-panel{
+  position:relative;
+  width:min(960px, 94vw);
+  max-height:88vh;
+  background:linear-gradient(165deg, rgba(6,26,52,0.97) 0%, rgba(3,16,36,0.99) 100%);
+  border:1px solid rgba(120,200,255,0.22);
+  border-radius:18px;
+  box-shadow:0 30px 90px rgba(0,10,40,0.6), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  padding:26px 30px 22px;
+  display:flex;flex-direction:column;
+  transform:translateY(14px) scale(0.97);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1);
+}
+#dex-overlay.open #dex-panel{transform:translateY(0) scale(1)}
+
+#dex-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;flex-shrink:0}
+#dex-title{font-family:'Cinzel',serif;font-size:17px;letter-spacing:.12em;color:rgba(230,245,255,0.92)}
+#dex-title .sub{
+  display:block;font-family:'Oxanium',sans-serif;font-size:9px;
+  letter-spacing:.2em;color:rgba(140,200,255,0.45);margin-top:4px;text-transform:uppercase;
+}
+#dex-close{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(120,200,255,0.18);
+  color:rgba(180,220,255,0.6);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:all .2s;flex-shrink:0;
+}
+#dex-close:hover{background:rgba(255,90,90,0.12);border-color:rgba(255,120,120,0.3);color:rgba(255,180,180,0.85)}
+
+#dex-progress{
+  display:flex;align-items:center;gap:12px;margin:16px 0 14px;flex-shrink:0;
+}
+#dex-progress-bar-wrap{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden}
+#dex-progress-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,rgba(120,210,255,0.7),rgba(255,210,130,0.85));transition:width .4s ease;width:0%}
+#dex-progress-label{
+  font-family:'Oxanium',sans-serif;font-size:11px;letter-spacing:.1em;
+  color:rgba(200,230,255,0.7);white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+
+#dex-scroll{
+  overflow-y:auto;flex:1;padding-right:6px;margin-right:-6px;
+}
+#dex-scroll::-webkit-scrollbar{width:5px}
+#dex-scroll::-webkit-scrollbar-track{background:transparent}
+#dex-scroll::-webkit-scrollbar-thumb{background:rgba(120,180,230,0.18);border-radius:3px}
+
+.dex-section{margin-bottom:22px}
+.dex-section-head{
+  display:flex;align-items:baseline;gap:10px;margin-bottom:10px;
+  padding-bottom:7px;border-bottom:1px solid rgba(120,190,255,0.12);
+}
+.dex-section-name{
+  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.1em;color:rgba(220,240,255,0.85);
+}
+.dex-section-en{
+  font-family:'Oxanium',sans-serif;font-size:9px;letter-spacing:.14em;
+  color:rgba(140,200,255,0.4);text-transform:uppercase;
+}
+.dex-section-count{
+  margin-left:auto;font-family:'Oxanium',sans-serif;font-size:10px;
+  letter-spacing:.06em;color:rgba(160,210,255,0.4);font-variant-numeric:tabular-nums;
+}
+
+.dex-grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(124px, 1fr));
+  gap:10px;
+}
+.dex-card{
+  position:relative;
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(120,190,255,0.14);
+  border-radius:10px;
+  padding:12px 8px 10px;
+  display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;transition:all .2s;
+  min-height:118px;
+}
+.dex-card:hover{
+  background:rgba(120,190,255,0.06);
+  border-color:rgba(150,210,255,0.32);
+  transform:translateY(-2px);
+}
+.dex-card.found{border-color:rgba(255,205,110,0.22)}
+.dex-card.found:hover{border-color:rgba(255,210,120,0.5)}
+
+.dex-thumb-wrap{
+  width:84px;height:54px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:8px;
+}
+.dex-thumb{
+  max-width:84px;max-height:54px;object-fit:contain;
+  transition:filter .25s;
+}
+.dex-card.unfound .dex-thumb{
+  filter:brightness(0) saturate(100%) opacity(0.62);
+}
+.dex-card.found .dex-thumb{
+  filter:none;
+}
+.dex-card.unfound:hover .dex-thumb{
+  filter:brightness(0) saturate(100%) opacity(0.8);
+}
+
+.dex-card-name{
+  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:10.5px;font-weight:600;
+  letter-spacing:.03em;color:rgba(220,240,255,0.85);text-align:center;
+  line-height:1.3;
+}
+.dex-card.unfound .dex-card-name{color:rgba(150,165,185,0.4)}
+.dex-card-name.masked{letter-spacing:.12em}
+
+.dex-card-tag{
+  position:absolute;top:6px;right:6px;
+  font-size:9px;color:rgba(255,210,130,0.7);
+}
+
+#dex-empty{
+  text-align:center;padding:60px 20px;
+  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:12px;
+  letter-spacing:.1em;color:rgba(160,210,255,0.4);line-height:1.8;
+}
+
+@media (max-width:640px){
+  #dex-overlay{padding:14px}
+  #dex-panel{width:100%;max-height:94vh;padding:18px 14px 14px;border-radius:14px}
+  #dex-title{font-size:14px}
+  #dex-title .sub{font-size:8px;letter-spacing:.14em}
+  .dex-grid{grid-template-columns:repeat(auto-fill, minmax(96px, 1fr));gap:8px}
+  .dex-thumb-wrap{width:64px;height:44px}
+  .dex-thumb{max-width:64px;max-height:44px}
 }
 </style>
 </head>
@@ -344,22 +622,6 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     <span class="badge" id="p-dep"></span>
   </div>
 
-  <!-- 돋보기 렌즈 카드 -->
-  <div id="lens-overlay">
-    <div id="lens-card">
-      <button id="lens-close">×</button>
-      <div id="lens-fish-stage">
-        <img id="lens-fish-img" src="" alt="">
-      </div>
-      <div id="lens-info">
-        <h3 id="lens-name"></h3>
-        <div id="lens-lat"></div>
-        <p id="lens-desc"></p>
-        <span id="lens-dep" class="badge"></span>
-      </div>
-    </div>
-  </div>
-
   <!-- UI 라벨 -->
   <div id="ui-tl">
     <div id="ui-tank-name">대형 수조 &nbsp;·&nbsp; GRAND OCEAN TANK</div>
@@ -370,6 +632,24 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     <div id="ui-visit"></div>
   </div>
   <div id="ui-tr">0 specimens</div>
+
+  <!-- 지도 토글 -->
+  <button id="map-toggle" title="건물 지도" aria-label="건물 지도 열기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="3 6 9 4 15 6 21 4 21 18 15 20 9 18 3 20"></polygon>
+      <line x1="9" y1="4" x2="9" y2="18"></line>
+      <line x1="15" y1="6" x2="15" y2="20"></line>
+    </svg>
+  </button>
+
+  <!-- 도감 토글 -->
+  <button id="dex-toggle" title="생물 도감" aria-label="생물 도감 열기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+    </svg>
+    <span id="dex-badge" style="display:none">0</span>
+  </button>
   <!-- 수조 네비게이션 -->
   <div id="tank-nav">
     <button class="nav-arrow" id="nav-prev">&#8592;</button>
@@ -387,6 +667,51 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   <div id="lock-toast">
     <div class="lock-icon">🔒</div>
     <div class="lock-msg" id="lock-msg"></div>
+  </div>
+
+  <!-- 생물 도감 오버레이 -->
+  <div id="dex-overlay">
+    <div id="dex-panel">
+      <div id="dex-head">
+        <div id="dex-title">SPECIMEN CODEX<span class="sub">생물 도감 · 직접 관찰한 개체가 기록됩니다</span></div>
+        <button id="dex-close" aria-label="도감 닫기">&times;</button>
+      </div>
+      <div id="dex-progress">
+        <div id="dex-progress-bar-wrap"><div id="dex-progress-bar"></div></div>
+        <div id="dex-progress-label">0 / 0</div>
+      </div>
+      <div id="dex-scroll">
+        <div id="dex-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 건물 지도 오버레이 -->
+  <div id="map-overlay">
+    <div id="map-panel">
+      <div id="map-head">
+        <div id="map-title">AQUIVE FLOOR GUIDE<span class="sub">시설 안내도 · 수조를 클릭하면 이동합니다</span></div>
+        <button id="map-close" aria-label="지도 닫기">&times;</button>
+      </div>
+      <div id="map-floor-tabs">
+        <div class="floor-tab" data-floor="1F">1F</div>
+        <div class="floor-tab" data-floor="B1">B1F</div>
+        <div class="floor-tab" data-floor="B2">B2F</div>
+      </div>
+      <div id="map-stage">
+        <svg id="map-svg" viewBox="0 0 880 640" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="map-tooltip">
+          <div class="tt-name" id="tt-name"></div>
+          <div class="tt-en" id="tt-en"></div>
+          <div class="tt-lock" id="tt-lock"></div>
+        </div>
+      </div>
+      <div id="map-legend">
+        <span><span class="legend-dot" style="background:rgba(120,210,255,0.8)"></span>이동 가능</span>
+        <span><span class="legend-dot" style="background:rgba(160,180,200,0.35)"></span>잠김</span>
+        <span><span class="legend-dot" style="background:rgba(255,210,120,0.85)"></span>현재 위치</span>
+      </div>
+    </div>
   </div>
 
   <div id="ui-bl">물고기를 클릭하면 정보를 볼 수 있습니다</div>
@@ -561,6 +886,7 @@ function showPopup(fd,mx,my){
   popup.classList.add('on');
   clearTimeout(popT);
   popT=setTimeout(()=>popup.classList.remove('on'),5500);
+  recordSighting(fd.id);
 }
 
 [farCvs,midCvs,fgCvs].forEach(cvs=>{
@@ -579,49 +905,10 @@ function showPopup(fd,mx,my){
       const hw = f.w * (1 + pad * 2);
       const hh = f.h * (1 + pad * 2);
       if(mx>=hx && mx<=hx+hw && my>=hy && my<=hy+hh){
-        openLensCard(f); break;
+        showPopup(f.fd,mx,my); break;
       }
     }
   });
-});
-
-// ══════════════════════════════════════════
-//  돋보기 렌즈 카드 (물고기 정지 + 화면 중앙 고정)
-// ══════════════════════════════════════════
-const lensOverlay = document.getElementById('lens-overlay');
-let frozenFish = null;
-
-function openLensCard(f){
-  // 다른 물고기가 이미 멈춰있다면 먼저 풀어주기
-  if(frozenFish) frozenFish.frozen = false;
-
-  frozenFish = f;
-  f.frozen = true;
-
-  document.getElementById('lens-fish-img').src  = f.fd.src || '';
-  document.getElementById('lens-name').textContent = f.fd.name || '';
-  document.getElementById('lens-lat').textContent  = f.fd.latin || '';
-  document.getElementById('lens-desc').textContent = f.fd.desc || '';
-  document.getElementById('lens-dep').textContent  = f.fd.dep || '';
-
-  lensOverlay.classList.add('on');
-}
-
-function closeLensCard(){
-  lensOverlay.classList.remove('on');
-  if(frozenFish) frozenFish.frozen = false;
-  frozenFish = null;
-}
-
-document.getElementById('lens-close').addEventListener('click', e=>{
-  e.stopPropagation();
-  closeLensCard();
-});
-lensOverlay.addEventListener('click', e=>{
-  if(e.target === lensOverlay) closeLensCard();
-});
-document.addEventListener('keydown', e=>{
-  if(e.key === 'Escape') closeLensCard();
 });
 
 
@@ -638,15 +925,13 @@ function loop(){
   fgCtx.clearRect(0,0,vw,vh);
 
   FISH.forEach(f=>{
-    if(!f.frozen){
-      f.t+=0.016;
-      f.x += f.dir*f.fd.speed*f.sm*60*0.016;
-      f.y += Math.sin(f.t*.42+f.phase)*.55;
-      if(f.y<f.yMin) f.y=f.yMin;
-      if(f.y>f.yMax) f.y=f.yMax;
-      if(f.x> vw+f.w*2){f.dir=-1; f.x=vw+f.w;}
-      if(f.x<-f.w*3)  {f.dir=1;  f.x=-f.w*2;}
-    }
+    f.t+=0.016;
+    f.x += f.dir*f.fd.speed*f.sm*60*0.016;
+    f.y += Math.sin(f.t*.42+f.phase)*.55;
+    if(f.y<f.yMin) f.y=f.yMin;
+    if(f.y>f.yMax) f.y=f.yMax;
+    if(f.x> vw+f.w*2){f.dir=-1; f.x=vw+f.w;}
+    if(f.x<-f.w*3)  {f.dir=1;  f.x=-f.w*2;}
 
     if(!f.img.complete||!f.img.naturalWidth) return;
 
@@ -809,6 +1094,450 @@ const TANKS = [
   {id:12, name:'멸종 보관소',nameEn:'EXTINCTION ARCHIVE', unlock:-4000, autoUnlock:true},
 ];
 
+// ══════════════════════════════════════════
+//  건물 지도 — 층별 룸 배치 데이터
+// ══════════════════════════════════════════
+// 대수조(id:0)는 1F·B1 양쪽에 보이드로 표시되는 특수 케이스라 별도 처리.
+const MAP_ROOMS = {
+  '1F': [
+    {id:1, x:60,  y:60,  w:270, h:130},
+    {id:2, x:60,  y:220, w:270, h:130},
+    {id:4, x:550, y:60,  w:270, h:130},
+    {id:3, x:550, y:220, w:270, h:130},
+  ],
+  'B1': [
+    {id:5,  x:75,  y:60,  w:230, h:110},
+    {id:6,  x:575, y:60,  w:230, h:110},
+    {id:8,  x:75,  y:200, w:230, h:110},
+    {id:7,  x:575, y:200, w:230, h:110},
+    {id:9,  x:75,  y:340, w:230, h:110},
+    {id:10, x:575, y:340, w:230, h:110},
+    {id:11, x:75,  y:480, w:230, h:90},
+  ],
+  'B2': [
+    {id:12, x:340, y:240, w:200, h:140},
+  ],
+};
+const VOID_RECT = {x:345, y:40, w:190, h:580};
+
+function getTank(id){ return TANKS.find(t=>t.id===id); }
+
+// ══════════════════════════════════════════
+//  지도 렌더링
+// ══════════════════════════════════════════
+let mapCurrentFloor = '1F';
+const svgNS = 'http://www.w3.org/2000/svg';
+
+function svgEl(tag, attrs){
+  const el = document.createElementNS(svgNS, tag);
+  Object.entries(attrs||{}).forEach(([k,v])=> el.setAttribute(k, v));
+  return el;
+}
+
+function tankFloorOf(idx){
+  if(idx===0) return null; // 대수조는 보이드로 별도 처리
+  if(idx>=1 && idx<=4) return '1F';
+  if(idx>=5 && idx<=11) return 'B1';
+  return 'B2';
+}
+
+function buildVoidPath(floor){
+  // 대수조 보이드: 1F·B1 양쪽에 그려서 건물을 관통하는 느낌을 줌
+  const g = svgEl('g', {});
+  const r = VOID_RECT;
+  const rect = svgEl('rect', {
+    x:r.x, y:r.y, width:r.w, height:r.h, rx:18,
+    fill:'rgba(40,150,220,0.10)',
+    stroke:'rgba(120,210,255,0.35)', 'stroke-width':1,
+    'stroke-dasharray': floor==='B2' ? '0' : '0',
+  });
+  g.appendChild(rect);
+
+  // 내부 표시: 위/아래로 뚫려있다는 느낌의 점선
+  const innerDash = svgEl('line', {
+    x1:r.x+r.w/2, y1:r.y+14, x2:r.x+r.w/2, y2:r.y+r.h-14,
+    stroke:'rgba(150,220,255,0.18)', 'stroke-width':1, 'stroke-dasharray':'2 6'
+  });
+  g.appendChild(innerDash);
+
+  const label = svgEl('text', {
+    x:r.x+r.w/2, y:r.y+r.h/2-10, 'text-anchor':'middle',
+    class:'room-label', fill:'rgba(190,230,255,0.55)', 'font-size':12,
+    'letter-spacing':'0.12em'
+  });
+  label.textContent = '대수조';
+  g.appendChild(label);
+  const labelEn = svgEl('text', {
+    x:r.x+r.w/2, y:r.y+r.h/2+8, 'text-anchor':'middle',
+    class:'room-label', fill:'rgba(140,200,255,0.4)', 'font-size':9,
+    'letter-spacing':'0.16em'
+  });
+  labelEn.textContent = 'GRAND OCEAN TANK';
+  g.appendChild(labelEn);
+
+  const sub = svgEl('text', {
+    x:r.x+r.w/2, y:r.y+r.h/2+26, 'text-anchor':'middle',
+    fill:'rgba(120,180,230,0.32)', 'font-size':8, 'letter-spacing':'0.1em'
+  });
+  sub.textContent = floor==='1F' ? '1F – B1F 관통' : 'B1F까지 이어짐';
+  g.appendChild(sub);
+
+  g.classList.add('map-room');
+  g.style.cursor = 'pointer';
+  g.addEventListener('click', ()=> selectTankFromMap(0));
+  g.addEventListener('mouseenter', (e)=> showMapTooltip(e, getTank(0), true, 0));
+  g.addEventListener('mousemove', (e)=> moveMapTooltip(e));
+  g.addEventListener('mouseleave', hideMapTooltip);
+
+  if(currentTankIdx===0) g.classList.add('current');
+  return g;
+}
+
+function buildStairIcon(x,y,toFloorLabel,small){
+  const g = svgEl('g', {});
+  const w = small?34:46, h = small?34:46;
+  const rect = svgEl('rect', {x, y, width:w, height:h, rx:8, fill:'rgba(255,255,255,0.03)', stroke:'rgba(150,210,255,0.25)', 'stroke-width':0.8});
+  g.appendChild(rect);
+  const steps = svgEl('path', {
+    d: small
+      ? `M${x+9} ${y+21} h4 v-4 h4 v-4 h4 v-4 h4`
+      : `M${x+12} ${y+30} h6 v-6 h6 v-6 h6 v-6 h6`,
+    fill:'none', stroke:'rgba(190,230,255,0.55)', 'stroke-width':1.6, 'stroke-linecap':'round', 'stroke-linejoin':'round'
+  });
+  g.appendChild(steps);
+  const txt = svgEl('text', {x:x+w/2, y:y+h+13, 'text-anchor':'middle', fill:'rgba(150,210,255,0.4)', 'font-size':8.5, 'letter-spacing':'0.08em'});
+  txt.textContent = toFloorLabel;
+  g.appendChild(txt);
+  return g;
+}
+
+function renderMapFloor(floor){
+  mapCurrentFloor = floor;
+  const svg = document.getElementById('map-svg');
+  svg.innerHTML = '';
+
+  document.querySelectorAll('.floor-tab').forEach(tab=>{
+    tab.classList.toggle('active', tab.dataset.floor===floor);
+  });
+
+  const defs = svgEl('defs', {});
+  svg.appendChild(defs);
+
+  // 대수조 보이드는 1F, B1에서 표시
+  if(floor==='1F' || floor==='B1'){
+    svg.appendChild(buildVoidPath(floor));
+  }
+
+  const rooms = MAP_ROOMS[floor] || [];
+  rooms.forEach(r=>{
+    const tank = getTank(r.id);
+    if(!tank) return;
+    const unlocked = isTankUnlocked(tank);
+    const isCurrent = (currentTankIdx === r.id);
+
+    const g = svgEl('g', {class:'map-room'+(unlocked?'':' locked')+(isCurrent?' current':'')});
+
+    const fillUnlocked = isCurrent ? 'rgba(255,205,110,0.16)' : 'rgba(70,170,235,0.14)';
+    const strokeUnlocked = isCurrent ? 'rgba(255,210,120,0.85)' : 'rgba(120,200,255,0.4)';
+    const fillLocked = 'rgba(140,150,165,0.06)';
+    const strokeLocked = 'rgba(140,150,165,0.18)';
+
+    const rect = svgEl('rect', {
+      x:r.x, y:r.y, width:r.w, height:r.h, rx:14,
+      class:'room-fill',
+      fill: unlocked ? fillUnlocked : fillLocked,
+      stroke: unlocked ? strokeUnlocked : strokeLocked,
+      'stroke-width': isCurrent ? 1.6 : 1,
+    });
+    g.appendChild(rect);
+
+    if(isCurrent){
+      const pulse = svgEl('rect', {
+        x:r.x, y:r.y, width:r.w, height:r.h, rx:14,
+        class:'room-pulse', fill:'none', stroke:'rgba(255,215,130,0.9)', 'stroke-width':2,
+      });
+      g.appendChild(pulse);
+    }
+
+    const nameY = r.h > 90 ? r.y + r.h/2 - 8 : r.y + r.h/2 - 6;
+    const name = svgEl('text', {
+      x:r.x+r.w/2, y:nameY, 'text-anchor':'middle', class:'room-label',
+      fill: unlocked ? 'rgba(225,245,255,0.9)' : 'rgba(170,180,195,0.45)',
+      'font-size':14, 'font-weight':600, 'letter-spacing':'0.04em'
+    });
+    name.textContent = tank.name;
+    g.appendChild(name);
+
+    const enY = nameY + 17;
+    const en = svgEl('text', {
+      x:r.x+r.w/2, y:enY, 'text-anchor':'middle', class:'room-label',
+      fill: unlocked ? 'rgba(150,205,255,0.55)' : 'rgba(150,160,175,0.35)',
+      'font-size':9, 'letter-spacing':'0.14em'
+    });
+    en.textContent = tank.nameEn;
+    g.appendChild(en);
+
+    if(!unlocked){
+      const lockY = enY + 18;
+      const lockTxt = svgEl('text', {
+        x:r.x+r.w/2, y:lockY, 'text-anchor':'middle',
+        fill:'rgba(160,170,185,0.4)', 'font-size':9, 'letter-spacing':'0.06em'
+      });
+      lockTxt.textContent = '🔒 −'+Math.abs(tank.unlock)+'m';
+      g.appendChild(lockTxt);
+    }
+
+    g.addEventListener('click', ()=> selectTankFromMap(r.id));
+    g.addEventListener('mouseenter', (e)=> showMapTooltip(e, tank, unlocked, r.id));
+    g.addEventListener('mousemove', (e)=> moveMapTooltip(e));
+    g.addEventListener('mouseleave', hideMapTooltip);
+
+    svg.appendChild(g);
+  });
+
+  // 계단/이동 안내 아이콘 — 룸과 겹치지 않는 여백에 배치
+  if(floor==='1F'){
+    svg.appendChild(buildStairIcon(660, 420, 'B1F ↓'));
+  } else if(floor==='B1'){
+    svg.appendChild(buildStairIcon(660, 500, '1F ↑'));
+    svg.appendChild(buildStairIcon(135, 578, 'B2F ↓', true));
+  } else if(floor==='B2'){
+    svg.appendChild(buildStairIcon(420, 410, 'B1F ↑'));
+  }
+}
+
+function showMapTooltip(evt, tank, unlocked, tankId){
+  const tooltip = document.getElementById('map-tooltip');
+  const stage = document.getElementById('map-stage');
+  document.getElementById('tt-name').textContent = tank.name;
+  document.getElementById('tt-en').textContent = tank.nameEn;
+  const lockEl = document.getElementById('tt-lock');
+  if(!unlocked){
+    const needed = Math.abs(tank.unlock);
+    const current = getDepth();
+    lockEl.textContent = '수심 '+tank.unlock+'m 도달 시 해금 · 현재 −'+current+'m';
+    lockEl.style.display = 'block';
+  } else {
+    lockEl.style.display = 'none';
+  }
+  tooltip.classList.add('show');
+  moveMapTooltip(evt);
+}
+
+function moveMapTooltip(evt){
+  const tooltip = document.getElementById('map-tooltip');
+  const stage = document.getElementById('map-stage');
+  const rect = stage.getBoundingClientRect();
+  let x = evt.clientX - rect.left;
+  let y = evt.clientY - rect.top - 14;
+  tooltip.style.left = x+'px';
+  tooltip.style.top = y+'px';
+}
+
+function hideMapTooltip(){
+  document.getElementById('map-tooltip').classList.remove('show');
+}
+
+function selectTankFromMap(tankId){
+  const tank = getTank(tankId);
+  if(!isTankUnlocked(tank)){
+    showLockToast(tank);
+    return;
+  }
+  closeMap();
+  tryNav(tankId);
+}
+
+function openMap(){
+  renderMapFloor(tankFloorOf(currentTankIdx) || '1F');
+  document.getElementById('map-overlay').classList.add('open');
+}
+function closeMap(){
+  document.getElementById('map-overlay').classList.remove('open');
+  hideMapTooltip();
+}
+
+document.getElementById('map-toggle')?.addEventListener('click', openMap);
+document.getElementById('map-close')?.addEventListener('click', closeMap);
+document.getElementById('map-overlay')?.addEventListener('click', (e)=>{
+  if(e.target.id === 'map-overlay') closeMap();
+});
+document.querySelectorAll('.floor-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=> renderMapFloor(tab.dataset.floor));
+});
+
+// ══════════════════════════════════════════
+//  생물 도감 (Specimen Codex)
+// ══════════════════════════════════════════
+const DEX_KEY = 'aquive_collected_fish';
+
+function getCollectedSet(){
+  try{
+    const arr = JSON.parse(localStorage.getItem(DEX_KEY) || '[]');
+    return new Set(arr);
+  } catch(e){ return new Set(); }
+}
+function saveCollectedSet(set){
+  try{ localStorage.setItem(DEX_KEY, JSON.stringify(Array.from(set))); } catch(e){}
+}
+
+function recordSighting(fishId){
+  if(fishId===undefined || fishId===null) return;
+  const set = getCollectedSet();
+  const had = set.has(fishId);
+  set.add(fishId);
+  saveCollectedSet(set);
+  if(!had){
+    updateDexBadge();
+    if(document.getElementById('dex-overlay')?.classList.contains('open')){
+      renderDex();
+    }
+  }
+}
+
+// 전체 수조의 물고기 데이터를 한 번에 모음 (remoteData + localStorage 병합, applyTankData와 동일한 우선순위)
+function getAllFishAcrossTanks(){
+  const localKey = 'aquive_tank_data';
+  let local = {};
+  try{ local = JSON.parse(localStorage.getItem(localKey)||'{}'); } catch(e){}
+
+  const groups = [];
+  TANKS.forEach(tank=>{
+    const localTank  = local[tank.id];
+    const remoteTank  = remoteData ? remoteData[tank.id] : null;
+    const fishArr = (localTank?.fish?.length) ? localTank.fish : (remoteTank?.fish || []);
+    groups.push({
+      tank,
+      fish: fishArr.map(f => ({...f, src: fixImageUrl(f.src)})),
+    });
+  });
+  return groups;
+}
+
+function updateDexBadge(){
+  const badge = document.getElementById('dex-badge');
+  if(!badge) return;
+  const groups = getAllFishAcrossTanks();
+  const totalFish = groups.reduce((sum,g)=> sum + g.fish.length, 0);
+  const collected = getCollectedSet();
+  const foundCount = groups.reduce((sum,g)=> sum + g.fish.filter(f=>collected.has(f.id)).length, 0);
+  if(totalFish === 0){
+    badge.style.display = 'none';
+    return;
+  }
+  badge.style.display = 'flex';
+  badge.textContent = foundCount;
+}
+
+function maskName(name){
+  // 미발견 종의 이름을 자모 단위로 가려서 '???' 식으로 표시
+  return name.replace(/./g, '?');
+}
+
+function renderDex(){
+  const content = document.getElementById('dex-content');
+  const groups = getAllFishAcrossTanks();
+  const collected = getCollectedSet();
+
+  let totalFish = 0, totalFound = 0;
+  content.innerHTML = '';
+
+  groups.forEach(group=>{
+    if(!group.fish.length) return;
+    totalFish += group.fish.length;
+
+    const section = document.createElement('div');
+    section.className = 'dex-section';
+
+    const foundInSection = group.fish.filter(f=>collected.has(f.id)).length;
+    totalFound += foundInSection;
+
+    const head = document.createElement('div');
+    head.className = 'dex-section-head';
+    head.innerHTML = `
+      <span class="dex-section-name">${group.tank.name}</span>
+      <span class="dex-section-en">${group.tank.nameEn}</span>
+      <span class="dex-section-count">${foundInSection} / ${group.fish.length}</span>
+    `;
+    section.appendChild(head);
+
+    const grid = document.createElement('div');
+    grid.className = 'dex-grid';
+
+    group.fish.forEach(fd=>{
+      const found = collected.has(fd.id);
+      const card = document.createElement('div');
+      card.className = 'dex-card '+(found?'found':'unfound');
+
+      const thumbWrap = document.createElement('div');
+      thumbWrap.className = 'dex-thumb-wrap';
+      const img = document.createElement('img');
+      img.className = 'dex-thumb';
+      img.src = fd.src;
+      img.alt = found ? fd.name : '미확인 개체';
+      img.loading = 'lazy';
+      thumbWrap.appendChild(img);
+      card.appendChild(thumbWrap);
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'dex-card-name'+(found?'':' masked');
+      nameEl.textContent = found ? fd.name : maskName(fd.name);
+      card.appendChild(nameEl);
+
+      if(found){
+        card.addEventListener('click', ()=> showDexDetail(fd, group.tank));
+      }
+
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    content.appendChild(section);
+  });
+
+  if(totalFish === 0){
+    content.innerHTML = '<div id="dex-empty">아직 등록된 생물이 없습니다<br><span style="opacity:.6">수조를 둘러보며 새로운 개체를 만나보세요</span></div>';
+  }
+
+  const pct = totalFish ? Math.round((totalFound/totalFish)*100) : 0;
+  document.getElementById('dex-progress-bar').style.width = pct+'%';
+  document.getElementById('dex-progress-label').textContent = totalFound+' / '+totalFish;
+}
+
+function showDexDetail(fd, tank){
+  document.getElementById('p-name').textContent = fd.name;
+  document.getElementById('p-lat').textContent  = fd.latin;
+  document.getElementById('p-desc').textContent = fd.desc;
+  document.getElementById('p-dep').textContent  = fd.dep;
+  popup.style.left = (window.innerWidth/2 - 126)+'px';
+  popup.style.top  = (window.innerHeight/2 - 86)+'px';
+  popup.classList.add('on');
+  clearTimeout(popT);
+  popT = setTimeout(()=>popup.classList.remove('on'), 4500);
+}
+
+function openDex(){
+  renderDex();
+  document.getElementById('dex-overlay').classList.add('open');
+}
+function closeDex(){
+  document.getElementById('dex-overlay').classList.remove('open');
+}
+
+document.getElementById('dex-toggle')?.addEventListener('click', openDex);
+document.getElementById('dex-close')?.addEventListener('click', closeDex);
+document.getElementById('dex-overlay')?.addEventListener('click', (e)=>{
+  if(e.target.id === 'dex-overlay') closeDex();
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key !== 'Escape') return;
+  if(document.getElementById('dex-overlay')?.classList.contains('open')) closeDex();
+  else if(document.getElementById('map-overlay')?.classList.contains('open')) closeMap();
+});
+
+updateDexBadge();
+
 let currentTankIdx = 0;
 
 function getDepth(){
@@ -846,6 +1575,9 @@ function updateNavUI(){
   if(prevBtn) prevBtn.disabled = currentTankIdx===0;
   if(nextBtn) nextBtn.disabled = currentTankIdx===TANKS.length-1;
   buildNavDots();
+  if(document.getElementById('map-overlay')?.classList.contains('open')){
+    renderMapFloor(mapCurrentFloor);
+  }
 }
 
 function showLockToast(tank){
@@ -891,6 +1623,7 @@ document.getElementById('nav-next')?.addEventListener('click', ()=>{
 (async function(){
   await loadTanksJson();
   await applyTankData(0);
+  updateDexBadge();
 })();
 
 </script>
