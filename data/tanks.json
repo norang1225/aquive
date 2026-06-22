@@ -15,6 +15,20 @@
           "imgW": 1440,
           "imgH": 900,
           "src": "https://cdn.jsdelivr.net/gh/norang1225/aquive@main/images/fish/tank0_1782035242059.png"
+        },
+        {
+          "id": 1782097438080,
+          "name": "이름 없음",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "count": 1,
+          "speed": 0.55,
+          "imgW": 400,
+          "imgH": 200,
+          "src": "https://cdn.jsdelivr.net/gh/norang1225/aquive@main/images/fish/tank0_1782097438080.png"
         }
       ],
       "bg": {
