@@ -35,12 +35,13 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #layer-mid-obj   {z-index:8;pointer-events:none}
 
 /* 대수조 grand-mode: 세로 전체 월드 높이로 확장 */
+/* 실제 높이는 JS에서 이미지 비율 기반으로 동적 설정 */
 .grand-mode #layer-bg-base,
 .grand-mode #layer-bg-volume,
 .grand-mode #layer-bg-caustic,
 .grand-mode #layer-mid-obj {
-  height:300%;   /* GRAND_WORLD_MULT × 100% */
-  object-fit:fill;  /* 이미지 전체 표시 */
+  height:300%;   /* fallback: 이미지 로드 전 기본값 */
+  object-fit:fill;
 }
 
 @keyframes caustic-sway{
@@ -1078,8 +1079,34 @@ function showPopup(fd,mx,my){
 // 현재 수조 인덱스 (패럴랙스/대수조 판별에 필요해서 여기서 선언)
 let currentTankIdx = 0;
 
-// 대수조 월드 높이 배율 (화면의 N배)
-const GRAND_WORLD_MULT = 3;
+// 대수조 월드 높이 배율 (기본값: 이미지 로드 전 fallback)
+const GRAND_WORLD_MULT_DEFAULT = 3;
+let   grandWorldMult = GRAND_WORLD_MULT_DEFAULT;
+
+// 이미지 실제 비율로 월드 높이 재계산
+// base 이미지가 로드되면 호출됨
+function recalcGrandWorld(){
+  const img = document.getElementById('layer-bg-base');
+  if(!img || !img.naturalWidth || !img.naturalHeight) return;
+
+  const containerW = window.innerWidth + 160;  // 패럴랙스 여유 포함
+  const containerH = window.innerHeight;
+
+  // 이미지 전체가 보이도록 필요한 픽셀 높이
+  const neededH = containerW * (img.naturalHeight / img.naturalWidth);
+  // 화면 높이 대비 배율
+  grandWorldMult = neededH / containerH;
+
+  // 배경 레이어 높이를 실제 필요한 px로 설정
+  const layers = ['layer-bg-base','layer-bg-volume','layer-bg-caustic','layer-mid-obj'];
+  layers.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.height = neededH + 'px';
+  });
+
+  // 물고기 범위도 재배치
+  applyGrandFishRange();
+}
 
 // 패럴랙스 레이어별 배율 (마우스 중앙 편차 × 이 값 = 이동 픽셀)
 const PLX = {
@@ -1119,12 +1146,12 @@ window.addEventListener('mousemove', e => {
 
   function trackH()  { return track.getBoundingClientRect().height; }
   function handleH() { return handle.getBoundingClientRect().height; }
-  function scrollH() { return (GRAND_WORLD_MULT * window.innerHeight) - window.innerHeight; }
+  function scrollH() { return (grandWorldMult * window.innerHeight) - window.innerHeight; }
 
-  // 핸들 크기: 트랙의 (1/GRAND_WORLD_MULT) 비율
+  // 핸들 크기: 트랙의 (1/grandWorldMult) 비율
   function updateHandleSize(){
     const th = trackH() || 360;
-    handle.style.height = Math.round(th / GRAND_WORLD_MULT) + 'px';
+    handle.style.height = Math.round(th / grandWorldMult) + 'px';
   }
 
   // 카메라 위치 → 핸들 위치 동기화 (루프에서 매 프레임 호출)
@@ -1132,7 +1159,7 @@ window.addEventListener('mousemove', e => {
     if(!isGrandTank()) return;
     updateHandleSize();
     const th = trackH();
-    const hh = th / GRAND_WORLD_MULT;
+    const hh = th / grandWorldMult;
     const travel = th - hh;
     const ratio  = scrollH() > 0 ? cam.current / scrollH() : 0;
     handle.style.top = Math.max(0, Math.min(travel, ratio * travel)) + 'px';
@@ -1143,7 +1170,7 @@ window.addEventListener('mousemove', e => {
     if(e.target === handle) return;
     const rect  = track.getBoundingClientRect();
     const th    = rect.height;
-    const hh    = th / GRAND_WORLD_MULT;
+    const hh    = th / grandWorldMult;
     const ratio = Math.max(0, Math.min(1, (e.clientY - rect.top - hh/2) / (th - hh)));
     cam.target  = ratio * scrollH();
     e.preventDefault();
@@ -1163,7 +1190,7 @@ window.addEventListener('mousemove', e => {
   window.addEventListener('mousemove', e => {
     if(!dragging) return;
     const th     = trackH();
-    const hh     = th / GRAND_WORLD_MULT;
+    const hh     = th / grandWorldMult;
     const travel = th - hh;
     const dy     = e.clientY - dragStartY;
     const ratio  = travel > 0 ? dy / travel : 0;
@@ -1294,14 +1321,14 @@ function updateParallaxBg(isGrand){
 function isGrandTank(){ return currentTankIdx === 0; }
 
 function grandWorldH(){
-  return window.innerHeight * GRAND_WORLD_MULT;
+  return window.innerHeight * grandWorldMult;
 }
 
 // 대수조에서 물고기 yMin/yMax를 월드 전체로 넓혀 재배치
 function applyGrandFishRange(){
   if(!isGrandTank()) return;
   const vh  = logicalH();
-  const wh  = GRAND_WORLD_MULT * vh;  // 월드 높이 (논리 픽셀)
+  const wh  = grandWorldMult * vh;  // 월드 높이 (논리 픽셀)
   FISH.forEach(f => {
     switch(f.fd.layer){
       case 'far':  f.yMin = wh*.03; f.yMax = wh*.55; break;
@@ -1523,6 +1550,11 @@ function applyBgFromData(bg){
       el.src = src;
       el.style.display = 'block';
       if(map.def){ const d=document.getElementById(map.def); if(d) d.style.display='none'; }
+      // base 이미지 로드 완료 시 대수조 월드 높이 자동 재계산
+      if(key === 'base' && isGrandTank()){
+        el.onload = () => recalcGrandWorld();
+        if(el.complete && el.naturalWidth) recalcGrandWorld();
+      }
     } else {
       el.src = '';
       el.style.display = 'none';
