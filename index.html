@@ -12,21 +12,34 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #wrap{width:100vw;height:100vh;position:relative;overflow:hidden}
 
 /* ── 배경 레이어 ── */
-#layer-bg-base    {position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover}
-#layer-bg-caustic {position:absolute;inset:0;z-index:3;mix-blend-mode:screen;pointer-events:none;animation:caustic-sway 5s ease-in-out infinite alternate;width:100%;height:100%;object-fit:cover}
-#layer-bg-volume  {position:absolute;inset:0;z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7;width:100%;height:100%;object-fit:cover}
-#layer-mid-obj    {position:absolute;inset:0;z-index:8;pointer-events:none;width:100%;height:100%;object-fit:cover}
-#layer-floor-base {position:absolute;bottom:0;left:0;right:0;z-index:25;pointer-events:none}
-#layer-floor-obj  {position:absolute;bottom:0;left:0;right:0;z-index:28;pointer-events:none}
+/* 공통: 화면보다 넓게 배치 (패럴랙스 좌우 이동 여유분 160px) */
+#layer-bg-base,
+#layer-bg-caustic,
+#layer-bg-volume,
+#layer-mid-obj {
+  position:absolute;
+  top:0;
+  left:-80px;           /* 좌우 각 80px 여유 */
+  width:calc(100% + 160px);
+  height:100%;
+  object-fit:cover;
+  object-position:top center;
+  z-index:1;
+  display:none;         /* applyBgFromData에서 JS로 show/hide */
+}
+#layer-bg-caustic{
+  z-index:3;mix-blend-mode:screen;pointer-events:none;
+  animation:caustic-sway 5s ease-in-out infinite alternate;
+}
+#layer-bg-volume {z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
+#layer-mid-obj   {z-index:8;pointer-events:none}
 
-/* 대수조 세로 스크롤 모드: 배경이 월드 전체 높이를 커버 */
+/* 대수조 grand-mode: 세로 전체 월드 높이로 확장 */
 .grand-mode #layer-bg-base,
 .grand-mode #layer-bg-volume,
 .grand-mode #layer-bg-caustic,
 .grand-mode #layer-mid-obj {
-  top:0;
   height:300%;   /* GRAND_WORLD_MULT × 100% */
-  object-position: top center;
 }
 
 @keyframes caustic-sway{
@@ -257,6 +270,63 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 }
 #grand-scroll-track::before{ top:-4px; }
 #grand-scroll-track::after { bottom:-4px; }
+
+/* ── 대수조 가로 패럴랙스 슬라이더 ── */
+#grand-plx-slider{
+  position:fixed;
+  bottom:18px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(240px, 30vw);
+  height:4px;
+  z-index:91;
+  display:none;  /* 대수조에서만 JS로 표시 */
+}
+#grand-plx-track{
+  position:absolute;inset:0;
+  background:rgba(150,210,255,0.1);
+  border-radius:2px;
+  border:1px solid rgba(120,190,255,0.15);
+}
+#grand-plx-handle{
+  position:absolute;
+  top:50%;transform:translateY(-50%);
+  left:50%;           /* 기본 중앙 */
+  margin-left:-6px;   /* 핸들 폭/2 보정 */
+  width:12px;height:12px;
+  border-radius:50%;
+  background:rgba(160,220,255,0.55);
+  border:1px solid rgba(200,240,255,0.4);
+  cursor:grab;
+  transition:background .15s, width .15s, height .15s;
+}
+#grand-plx-handle:hover,
+#grand-plx-handle.dragging{
+  background:rgba(200,235,255,0.8);
+  border-color:rgba(230,248,255,0.7);
+  width:14px;height:14px;margin-left:-7px;
+  cursor:grabbing;
+}
+/* 트랙 양끝 표시 */
+#grand-plx-track::before,
+#grand-plx-track::after{
+  content:'';
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(150,210,255,0.25);
+}
+#grand-plx-track::before{ left:-4px; }
+#grand-plx-track::after { right:-4px; }
+/* 방향 힌트 텍스트 */
+#grand-plx-slider::before,
+#grand-plx-slider::after{
+  content:'◂';
+  position:absolute;top:50%;transform:translateY(-50%);
+  font-size:8px;color:rgba(150,210,255,0.3);
+  pointer-events:none;
+}
+#grand-plx-slider::before{ left:-14px; }
+#grand-plx-slider::after { right:-14px; content:'▸'; }
 #ui-bl{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:90;font-size:10px;letter-spacing:.18em;color:rgba(150,215,255,0.22);white-space:nowrap}
 
 /* ══════════════════════════════════════
@@ -642,10 +712,10 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   <div id="default-caustic"></div>
 
   <!-- 배경 이미지 레이어 -->
-  <img id="layer-bg-base"    src="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0;z-index:1">
-  <img id="layer-bg-volume"  src="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0;z-index:2;mix-blend-mode:screen">
-  <img id="layer-bg-caustic" src="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0;z-index:3;mix-blend-mode:screen">
-  <img id="layer-mid-obj"    src="" style="width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0;z-index:8">
+  <img id="layer-bg-base"    src="" alt="">
+  <img id="layer-bg-volume"  src="" alt="">
+  <img id="layer-bg-caustic" src="" alt="">
+  <img id="layer-mid-obj"    src="" alt="">
 
   <!-- 기포 1 (mid-obj 위, 물고기 아래) -->
   <div id="bubbles1"></div>
@@ -714,6 +784,13 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   <div id="grand-scrollbar">
     <div id="grand-scroll-track">
       <div id="grand-scroll-handle"></div>
+    </div>
+  </div>
+
+  <!-- 대수조 가로 패럴랙스 슬라이더 -->
+  <div id="grand-plx-slider">
+    <div id="grand-plx-track">
+      <div id="grand-plx-handle"></div>
     </div>
   </div>
   <!-- 수조 네비게이션 -->
@@ -1107,6 +1184,69 @@ window.addEventListener('mousemove', e => {
   }, { passive: false });
 })();
 
+// ── 대수조 가로 패럴랙스 슬라이더 ──
+(function(){
+  const slider = document.getElementById('grand-plx-slider');
+  const track  = document.getElementById('grand-plx-track');
+  const handle = document.getElementById('grand-plx-handle');
+  if(!slider || !track || !handle) return;
+
+  let dragging = false;
+  let dragStartX = 0;
+  let dragStartPlxX = 0;  // 드래그 시작 시점의 plx.mouseX
+
+  function trackW() { return track.getBoundingClientRect().width; }
+
+  // plx.mouseX(-0.5~0.5) → 핸들 위치 동기화
+  window.updatePlxHandle = function(){
+    if(!isGrandTank()) return;
+    const tw = trackW();
+    const hw = 12;
+    const travel = tw - hw;
+    // plx.curX: -0.5(좌) ~ 0.5(우) → 0~travel
+    const px = ((plx.curX + 0.5) * travel);
+    handle.style.left = Math.max(0, Math.min(travel, px)) + 'px';
+    handle.style.marginLeft = '0';
+  };
+
+  // 트랙 클릭 → 해당 위치로 이동
+  track.addEventListener('mousedown', e => {
+    if(e.target === handle) return;
+    const rect = track.getBoundingClientRect();
+    const tw = rect.width;
+    const hw = 12;
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left - hw/2) / (tw - hw)));
+    plx.mouseX = ratio - 0.5;  // 0~1 → -0.5~0.5
+    e.preventDefault();
+  });
+
+  // 핸들 드래그
+  handle.addEventListener('mousedown', e => {
+    dragging = true;
+    dragStartX = e.clientX;
+    dragStartPlxX = plx.mouseX;
+    handle.classList.add('dragging');
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if(!dragging) return;
+    const tw = trackW();
+    const hw = 12;
+    const travel = tw - hw;
+    const dx = e.clientX - dragStartX;
+    const ratio = travel > 0 ? dx / travel : 0;
+    plx.mouseX = Math.max(-0.5, Math.min(0.5, dragStartPlxX + ratio));
+  });
+
+  window.addEventListener('mouseup', () => {
+    if(!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+  });
+})();
+
 // 패럴랙스 배경 레이어 업데이트 (CSS transform)
 const PLX_BG_MAP = [
   { id: 'layer-bg-base',    key: 'base'    },
@@ -1122,27 +1262,29 @@ const PLX_BG_MAX_Y = 60;   // Y 최대 이동 픽셀 (대수조 세로 스크롤
 
 function updateParallaxBg(isGrand){
   const dx = plx.curX * PLX_BG_MAX_X;
-  const dy = plx.curY * PLX_BG_MAX_Y;
 
   PLX_BG_MAP.forEach(({ id, key }) => {
     const el = document.getElementById(id);
     if(!el || el.style.display === 'none') return;
     const scl = PLX[key] || 0;
-    const tx  = -dx * scl;
-    // 대수조: base/volume/caustic/midobj는 세로 스크롤 오프셋 추가
-    let ty;
+
+    // X: left 기준값(-80px)에서 패럴랙스 오프셋 추가
+    // 이동량이 ±80px 이내라 이미지가 잘리지 않음
+    const leftPx = -80 + (-dx * scl);
+
+    // Y: 대수조는 카메라 오프셋, 나머지는 0
+    let topPx = 0;
     if(isGrand && key !== 'frame'){
-      ty = -cam.current + (-dy * scl);
-    } else {
-      ty = -dy * scl;
+      topPx = -cam.current;
     }
-    // caustic은 기존 CSS 애니메이션을 유지하면서 추가 translate만 적용
+
     if(key === 'caustic'){
-      // caustic의 @keyframes animation을 override하지 않도록 translateX/Y만 추가
-      el.style.marginLeft = tx + 'px';
-      el.style.marginTop  = ty + 'px';
+      // caustic은 @keyframes animation이 transform을 사용하므로 margin으로 처리
+      el.style.marginLeft = (leftPx + 80) + 'px';  // 기준 -80에서의 추가 오프셋
+      el.style.marginTop  = topPx + 'px';
     } else {
-      el.style.transform = `translate(${tx}px, ${ty}px)`;
+      el.style.left = leftPx + 'px';
+      el.style.top  = topPx + 'px';
     }
   });
 }
@@ -1174,10 +1316,12 @@ function applyGrandFishRange(){
 // 대수조 진입/이탈 시 호출
 function onTankChanged(tankId){
   const wrap = document.getElementById('wrap');
-  const scrollbar = document.getElementById('grand-scrollbar');
+  const scrollbar  = document.getElementById('grand-scrollbar');
+  const plxSlider  = document.getElementById('grand-plx-slider');
   if(tankId === 0){
     wrap.classList.add('grand-mode');
     if(scrollbar) scrollbar.style.display = 'block';
+    if(plxSlider) plxSlider.style.display = 'block';
     applyGrandFishRange();
     cam.target  = 0;
     cam.current = 0;
@@ -1185,12 +1329,22 @@ function onTankChanged(tankId){
     plx.curY = 0;
     const handle = document.getElementById('grand-scroll-handle');
     if(handle) handle.style.top = '0px';
+    const plxHandle = document.getElementById('grand-plx-handle');
+    if(plxHandle){ plxHandle.style.left = ''; plxHandle.style.marginLeft = '0'; }
   } else {
     wrap.classList.remove('grand-mode');
     if(scrollbar) scrollbar.style.display = 'none';
-    PLX_BG_MAP.forEach(({ id }) => {
+    if(plxSlider) plxSlider.style.display = 'none';
+    PLX_BG_MAP.forEach(({ id, key }) => {
       const el = document.getElementById(id);
-      if(el){ el.style.transform = ''; el.style.marginLeft = ''; el.style.marginTop = ''; }
+      if(!el) return;
+      if(key === 'caustic'){
+        el.style.marginLeft = '';
+        el.style.marginTop  = '';
+      } else {
+        el.style.left = '-80px';
+        el.style.top  = '0px';
+      }
     });
   }
 }
@@ -1224,6 +1378,7 @@ function loop(){
 
   // ── 스크롤바 핸들 위치 동기화 ──
   if(grand && window.updateScrollHandle) window.updateScrollHandle();
+  if(grand && window.updatePlxHandle) window.updatePlxHandle();
 
   farCtx.clearRect(0,0,vw,vh);
   midCtx.clearRect(0,0,vw,vh);

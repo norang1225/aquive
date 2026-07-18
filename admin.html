@@ -894,7 +894,7 @@ async function uploadFishToGithub(fish){
   const path = `images/fish/${ghFileName}`;
 
   // CDN URL을 fish 객체에 저장
-  const cdnUrl = `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/fish/${ghFileName}`;
+  const cdnUrl = `https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/${ghFileName}`;
   fish.src = cdnUrl;
   fish.cdnUrl = cdnUrl;
 
@@ -924,7 +924,7 @@ async function uploadBgToGithub(slotKey, b64src, fileName){
   const ghFileName = `tank${currentTankId}_${slotKey}.${ext}`;
   const path = `images/bg/${ghFileName}`;
 
-  const cdnUrl = `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/bg/${ghFileName}`;
+  const cdnUrl = `https://raw.githubusercontent.com/${user}/${repo}/main/images/bg/${ghFileName}`;
 
   // 실제 파일명 + CDN URL 저장
   const d = getTankData(currentTankId);
@@ -957,7 +957,7 @@ async function updateTanksJson(){
           id:f.id, name:f.name, latin:f.latin, desc:f.desc,
           dep:f.dep, tier:f.tier, layer:f.layer,
           count:f.count, speed:f.speed, imgW:f.imgW, imgH:f.imgH,
-          src:`https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/fish/${fileName}`
+          src:`https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/${fileName}`
         };
       }),
       bg: Object.fromEntries(
@@ -967,7 +967,7 @@ async function updateTanksJson(){
             // 이미 CDN URL이면 그대로, raw URL이면 변환
             if(v.includes('cdn.jsdelivr.net')) return [k, v];
             const fileName = d.bgFileNames?.[k] || `tank${tank.id}_${k}.png`;
-            return [k, `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/bg/${fileName}`];
+            return [k, `https://raw.githubusercontent.com/${user}/${repo}/main/images/bg/${fileName}`];
           })
       )
     };
