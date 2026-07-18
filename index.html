@@ -1120,6 +1120,13 @@ function recalcGrandWorld(){
   // base 레이어만 전체 높이로 설정
   img.style.height = neededH + 'px';
 
+  // 카메라를 맨 아래(바닥)로 정확히 맞춤
+  if(isGrandTank()){
+    const maxScroll = neededH - containerH;
+    cam.target  = maxScroll;
+    cam.current = maxScroll;
+  }
+
   // 물고기 범위 재배치
   applyGrandFishRange();
 }
@@ -1172,13 +1179,15 @@ window.addEventListener('mousemove', e => {
   }
 
   // 카메라 위치 → 핸들 위치 동기화 (루프에서 매 프레임 호출)
+  // 핸들 아래 = 바닥(시작), 핸들 위 = 수면(올라감)
   window.updateScrollHandle = function(){
     if(!isGrandTank()) return;
     updateHandleSize();
     const th = trackH();
     const hh = th / grandWorldMult;
     const travel = th - hh;
-    const ratio  = scrollH() > 0 ? cam.current / scrollH() : 0;
+    const ratio  = scrollH() > 0 ? cam.current / scrollH() : 1;
+    // ratio 반전: cam이 최대(바닥)=1 → 핸들 맨 아래, cam=0(수면) → 핸들 맨 위
     handle.style.top = Math.max(0, Math.min(travel, ratio * travel)) + 'px';
   };
 
@@ -1382,10 +1391,13 @@ function onTankChanged(tankId){
     wrap.classList.add('grand-mode');
     if(scrollbar) scrollbar.style.display = 'block';
     applyGrandFishRange();
-    cam.target  = 0;
-    cam.current = 0;
+    // 카메라를 맨 아래에서 시작 (이미지 로드 전이라 scrollH()가 정확하지 않을 수 있음)
+    // recalcGrandWorld()에서 다시 맞춰줌
+    const initScrollH = (grandWorldMult * window.innerHeight) - window.innerHeight;
+    cam.target  = initScrollH;
+    cam.current = initScrollH;
     const handle = document.getElementById('grand-scroll-handle');
-    if(handle) handle.style.top = '0px';
+    if(handle) handle.style.top = ''; // 핸들은 recalcGrandWorld에서 업데이트
   } else {
     // 다른 수조: grand-mode 해제, 세로 스크롤바 숨김
     wrap.classList.remove('grand-mode');
