@@ -18,10 +18,8 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #layer-bg-volume {
   position:absolute;
   top:0;
-  left:50%;                    /* 중앙 기준 배치 */
-  transform:translateX(-50%);  /* 이미지 중심을 화면 중앙에 */
-  width:auto;                  /* 원본 크기 유지 */
-  min-width:100%;              /* 최소 화면 너비 보장 */
+  left:-120px;             /* 패럴랙스 여유분 (양쪽 120px) */
+  width:calc(100% + 240px);
   height:100%;
   vertical-align:top;
   z-index:1;
@@ -37,8 +35,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #layer-mid-obj {
   position:absolute;
   bottom:0;
-  left:50%;
-  transform:translateX(-50%);
+  left:-120px;
   width:calc(100% + 240px);
   height:auto;
   vertical-align:top;
@@ -52,8 +49,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #layer-floor-obj {
   position:absolute;
   bottom:0;
-  left:50%;
-  transform:translateX(-50%);
+  left:-120px;
   width:calc(100% + 240px);
   height:auto;
   display:none;
@@ -1297,43 +1293,55 @@ window.addEventListener('mousemove', e => {
 
 // 패럴랙스 배경 레이어 업데이트 (CSS transform)
 const PLX_BG_MAP = [
-  { id: 'layer-bg-base',    key: 'base',     baseLeft: 0 },
-  { id: 'layer-bg-volume',  key: 'volume',   baseLeft: 0 },
-  { id: 'layer-bg-caustic', key: 'caustic',  baseLeft: 0 },
-  { id: 'layer-mid-obj',    key: 'midobj',   baseLeft: 0 },
-  { id: 'layer-floor-base', key: 'floor',    baseLeft: 0 },
-  { id: 'layer-floor-obj',  key: 'floorobj', baseLeft: 0 },
+  { id: 'layer-bg-base',    key: 'base',     baseLeft: -120 },
+  { id: 'layer-bg-volume',  key: 'volume',   baseLeft: -120 },
+  { id: 'layer-bg-caustic', key: 'caustic',  baseLeft: -120 },
+  { id: 'layer-mid-obj',    key: 'midobj',   baseLeft: -120 },
+  { id: 'layer-floor-base', key: 'floor',    baseLeft: -120 },
+  { id: 'layer-floor-obj',  key: 'floorobj', baseLeft: -120 },
 ];
-const PLX_BG_MAX_X = 60;  // X 최대 이동 픽셀 (살짝만)
+const PLX_BG_MAX_X = 60;   // X 최대 이동 픽셀 (여유분 120px 안에서 ±60px)
 const PLX_BG_MAX_Y = 60;   // Y 최대 이동 픽셀 (대수조 세로 스크롤과 별개로 미세 패럴랙스)
 
 function updateParallaxBg(isGrand){
   const dx = plx.curX * PLX_BG_MAX_X;
 
-  PLX_BG_MAP.forEach(({ id, key }) => {
+  PLX_BG_MAP.forEach(({ id, key, baseLeft }) => {
     const el = document.getElementById(id);
     if(!el || el.style.display === 'none') return;
     const scl = PLX[key] || 0;
+    const base = baseLeft ?? -80;
 
-    // X: 중앙(-50%) 기준으로 패럴랙스 오프셋
-    const offsetX = -dx * scl;
+    // X: 기준 left에서 패럴랙스 오프셋
+    const leftPx = base + (-dx * scl);
 
     if(key === 'caustic'){
-      // caustic: @keyframes가 transform 사용 중 → marginLeft로 우회
-      el.style.marginLeft = offsetX + 'px';
-
+      // caustic은 @keyframes가 transform 사용 → marginLeft로 우회
+      // baseLeft(-120) 기준에서 추가 오프셋만 적용
+      el.style.marginLeft = (leftPx - base) + 'px';
     } else if(key === 'floor' || key === 'floorobj' || key === 'midobj'){
-      // 하단 오브젝트: 항상 화면 하단 고정 (대수조 포함), X 패럴랙스만 적용
-      el.style.transform = `translateX(calc(-50% + ${offsetX}px))`;
-
+      // 바닥/중경 오브젝트: left 패럴랙스 + 대수조에서 카메라 따라감
+      el.style.left = leftPx + 'px';
+      if(isGrand){
+        // 대수조: 월드 맨 아래 기준 배치
+        const worldH = window.innerHeight * grandWorldMult;
+        const elH    = el.offsetHeight || 0;
+        const topPx  = worldH - elH - cam.current;
+        el.style.top    = topPx + 'px';
+        el.style.bottom = 'auto';
+      } else {
+        // 일반 수조: 화면 하단 고정
+        el.style.top    = 'auto';
+        el.style.bottom = '0px';
+      }
     } else if(key === 'base'){
-      // base: 대수조에서 카메라 오프셋 추가
-      const offsetY = isGrand ? -cam.current : 0;
-      el.style.transform = `translateX(calc(-50% + ${offsetX}px)) translateY(${offsetY}px)`;
-
+      // base: left + 대수조 카메라 오프셋
+      el.style.left = leftPx + 'px';
+      el.style.top  = isGrand ? (-cam.current + 'px') : '0px';
     } else {
-      // volume 등 효과 레이어: X만
-      el.style.transform = `translateX(calc(-50% + ${offsetX}px))`;
+      // 나머지 효과 레이어: left만, top 고정
+      el.style.left = leftPx + 'px';
+      el.style.top  = '0px';
     }
   });
 }
@@ -1381,18 +1389,18 @@ function onTankChanged(tankId){
     // 다른 수조: grand-mode 해제, 세로 스크롤바 숨김
     wrap.classList.remove('grand-mode');
     if(scrollbar) scrollbar.style.display = 'none';
-    // base 높이 초기화, 전체 레이어 transform 중앙으로 리셋
-    const baseEl = document.getElementById('layer-bg-base');
-    if(baseEl) baseEl.style.height = '';
-    PLX_BG_MAP.forEach(({ id, key }) => {
+    // base 높이 초기화
+    const base = document.getElementById('layer-bg-base');
+    if(base) base.style.height = '';
+    // floor/mid-obj 레이어 bottom:0 + left:-120px 으로 복구
+    ['layer-floor-base','layer-floor-obj','layer-mid-obj'].forEach(id => {
       const el = document.getElementById(id);
-      if(!el) return;
-      if(key === 'caustic'){
-        el.style.marginLeft = '';
-        el.style.transform = 'translateX(-50%)';
-      } else {
-        el.style.transform = 'translateX(-50%)';
-      }
+      if(el){ el.style.top = 'auto'; el.style.bottom = '0px'; el.style.left = '-120px'; }
+    });
+    // 배경 레이어 left 복구
+    ['layer-bg-base','layer-bg-volume'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.left = '-120px';
     });
   }
 
