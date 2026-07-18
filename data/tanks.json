@@ -10,7 +10,9 @@
     },
     "1": {
       "fish": [],
-      "bg": {}
+      "bg": {
+        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_base.png"
+      }
     },
     "2": {
       "fish": [],
