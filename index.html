@@ -1144,8 +1144,9 @@ const plx = { mouseX: 0, mouseY: 0, curX: 0, curY: 0 };
 // 대수조 세로 스크롤 카메라 오프셋
 const cam = { target: 0, current: 0 };
 
-// 마우스 추적 — X만 패럴랙스에 사용 (Y는 스크롤바로 제어)
+// 마우스 추적 — X 패럴랙스 (모든 수조, 슬라이더 드래그 중에는 덮어쓰지 않음)
 window.addEventListener('mousemove', e => {
+  if(window._plxDragging) return;  // 드래그 중에는 마우스 위치 무시
   plx.mouseX = (e.clientX / window.innerWidth - 0.5);  // -0.5 ~ 0.5
 });
 
@@ -1241,13 +1242,11 @@ window.addEventListener('mousemove', e => {
 
   function trackW() { return track.getBoundingClientRect().width; }
 
-  // plx.mouseX(-0.5~0.5) → 핸들 위치 동기화
+  // plx.mouseX(-0.5~0.5) → 핸들 위치 동기화 (모든 수조)
   window.updatePlxHandle = function(){
-    if(!isGrandTank()) return;
     const tw = trackW();
     const hw = 12;
     const travel = tw - hw;
-    // plx.curX: -0.5(좌) ~ 0.5(우) → 0~travel
     const px = ((plx.curX + 0.5) * travel);
     handle.style.left = Math.max(0, Math.min(travel, px)) + 'px';
     handle.style.marginLeft = '0';
@@ -1267,6 +1266,7 @@ window.addEventListener('mousemove', e => {
   // 핸들 드래그
   handle.addEventListener('mousedown', e => {
     dragging = true;
+    window._plxDragging = true;
     dragStartX = e.clientX;
     dragStartPlxX = plx.mouseX;
     handle.classList.add('dragging');
@@ -1287,6 +1287,7 @@ window.addEventListener('mousemove', e => {
   window.addEventListener('mouseup', () => {
     if(!dragging) return;
     dragging = false;
+    window._plxDragging = false;
     handle.classList.remove('dragging');
   });
 })();
