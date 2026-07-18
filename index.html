@@ -12,12 +12,22 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #wrap{width:100vw;height:100vh;position:relative;overflow:hidden}
 
 /* ── 배경 레이어 ── */
-#layer-bg-base    {position:absolute;inset:0;z-index:1}
-#layer-bg-caustic {position:absolute;inset:0;z-index:3;mix-blend-mode:screen;pointer-events:none;animation:caustic-sway 5s ease-in-out infinite alternate}
-#layer-bg-volume  {position:absolute;inset:0;z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
-#layer-mid-obj    {position:absolute;inset:0;z-index:8;pointer-events:none}
+#layer-bg-base    {position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover}
+#layer-bg-caustic {position:absolute;inset:0;z-index:3;mix-blend-mode:screen;pointer-events:none;animation:caustic-sway 5s ease-in-out infinite alternate;width:100%;height:100%;object-fit:cover}
+#layer-bg-volume  {position:absolute;inset:0;z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7;width:100%;height:100%;object-fit:cover}
+#layer-mid-obj    {position:absolute;inset:0;z-index:8;pointer-events:none;width:100%;height:100%;object-fit:cover}
 #layer-floor-base {position:absolute;bottom:0;left:0;right:0;z-index:25;pointer-events:none}
 #layer-floor-obj  {position:absolute;bottom:0;left:0;right:0;z-index:28;pointer-events:none}
+
+/* 대수조 세로 스크롤 모드: 배경이 월드 전체 높이를 커버 */
+.grand-mode #layer-bg-base,
+.grand-mode #layer-bg-volume,
+.grand-mode #layer-bg-caustic,
+.grand-mode #layer-mid-obj {
+  top:0;
+  height:300%;   /* GRAND_WORLD_MULT × 100% */
+  object-position: top center;
+}
 
 @keyframes caustic-sway{
   from{transform:skewX(-2.5deg) scaleX(0.96) translateX(-8px);opacity:0.75}
@@ -198,6 +208,55 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   display:flex;align-items:center;justify-content:center;
   line-height:1;
 }
+
+/* ── 대수조 세로 스크롤바 ── */
+#grand-scrollbar{
+  position:fixed;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  width:4px;
+  height:min(360px, 55vh);
+  z-index:91;
+  display:none;  /* onTankChanged에서 JS로 토글 */
+}
+
+#grand-scroll-track{
+  position:absolute;inset:0;
+  background:rgba(150,210,255,0.1);
+  border-radius:2px;
+  border:1px solid rgba(120,190,255,0.15);
+}
+#grand-scroll-handle{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  width:12px;
+  border-radius:6px;
+  background:rgba(160,220,255,0.55);
+  border:1px solid rgba(200,240,255,0.4);
+  cursor:grab;
+  transition:background .15s, width .15s;
+  /* 높이는 JS에서 계산 */
+}
+#grand-scroll-handle:hover,
+#grand-scroll-handle.dragging{
+  background:rgba(200,235,255,0.8);
+  border-color:rgba(230,248,255,0.7);
+  width:14px;
+  cursor:grabbing;
+}
+/* 트랙 위아래 끝 표시 */
+#grand-scroll-track::before,
+#grand-scroll-track::after{
+  content:'';
+  position:absolute;
+  left:50%;transform:translateX(-50%);
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(150,210,255,0.25);
+}
+#grand-scroll-track::before{ top:-4px; }
+#grand-scroll-track::after { bottom:-4px; }
 #ui-bl{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:90;font-size:10px;letter-spacing:.18em;color:rgba(150,215,255,0.22);white-space:nowrap}
 
 /* ══════════════════════════════════════
@@ -650,6 +709,13 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     </svg>
     <span id="dex-badge" style="display:none">0</span>
   </button>
+
+  <!-- 대수조 세로 스크롤바 -->
+  <div id="grand-scrollbar">
+    <div id="grand-scroll-track">
+      <div id="grand-scroll-handle"></div>
+    </div>
+  </div>
   <!-- 수조 네비게이션 -->
   <div id="tank-nav">
     <button class="nav-arrow" id="nav-prev">&#8592;</button>
@@ -733,9 +799,24 @@ const farCtx = farCvs.getContext('2d');
 const midCtx = midCvs.getContext('2d');
 const fgCtx  = fgCvs.getContext('2d');
 
+// ── Retina(HiDPI) 대응 ──
+// 캔버스 물리 픽셀 = 논리 픽셀 × dpr
+// ctx는 dpr배로 스케일해서 논리 픽셀 좌표로 그리면 됨
+const DPR = window.devicePixelRatio || 1;
+
 function resize(){
-  const vw=window.innerWidth,vh=window.innerHeight;
-  [farCvs,midCvs,fgCvs].forEach(c=>{c.width=vw;c.height=vh});
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  [farCvs, midCvs, fgCvs].forEach(c => {
+    c.width  = Math.round(vw * DPR);
+    c.height = Math.round(vh * DPR);
+    c.style.width  = vw + 'px';
+    c.style.height = vh + 'px';
+  });
+  // ctx 스케일 초기화 후 dpr 적용
+  [farCtx, midCtx, fgCtx].forEach(ctx => {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  });
 }
 resize();
 window.addEventListener('resize',()=>{resize();rebuildFish();});
@@ -748,7 +829,8 @@ let fishData = [];
 
 function buildInstance(fd){
   // fd: {id, name, latin, desc, dep, tier, layer, count, speed, src}
-  const vw=farCvs.width, vh=farCvs.height;
+  const vw = logicalW();
+  const vh = logicalH();
   const tierScl = TIER_SCALE[fd.tier]||1;
   let depthScl, yMin, yMax, da;
   switch(fd.layer){
@@ -912,13 +994,236 @@ function showPopup(fd,mx,my){
 });
 
 
+//  패럴랙스 + 대수조 세로 스크롤
+// ══════════════════════════════════════════
+
+// 현재 수조 인덱스 (패럴랙스/대수조 판별에 필요해서 여기서 선언)
+let currentTankIdx = 0;
+
+// 대수조 월드 높이 배율 (화면의 N배)
+const GRAND_WORLD_MULT = 3;
+
+// 패럴랙스 레이어별 배율 (마우스 중앙 편차 × 이 값 = 이동 픽셀)
+const PLX = {
+  base:     0.04,
+  volume:   0.08,
+  caustic:  0.12,
+  midobj:   0.25,
+  floor:    0.60,
+  floorobj: 0.80,
+  shimmer:  0.10,
+  frame:    0.00,  // 프레임은 고정
+  fishFar:  0.35,
+  fishMid:  0.55,
+  fishNear: 0.85,
+};
+
+// 현재 패럴랙스 상태 (lerp target)
+const plx = { mouseX: 0, mouseY: 0, curX: 0, curY: 0 };
+// 대수조 세로 스크롤 카메라 오프셋
+const cam = { target: 0, current: 0 };
+
+// 마우스 추적 — X만 패럴랙스에 사용 (Y는 스크롤바로 제어)
+window.addEventListener('mousemove', e => {
+  plx.mouseX = (e.clientX / window.innerWidth - 0.5);  // -0.5 ~ 0.5
+});
+
+// ── 대수조 스크롤바 드래그 ──
+(function(){
+  const bar    = document.getElementById('grand-scrollbar');
+  const track  = document.getElementById('grand-scroll-track');
+  const handle = document.getElementById('grand-scroll-handle');
+  if(!bar || !track || !handle) return;
+
+  let dragging = false;
+  let dragStartY = 0;
+  let dragStartCamTarget = 0;
+
+  function trackH()  { return track.getBoundingClientRect().height; }
+  function handleH() { return handle.getBoundingClientRect().height; }
+  function scrollH() { return (GRAND_WORLD_MULT * window.innerHeight) - window.innerHeight; }
+
+  // 핸들 크기: 트랙의 (1/GRAND_WORLD_MULT) 비율
+  function updateHandleSize(){
+    const th = trackH() || 360;
+    handle.style.height = Math.round(th / GRAND_WORLD_MULT) + 'px';
+  }
+
+  // 카메라 위치 → 핸들 위치 동기화 (루프에서 매 프레임 호출)
+  window.updateScrollHandle = function(){
+    if(!isGrandTank()) return;
+    updateHandleSize();
+    const th = trackH();
+    const hh = th / GRAND_WORLD_MULT;
+    const travel = th - hh;
+    const ratio  = scrollH() > 0 ? cam.current / scrollH() : 0;
+    handle.style.top = Math.max(0, Math.min(travel, ratio * travel)) + 'px';
+  };
+
+  // 트랙 클릭 → 해당 위치로 즉시 이동
+  track.addEventListener('mousedown', e => {
+    if(e.target === handle) return;
+    const rect  = track.getBoundingClientRect();
+    const th    = rect.height;
+    const hh    = th / GRAND_WORLD_MULT;
+    const ratio = Math.max(0, Math.min(1, (e.clientY - rect.top - hh/2) / (th - hh)));
+    cam.target  = ratio * scrollH();
+    e.preventDefault();
+  });
+
+  // 핸들 드래그 시작
+  handle.addEventListener('mousedown', e => {
+    dragging = true;
+    dragStartY = e.clientY;
+    dragStartCamTarget = cam.target;
+    handle.classList.add('dragging');
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  // 드래그 중
+  window.addEventListener('mousemove', e => {
+    if(!dragging) return;
+    const th     = trackH();
+    const hh     = th / GRAND_WORLD_MULT;
+    const travel = th - hh;
+    const dy     = e.clientY - dragStartY;
+    const ratio  = travel > 0 ? dy / travel : 0;
+    cam.target   = Math.max(0, Math.min(scrollH(), dragStartCamTarget + ratio * scrollH()));
+  });
+
+  // 드래그 종료
+  window.addEventListener('mouseup', () => {
+    if(!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+  });
+
+  // 휠 스크롤도 지원
+  document.getElementById('wrap')?.addEventListener('wheel', e => {
+    if(!isGrandTank()) return;
+    cam.target = Math.max(0, Math.min(scrollH(), cam.target + e.deltaY * 0.8));
+    e.preventDefault();
+  }, { passive: false });
+})();
+
+// 패럴랙스 배경 레이어 업데이트 (CSS transform)
+const PLX_BG_MAP = [
+  { id: 'layer-bg-base',    key: 'base'    },
+  { id: 'layer-bg-volume',  key: 'volume'  },
+  { id: 'layer-bg-caustic', key: 'caustic' },
+  { id: 'layer-mid-obj',    key: 'midobj'  },
+  { id: 'layer-floor-base', key: 'floor'   },
+  { id: 'layer-floor-obj',  key: 'floorobj'},
+  { id: 'layer-shimmer-img',key: 'shimmer' },
+];
+const PLX_BG_MAX_X = 80;   // X 최대 이동 픽셀
+const PLX_BG_MAX_Y = 60;   // Y 최대 이동 픽셀 (대수조 세로 스크롤과 별개로 미세 패럴랙스)
+
+function updateParallaxBg(isGrand){
+  const dx = plx.curX * PLX_BG_MAX_X;
+  const dy = plx.curY * PLX_BG_MAX_Y;
+
+  PLX_BG_MAP.forEach(({ id, key }) => {
+    const el = document.getElementById(id);
+    if(!el || el.style.display === 'none') return;
+    const scl = PLX[key] || 0;
+    const tx  = -dx * scl;
+    // 대수조: base/volume/caustic/midobj는 세로 스크롤 오프셋 추가
+    let ty;
+    if(isGrand && key !== 'frame'){
+      ty = -cam.current + (-dy * scl);
+    } else {
+      ty = -dy * scl;
+    }
+    // caustic은 기존 CSS 애니메이션을 유지하면서 추가 translate만 적용
+    if(key === 'caustic'){
+      // caustic의 @keyframes animation을 override하지 않도록 translateX/Y만 추가
+      el.style.marginLeft = tx + 'px';
+      el.style.marginTop  = ty + 'px';
+    } else {
+      el.style.transform = `translate(${tx}px, ${ty}px)`;
+    }
+  });
+}
+
+// ── 대수조 전용 세팅 ──
+function isGrandTank(){ return currentTankIdx === 0; }
+
+function grandWorldH(){
+  return window.innerHeight * GRAND_WORLD_MULT;
+}
+
+// 대수조에서 물고기 yMin/yMax를 월드 전체로 넓혀 재배치
+function applyGrandFishRange(){
+  if(!isGrandTank()) return;
+  const vh  = logicalH();
+  const wh  = GRAND_WORLD_MULT * vh;  // 월드 높이 (논리 픽셀)
+  FISH.forEach(f => {
+    switch(f.fd.layer){
+      case 'far':  f.yMin = wh*.03; f.yMax = wh*.55; break;
+      case 'bot':  f.yMin = wh*.78; f.yMax = wh*.94; break;
+      case 'near': f.yMin = wh*.05; f.yMax = wh*.90; break;
+      default:     f.yMin = wh*.10; f.yMax = wh*.80; break;
+    }
+    // 현재 y가 새 범위 안에 들어오도록
+    f.y = f.yMin + Math.random() * (f.yMax - f.yMin);
+  });
+}
+
+// 대수조 진입/이탈 시 호출
+function onTankChanged(tankId){
+  const wrap = document.getElementById('wrap');
+  const scrollbar = document.getElementById('grand-scrollbar');
+  if(tankId === 0){
+    wrap.classList.add('grand-mode');
+    if(scrollbar) scrollbar.style.display = 'block';
+    applyGrandFishRange();
+    cam.target  = 0;
+    cam.current = 0;
+    plx.curX = 0; plx.mouseX = 0;
+    plx.curY = 0;
+    const handle = document.getElementById('grand-scroll-handle');
+    if(handle) handle.style.top = '0px';
+  } else {
+    wrap.classList.remove('grand-mode');
+    if(scrollbar) scrollbar.style.display = 'none';
+    PLX_BG_MAP.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if(el){ el.style.transform = ''; el.style.marginLeft = ''; el.style.marginTop = ''; }
+    });
+  }
+}
+
 // ══════════════════════════════════════════
 //  메인 루프
 // ══════════════════════════════════════════
+// 논리 픽셀 헬퍼 (캔버스는 DPR 배이므로 나눔)
+function logicalW(){ return farCvs.width  / DPR; }
+function logicalH(){ return farCvs.height / DPR; }
+
 let t=0;
 function loop(){
-  const vw=farCvs.width,vh=farCvs.height;
+  const vw = logicalW();
+  const vh = logicalH();
   t+=0.016;
+
+  // ── lerp: 마우스 X → 패럴랙스 ──
+  const LERP = 0.05;
+  plx.curX += (plx.mouseX - plx.curX) * LERP;
+  plx.curY += (plx.mouseY - plx.curY) * LERP;
+
+  // ── 대수조: 스크롤바 → 카메라 오프셋 (lerp로 부드럽게) ──
+  const grand = isGrandTank();
+  if(grand){
+    cam.current += (cam.target - cam.current) * LERP;
+  }
+
+  // ── 배경 패럴랙스 업데이트 ──
+  updateParallaxBg(grand);
+
+  // ── 스크롤바 핸들 위치 동기화 ──
+  if(grand && window.updateScrollHandle) window.updateScrollHandle();
 
   farCtx.clearRect(0,0,vw,vh);
   midCtx.clearRect(0,0,vw,vh);
@@ -943,9 +1248,25 @@ function loop(){
       default:     tc=midCtx;
     }
 
+    // ── 패럴랙스 X 오프셋 (물고기 레이어별) ──
+    let plxXKey = 'fishMid';
+    if(f.fd.layer==='far')  plxXKey = 'fishFar';
+    if(f.fd.layer==='near') plxXKey = 'fishNear';
+    const fishPlxX = -plx.curX * PLX_BG_MAX_X * PLX[plxXKey];
+
+    // ── 대수조: 세로 카메라 오프셋 (물고기도 카메라와 함께 이동) ──
+    // 레이어별 패럴랙스 배율로 살짝 차이
+    let camOffsetY = 0;
+    if(grand){
+      const layerCamScl = (f.fd.layer==='far') ? 0.85
+                        : (f.fd.layer==='near') ? 1.0
+                        : 0.92;
+      camOffsetY = cam.current * layerCamScl;
+    }
+
     tc.save();
     tc.globalAlpha=f.da;
-    tc.translate(f.x, f.y-f.h/2);
+    tc.translate(f.x + fishPlxX, f.y - f.h/2 - camOffsetY);
     if(f.dir===1){tc.translate(f.w,0);tc.scale(-1,1);}
     tc.translate(f.w/2,f.h/2);
     tc.rotate(snake);
@@ -1024,6 +1345,8 @@ function fixImageUrl(url){
   return url;
 }
 
+// ══════════════════════════════════════════
+
 function applyBgFromData(bg){
   console.log('[AQUIVE] applyBgFromData:', JSON.stringify(bg));
   const MAP = {
@@ -1074,6 +1397,7 @@ async function applyTankData(tankId){
   const fish = (localTank?.fish?.length) ? localTank.fish : (remoteTank?.fish || []);
   applyBgFromData(bg);
   applyFishFromData(fish);
+  onTankChanged(tankId);
 }
 
 
@@ -1537,8 +1861,6 @@ document.addEventListener('keydown', (e)=>{
 });
 
 updateDexBadge();
-
-let currentTankIdx = 0;
 
 function getDepth(){
   try{ return JSON.parse(localStorage.getItem('aquive_depth')||'{"depth":0}').depth; }
