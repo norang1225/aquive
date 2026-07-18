@@ -4,8 +4,7 @@
       "fish": [],
       "bg": {
         "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_floor.png",
-        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.jpg",
-        "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_midobj.png"
+        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.jpg"
       }
     },
     "1": {
