@@ -1309,8 +1309,23 @@ function updateParallaxBg(isGrand){
       // caustic은 @keyframes가 transform 사용 → margin으로 우회
       el.style.marginLeft = (leftPx - base) + 'px';
     } else if(key === 'floor' || key === 'floorobj'){
-      // 바닥 레이어: left만 (top/bottom 건드리지 않음)
+      // 바닥 레이어: left는 패럴랙스, top/bottom은 환경에 따라 다름
       el.style.left = leftPx + 'px';
+      if(isGrand){
+        // 대수조: 월드 맨 아래에 고정 (bottom 대신 top으로 계산)
+        // 월드 높이에서 카메라 오프셋을 빼면 화면에서 보이는 바닥 위치
+        const worldH   = window.innerHeight * grandWorldMult;
+        const floorH   = el.naturalHeight
+                         ? el.offsetWidth * (el.naturalHeight / el.naturalWidth)
+                         : (el.offsetHeight || 0);
+        const topPx    = worldH - floorH - cam.current;
+        el.style.top    = topPx + 'px';
+        el.style.bottom = 'auto';
+      } else {
+        // 일반 수조: 화면 하단 고정
+        el.style.top    = 'auto';
+        el.style.bottom = '0px';
+      }
     } else if(key === 'base'){
       // base: left + 대수조 카메라 오프셋
       el.style.left = leftPx + 'px';
@@ -1369,6 +1384,11 @@ function onTankChanged(tankId){
     // base 높이 초기화
     const base = document.getElementById('layer-bg-base');
     if(base) base.style.height = '';
+    // floor 레이어 bottom:0 으로 복구
+    ['layer-floor-base','layer-floor-obj'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el){ el.style.top = 'auto'; el.style.bottom = '0px'; }
+    });
   }
 
   // 가로 슬라이더는 모든 수조에서 표시
