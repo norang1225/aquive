@@ -12,7 +12,6 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #wrap{width:100vw;height:100vh;position:relative;overflow:hidden}
 
 /* ── 배경 레이어 ── */
-/* 공통: 화면보다 넓게 배치 (패럴랙스 좌우 이동 여유분 160px) */
 #layer-bg-base,
 #layer-bg-caustic,
 #layer-bg-volume,
@@ -21,10 +20,10 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   top:0;
   left:-80px;
   width:calc(100% + 160px);
-  height:100%;          /* 기본: 화면 높이 (grand-mode에서 JS로 px 덮어씀) */
-  display:block;        /* display는 JS에서 none/block으로 제어 */
-  vertical-align:top;   /* img 기본 baseline 정렬 제거 */
+  height:100%;
+  vertical-align:top;
   z-index:1;
+  display:none;
 }
 #layer-bg-caustic{
   z-index:3;mix-blend-mode:screen;pointer-events:none;
@@ -33,12 +32,10 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #layer-bg-volume {z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
 #layer-mid-obj   {z-index:8;pointer-events:none}
 
-/* 대수조 grand-mode: height는 JS recalcGrandWorld()가 px로 직접 설정 */
-.grand-mode #layer-bg-base,
-.grand-mode #layer-bg-volume,
-.grand-mode #layer-bg-caustic,
-.grand-mode #layer-mid-obj {
-  height:300%;   /* fallback: 이미지 로드 전 기본값, JS 로드 후 덮어씌워짐 */
+/* 대수조: base만 세로로 늘어남 (JS recalcGrandWorld()가 px로 설정)
+   volume/caustic/mid-obj는 화면 높이 유지 — 스크롤 시 반복 표시되는 효과용 */
+.grand-mode #layer-bg-base {
+  height:300%;  /* fallback, JS 로드 후 px로 덮어씌워짐 */
 }
 
 @keyframes caustic-sway{
@@ -1086,22 +1083,17 @@ function recalcGrandWorld(){
   const img = document.getElementById('layer-bg-base');
   if(!img || !img.naturalWidth || !img.naturalHeight) return;
 
-  const containerW = window.innerWidth + 160;  // 패럴랙스 여유 포함
+  const containerW = window.innerWidth + 160;
   const containerH = window.innerHeight;
 
-  // 이미지 전체가 보이도록 필요한 픽셀 높이
+  // base 이미지 전체가 보이도록 필요한 높이
   const neededH = containerW * (img.naturalHeight / img.naturalWidth);
-  // 화면 높이 대비 배율
   grandWorldMult = neededH / containerH;
 
-  // 배경 레이어 높이를 실제 필요한 px로 설정
-  const layers = ['layer-bg-base','layer-bg-volume','layer-bg-caustic','layer-mid-obj'];
-  layers.forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.style.height = neededH + 'px';
-  });
+  // base 레이어만 전체 높이로 설정
+  img.style.height = neededH + 'px';
 
-  // 물고기 범위도 재배치
+  // 물고기 범위 재배치
   applyGrandFishRange();
 }
 
@@ -1293,23 +1285,20 @@ function updateParallaxBg(isGrand){
     if(!el || el.style.display === 'none') return;
     const scl = PLX[key] || 0;
 
-    // X: left 기준값(-80px)에서 패럴랙스 오프셋 추가
-    // 이동량이 ±80px 이내라 이미지가 잘리지 않음
+    // X: 패럴랙스 (레이어별 배율로 다르게 이동)
     const leftPx = -80 + (-dx * scl);
 
-    // Y: 대수조는 카메라 오프셋, 나머지는 0
-    let topPx = 0;
-    if(isGrand && key !== 'frame'){
-      topPx = -cam.current;
-    }
-
+    // Y: base만 카메라 따라감, 나머지 효과 레이어는 top:0 고정
+    // (volume/caustic/midobj는 화면 크기라 스크롤 불필요)
     if(key === 'caustic'){
-      // caustic은 @keyframes animation이 transform을 사용하므로 margin으로 처리
-      el.style.marginLeft = (leftPx + 80) + 'px';  // 기준 -80에서의 추가 오프셋
-      el.style.marginTop  = topPx + 'px';
+      el.style.marginLeft = (leftPx + 80) + 'px';
+      // caustic은 top 건드리지 않음 (animation 유지)
+    } else if(key === 'base'){
+      el.style.left = leftPx + 'px';
+      el.style.top  = isGrand ? (-cam.current + 'px') : '0px';
     } else {
       el.style.left = leftPx + 'px';
-      el.style.top  = topPx + 'px';
+      el.style.top  = '0px';  // 효과 레이어는 항상 상단 고정
     }
   });
 }
@@ -1365,11 +1354,12 @@ function onTankChanged(tankId){
       if(!el) return;
       if(key === 'caustic'){
         el.style.marginLeft = '';
-        el.style.marginTop  = '';
       } else {
         el.style.left = '-80px';
         el.style.top  = '0px';
       }
+      // base 높이 초기화
+      if(key === 'base') el.style.height = '';
     });
   }
 }
