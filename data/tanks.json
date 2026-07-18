@@ -1,38 +1,9 @@
 {
   "tanks": {
     "0": {
-      "fish": [
-        {
-          "id": 1782035242059,
-          "name": "블루 시큐어드",
-          "latin": "",
-          "desc": "블루 시큐이드는 연안가에 사는",
-          "dep": "",
-          "tier": "md",
-          "layer": "mid",
-          "count": 5,
-          "speed": 0.55,
-          "imgW": 1440,
-          "imgH": 900,
-          "src": "https://cdn.jsdelivr.net/gh/norang1225/aquive@main/images/fish/tank0_1782035242059.png"
-        },
-        {
-          "id": 1782097438080,
-          "name": "이름 없음",
-          "latin": "",
-          "desc": "",
-          "dep": "",
-          "tier": "lg",
-          "layer": "mid",
-          "count": 1,
-          "speed": 0.55,
-          "imgW": 400,
-          "imgH": 200,
-          "src": "https://cdn.jsdelivr.net/gh/norang1225/aquive@main/images/fish/tank0_1782097438080.png"
-        }
-      ],
+      "fish": [],
       "bg": {
-        "base": "https://cdn.jsdelivr.net/gh/norang1225/aquive@main/images/bg/tank0_base.jpg"
+        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.jpg"
       }
     },
     "1": {
