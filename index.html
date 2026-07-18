@@ -12,16 +12,16 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #wrap{width:100vw;height:100vh;position:relative;overflow:hidden}
 
 /* ── 배경 레이어 ── */
-/* 이미지 자체에 패럴랙스 여유분 포함 (4880px 기준)
-   코드에서 추가로 늘리지 않고 width:100%로 표시 */
+/* 이미지 자체에 패럴랙스 여유분 포함 (4880px 기준) */
 #layer-bg-base,
 #layer-bg-caustic,
-#layer-bg-volume,
-#layer-mid-obj {
+#layer-bg-volume {
   position:absolute;
   top:0;
-  left:0;
-  width:100%;
+  left:50%;                    /* 중앙 기준 배치 */
+  transform:translateX(-50%);  /* 이미지 중심을 화면 중앙에 */
+  width:auto;                  /* 원본 크기 유지 */
+  min-width:100%;              /* 최소 화면 너비 보장 */
   height:100%;
   vertical-align:top;
   z-index:1;
@@ -32,15 +32,31 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   animation:caustic-sway 5s ease-in-out infinite alternate;
 }
 #layer-bg-volume {z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
-#layer-mid-obj   {z-index:8;pointer-events:none}
+
+/* mid-obj: 오브젝트 레이어라 height:auto (비율 유지), bottom:0 기준 배치 */
+#layer-mid-obj {
+  position:absolute;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:auto;
+  min-width:100%;
+  height:auto;
+  vertical-align:top;
+  z-index:8;
+  pointer-events:none;
+  display:none;
+}
 
 /* ── 바닥 레이어 (이미지 자체에 여유분 포함) ── */
 #layer-floor-base,
 #layer-floor-obj {
   position:absolute;
   bottom:0;
-  left:0;
-  width:100%;
+  left:50%;
+  transform:translateX(-50%);
+  width:auto;
+  min-width:100%;
   height:auto;
   display:none;
   pointer-events:none;
@@ -1296,44 +1312,38 @@ const PLX_BG_MAX_Y = 60;   // Y 최대 이동 픽셀 (대수조 세로 스크롤
 function updateParallaxBg(isGrand){
   const dx = plx.curX * PLX_BG_MAX_X;
 
-  PLX_BG_MAP.forEach(({ id, key, baseLeft }) => {
+  PLX_BG_MAP.forEach(({ id, key }) => {
     const el = document.getElementById(id);
     if(!el || el.style.display === 'none') return;
     const scl = PLX[key] || 0;
-    const base = baseLeft ?? -80;
 
-    // X: 기준 left에서 패럴랙스 오프셋
-    const leftPx = base + (-dx * scl);
+    // X: 중앙(-50%) 기준으로 패럴랙스 오프셋
+    const offsetX = -dx * scl;
 
     if(key === 'caustic'){
-      // caustic은 @keyframes가 transform 사용 → margin으로 우회
-      el.style.marginLeft = (leftPx - base) + 'px';
-    } else if(key === 'floor' || key === 'floorobj'){
-      // 바닥 레이어: left는 패럴랙스, top/bottom은 환경에 따라 다름
-      el.style.left = leftPx + 'px';
+      // caustic: @keyframes가 transform 사용 중 → marginLeft로 우회
+      el.style.marginLeft = offsetX + 'px';
+
+    } else if(key === 'floor' || key === 'floorobj' || key === 'midobj'){
+      // 하단 오브젝트: 대수조에서 카메라 따라감
       if(isGrand){
-        // 대수조: 월드 맨 아래에 고정 (bottom 대신 top으로 계산)
-        // 월드 높이에서 카메라 오프셋을 빼면 화면에서 보이는 바닥 위치
-        const worldH   = window.innerHeight * grandWorldMult;
-        const floorH   = el.naturalHeight
-                         ? el.offsetWidth * (el.naturalHeight / el.naturalWidth)
-                         : (el.offsetHeight || 0);
-        const topPx    = worldH - floorH - cam.current;
-        el.style.top    = topPx + 'px';
-        el.style.bottom = 'auto';
+        const worldH  = window.innerHeight * grandWorldMult;
+        const elH     = el.offsetHeight || 0;
+        // bottom:0 기준에서 카메라가 올라간 만큼 위로 이동
+        const offsetY = -(worldH - elH - cam.current);
+        el.style.transform = `translateX(calc(-50% + ${offsetX}px)) translateY(${offsetY}px)`;
       } else {
-        // 일반 수조: 화면 하단 고정
-        el.style.top    = 'auto';
-        el.style.bottom = '0px';
+        el.style.transform = `translateX(calc(-50% + ${offsetX}px))`;
       }
+
     } else if(key === 'base'){
-      // base: left + 대수조 카메라 오프셋
-      el.style.left = leftPx + 'px';
-      el.style.top  = isGrand ? (-cam.current + 'px') : '0px';
+      // base: 대수조에서 카메라 오프셋 추가
+      const offsetY = isGrand ? -cam.current : 0;
+      el.style.transform = `translateX(calc(-50% + ${offsetX}px)) translateY(${offsetY}px)`;
+
     } else {
-      // 나머지 효과 레이어: left만, top 고정
-      el.style.left = leftPx + 'px';
-      el.style.top  = '0px';
+      // volume 등 효과 레이어: X만
+      el.style.transform = `translateX(calc(-50% + ${offsetX}px))`;
     }
   });
 }
@@ -1382,12 +1392,17 @@ function onTankChanged(tankId){
     wrap.classList.remove('grand-mode');
     if(scrollbar) scrollbar.style.display = 'none';
     // base 높이 초기화
-    const base = document.getElementById('layer-bg-base');
-    if(base) base.style.height = '';
-    // floor 레이어 bottom:0 으로 복구
-    ['layer-floor-base','layer-floor-obj'].forEach(id => {
+    const baseEl = document.getElementById('layer-bg-base');
+    if(baseEl){ baseEl.style.height = ''; baseEl.style.transform = 'translateX(-50%)'; }
+    // floor/mid-obj: transform 중앙으로 리셋
+    ['layer-floor-base','layer-floor-obj','layer-mid-obj'].forEach(id => {
       const el = document.getElementById(id);
-      if(el){ el.style.top = 'auto'; el.style.bottom = '0px'; }
+      if(el) el.style.transform = 'translateX(-50%)';
+    });
+    // 나머지 레이어도 리셋
+    ['layer-bg-volume','layer-bg-caustic'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el){ el.style.transform = 'translateX(-50%)'; el.style.marginLeft = ''; }
     });
   }
 
