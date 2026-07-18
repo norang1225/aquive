@@ -19,13 +19,13 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #layer-mid-obj {
   position:absolute;
   top:0;
-  left:-80px;           /* 좌우 각 80px 여유 */
+  left:-80px;
   width:calc(100% + 160px);
   height:100%;
-  object-fit:cover;
+  object-fit:fill;        /* cover → fill: 이미지 전체가 다 보이게 */
   object-position:top center;
   z-index:1;
-  display:none;         /* applyBgFromData에서 JS로 show/hide */
+  display:none;
 }
 #layer-bg-caustic{
   z-index:3;mix-blend-mode:screen;pointer-events:none;
@@ -40,6 +40,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 .grand-mode #layer-bg-caustic,
 .grand-mode #layer-mid-obj {
   height:300%;   /* GRAND_WORLD_MULT × 100% */
+  object-fit:fill;  /* 이미지 전체 표시 */
 }
 
 @keyframes caustic-sway{
