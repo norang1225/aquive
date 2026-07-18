@@ -21,11 +21,10 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   top:0;
   left:-80px;
   width:calc(100% + 160px);
-  height:100%;
-  object-fit:fill;        /* cover → fill: 이미지 전체가 다 보이게 */
-  object-position:top center;
+  height:100%;          /* 기본: 화면 높이 (grand-mode에서 JS로 px 덮어씀) */
+  display:block;        /* display는 JS에서 none/block으로 제어 */
+  vertical-align:top;   /* img 기본 baseline 정렬 제거 */
   z-index:1;
-  display:none;
 }
 #layer-bg-caustic{
   z-index:3;mix-blend-mode:screen;pointer-events:none;
@@ -34,14 +33,12 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #layer-bg-volume {z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
 #layer-mid-obj   {z-index:8;pointer-events:none}
 
-/* 대수조 grand-mode: 세로 전체 월드 높이로 확장 */
-/* 실제 높이는 JS에서 이미지 비율 기반으로 동적 설정 */
+/* 대수조 grand-mode: height는 JS recalcGrandWorld()가 px로 직접 설정 */
 .grand-mode #layer-bg-base,
 .grand-mode #layer-bg-volume,
 .grand-mode #layer-bg-caustic,
 .grand-mode #layer-mid-obj {
-  height:300%;   /* fallback: 이미지 로드 전 기본값 */
-  object-fit:fill;
+  height:300%;   /* fallback: 이미지 로드 전 기본값, JS 로드 후 덮어씌워짐 */
 }
 
 @keyframes caustic-sway{
@@ -714,10 +711,10 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   <div id="default-caustic"></div>
 
   <!-- 배경 이미지 레이어 -->
-  <img id="layer-bg-base"    src="" alt="">
-  <img id="layer-bg-volume"  src="" alt="">
-  <img id="layer-bg-caustic" src="" alt="">
-  <img id="layer-mid-obj"    src="" alt="">
+  <img id="layer-bg-base"    src="" alt="" style="display:none">
+  <img id="layer-bg-volume"  src="" alt="" style="display:none">
+  <img id="layer-bg-caustic" src="" alt="" style="display:none">
+  <img id="layer-mid-obj"    src="" alt="" style="display:none">
 
   <!-- 기포 1 (mid-obj 위, 물고기 아래) -->
   <div id="bubbles1"></div>
