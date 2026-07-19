@@ -1,7 +1,22 @@
 {
   "tanks": {
     "0": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1784467354317,
+          "name": "블루 피리어드",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "count": 5,
+          "speed": 0.55,
+          "imgW": 1440,
+          "imgH": 900,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1784467354317.png"
+        }
+      ],
       "bg": {
         "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_floor.png",
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.jpg",
