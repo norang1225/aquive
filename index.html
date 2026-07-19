@@ -1326,21 +1326,19 @@ function updateParallaxBg(isGrand){
     const leftPx = base + (-dx * scl);
 
     if(key === 'caustic'){
-      // caustic은 @keyframes가 transform 사용 → marginLeft로 우회
-      // baseLeft(-120) 기준에서 추가 오프셋만 적용
+      // caustic: X는 marginLeft로, Y는 대수조에서 카메라 따라감
       el.style.marginLeft = (leftPx - base) + 'px';
+      el.style.top = isGrand ? (-cam.current + 'px') : '0px';
     } else if(key === 'floor' || key === 'floorobj' || key === 'midobj'){
       // 바닥/중경 오브젝트: left 패럴랙스 + 대수조에서 카메라 따라감
       el.style.left = leftPx + 'px';
       if(isGrand){
-        // 대수조: 월드 맨 아래 기준 배치
         const worldH = window.innerHeight * grandWorldMult;
         const elH    = el.offsetHeight || 0;
         const topPx  = worldH - elH - cam.current;
         el.style.top    = topPx + 'px';
         el.style.bottom = 'auto';
       } else {
-        // 일반 수조: 화면 하단 고정
         el.style.top    = 'auto';
         el.style.bottom = '0px';
       }
@@ -1349,9 +1347,9 @@ function updateParallaxBg(isGrand){
       el.style.left = leftPx + 'px';
       el.style.top  = isGrand ? (-cam.current + 'px') : '0px';
     } else {
-      // 나머지 효과 레이어: left만, top 고정
+      // volume 등 효과 레이어: left + 대수조에서 카메라 따라감
       el.style.left = leftPx + 'px';
-      el.style.top  = '0px';
+      el.style.top  = isGrand ? (-cam.current + 'px') : '0px';
     }
   });
 }
@@ -1411,9 +1409,9 @@ function onTankChanged(tankId){
       if(el){ el.style.top = 'auto'; el.style.bottom = '0px'; el.style.left = '-120px'; }
     });
     // 배경 레이어 left 복구
-    ['layer-bg-base','layer-bg-volume'].forEach(id => {
+    ['layer-bg-base','layer-bg-volume','layer-bg-caustic'].forEach(id => {
       const el = document.getElementById(id);
-      if(el) el.style.left = '-120px';
+      if(el){ el.style.left = '-120px'; el.style.top = '0px'; }
     });
   }
 
