@@ -33,7 +33,6 @@
       ],
       "bg": {
         "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_floor.png",
-        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.jpg",
         "frame": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_frame.png",
         "floorobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_floorobj.png",
         "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_volume.png",
