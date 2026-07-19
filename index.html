@@ -13,16 +13,26 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 
 /* ── 배경 레이어 ── */
 /* 이미지 자체에 패럴랙스 여유분 포함 (4880px 기준) */
-#layer-bg-base,
-#layer-bg-caustic,
-#layer-bg-volume {
+#layer-bg-base {
   position:absolute;
   top:0;
-  left:-120px;             /* 패럴랙스 여유분 (양쪽 120px) */
+  left:-120px;
   width:calc(100% + 240px);
   height:100%;
   vertical-align:top;
   z-index:1;
+  display:none;
+}
+
+/* volume/caustic: 효과 레이어라 height:auto (비율 유지), top으로 위치 이동 */
+#layer-bg-caustic,
+#layer-bg-volume {
+  position:absolute;
+  top:0;
+  left:-120px;
+  width:calc(100% + 240px);
+  height:auto;
+  vertical-align:top;
   display:none;
 }
 #layer-bg-caustic{
@@ -1389,13 +1399,16 @@ function onTankChanged(tankId){
     wrap.classList.add('grand-mode');
     if(scrollbar) scrollbar.style.display = 'block';
     applyGrandFishRange();
-    // 카메라를 맨 아래에서 시작 (이미지 로드 전이라 scrollH()가 정확하지 않을 수 있음)
-    // recalcGrandWorld()에서 다시 맞춰줌
+    // volume/caustic: 대수조에서 height:auto (비율 유지, top으로 이동)
+    ['layer-bg-volume','layer-bg-caustic'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.height = 'auto';
+    });
     const initScrollH = (grandWorldMult * window.innerHeight) - window.innerHeight;
     cam.target  = initScrollH;
     cam.current = initScrollH;
     const handle = document.getElementById('grand-scroll-handle');
-    if(handle) handle.style.top = ''; // 핸들은 recalcGrandWorld에서 업데이트
+    if(handle) handle.style.top = '';
   } else {
     // 다른 수조: grand-mode 해제, 세로 스크롤바 숨김
     wrap.classList.remove('grand-mode');
@@ -1403,12 +1416,17 @@ function onTankChanged(tankId){
     // base 높이 초기화
     const base = document.getElementById('layer-bg-base');
     if(base) base.style.height = '';
+    // volume/caustic: 일반 수조에서 height:100% (화면 꽉 채움)
+    ['layer-bg-volume','layer-bg-caustic'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el){ el.style.height = '100%'; el.style.top = '0px'; }
+    });
     // floor/mid-obj 레이어 bottom:0 + left:-120px 으로 복구
     ['layer-floor-base','layer-floor-obj','layer-mid-obj'].forEach(id => {
       const el = document.getElementById(id);
       if(el){ el.style.top = 'auto'; el.style.bottom = '0px'; el.style.left = '-120px'; }
     });
-    // 배경 레이어 left 복구
+    // 배경 레이어 left/top 복구
     ['layer-bg-base','layer-bg-volume','layer-bg-caustic'].forEach(id => {
       const el = document.getElementById(id);
       if(el){ el.style.left = '-120px'; el.style.top = '0px'; }
