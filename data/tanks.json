@@ -5,7 +5,8 @@
       "bg": {
         "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_floor.png",
         "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_midobj.png",
-        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.png"
+        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.png",
+        "frame": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_frame.png"
       }
     },
     "1": {
