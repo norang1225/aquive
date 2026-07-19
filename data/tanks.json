@@ -32,8 +32,7 @@
         }
       ],
       "bg": {
-        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_caustic.png",
-        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.png"
+        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_caustic.png"
       }
     },
     "1": {
