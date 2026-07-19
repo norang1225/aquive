@@ -15,6 +15,20 @@
           "imgW": 1440,
           "imgH": 900,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1784467354317.png"
+        },
+        {
+          "id": 1784467375657,
+          "name": "이름 없음",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "far",
+          "count": 10,
+          "speed": 0.55,
+          "imgW": 200,
+          "imgH": 100,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1784467375657.png"
         }
       ],
       "bg": {
