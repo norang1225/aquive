@@ -37,7 +37,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 }
 #layer-bg-caustic{
   z-index:3;mix-blend-mode:screen;pointer-events:none;
-  animation:caustic-sway 5s ease-in-out infinite alternate;
+  animation:caustic-sway 4s ease-in-out infinite;
 }
 #layer-bg-volume {z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
 
@@ -76,8 +76,9 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 }
 
 @keyframes caustic-sway{
-  from{transform:skewX(-2.5deg) scaleX(0.96) translateX(-8px);opacity:0.75}
-  to  {transform:skewX(2.5deg)  scaleX(1.04) translateX(8px); opacity:1}
+  0%  { transform:scaleX(0.94) scaleY(0.97); opacity:0.7; }
+  50% { transform:scaleX(1.06) scaleY(1.03); opacity:1.0; }
+  100%{ transform:scaleX(0.94) scaleY(0.97); opacity:0.7; }
 }
 
 /* ── 수면 반사 shimmer 이미지 레이어 ── */
