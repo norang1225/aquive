@@ -83,8 +83,12 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 
 /* ── 수면 반사 shimmer 이미지 레이어 ── */
 #layer-shimmer-img{
-  position:absolute;inset:0;z-index:50;pointer-events:none;
-  width:100%;height:100%;object-fit:cover;
+  position:absolute;
+  top:0; left:-120px;
+  width:calc(100% + 240px);
+  height:100%;
+  z-index:50;pointer-events:none;
+  object-fit:cover;
   display:none;
   animation:shimmer-breathe 5s ease-in-out infinite alternate;
 }
@@ -92,19 +96,15 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   from{ opacity:0.3; }
   to  { opacity:0.7; }
 }
-  to  { opacity:0.7; }
-}
-  30%  { opacity:0.72; }
-  60%  { opacity:0.88; }
-  100% { opacity:0.5; }
-}
-
-
 
 /* ── 프레임 이미지 레이어 ── */
 #layer-frame-img{
-  position:absolute;inset:0;z-index:55;pointer-events:none;
-  width:100%;height:100%;object-fit:cover;
+  position:absolute;
+  top:0; left:-120px;
+  width:calc(100% + 240px);
+  height:100%;
+  z-index:55;pointer-events:none;
+  object-fit:cover;
   display:none;
 }
 /* ── 기본 그라디언트 배경 (PNG 없을 때) ── */
@@ -1151,7 +1151,7 @@ const PLX = {
   floor:    0.60,
   floorobj: 0.80,
   shimmer:  0.10,
-  frame:    0.00,  // 프레임은 고정
+  frame:    0.95,  // 가장 앞 레이어, 가장 많이 이동
   fishFar:  0.35,
   fishMid:  0.55,
   fishNear: 0.85,
@@ -1320,6 +1320,8 @@ const PLX_BG_MAP = [
   { id: 'layer-mid-obj',    key: 'midobj',   baseLeft: -120 },
   { id: 'layer-floor-base', key: 'floor',    baseLeft: -120 },
   { id: 'layer-floor-obj',  key: 'floorobj', baseLeft: -120 },
+  { id: 'layer-shimmer-img',key: 'shimmer',  baseLeft: -120 },
+  { id: 'layer-frame-img',  key: 'frame',    baseLeft: -120 },
 ];
 const PLX_BG_MAX_X = 60;   // X 최대 이동 픽셀 (여유분 120px 안에서 ±60px)
 const PLX_BG_MAX_Y = 60;   // Y 최대 이동 픽셀 (대수조 세로 스크롤과 별개로 미세 패럴랙스)
@@ -1357,6 +1359,14 @@ function updateParallaxBg(isGrand){
       // base: left + 대수조 카메라 오프셋
       el.style.left = leftPx + 'px';
       el.style.top  = isGrand ? (-cam.current + 'px') : '0px';
+    } else if(key === 'shimmer'){
+      // shimmer: 수면 고정 (항상 top:0)
+      el.style.left = leftPx + 'px';
+      el.style.top  = '0px';
+    } else if(key === 'frame'){
+      // frame: 화면 크기 고정 (left만 패럴랙스, top은 항상 0)
+      el.style.left = leftPx + 'px';
+      el.style.top  = '0px';
     } else {
       // volume 등 효과 레이어: left + 대수조에서 카메라 따라감
       el.style.left = leftPx + 'px';
@@ -1428,7 +1438,7 @@ function onTankChanged(tankId){
       if(el){ el.style.top = 'auto'; el.style.bottom = '0px'; el.style.left = '-120px'; }
     });
     // 배경 레이어 left/top 복구
-    ['layer-bg-base','layer-bg-volume','layer-bg-caustic'].forEach(id => {
+    ['layer-bg-base','layer-bg-volume','layer-bg-caustic','layer-shimmer-img','layer-frame-img'].forEach(id => {
       const el = document.getElementById(id);
       if(el){ el.style.left = '-120px'; el.style.top = '0px'; }
     });
