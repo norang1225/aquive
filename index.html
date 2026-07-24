@@ -100,8 +100,8 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 /* ── 프레임 이미지 레이어 ── */
 #layer-frame-img{
   position:absolute;
-  top:0; left:-40px;    /* 좌우 40px 여유 (이동폭 작으므로 조금만) */
-  width:calc(100% + 80px);
+  top:0; left:-80px;
+  width:calc(100% + 160px);
   height:auto;
   z-index:55;pointer-events:none;
   display:none;
@@ -1340,11 +1340,10 @@ function updateParallaxBg(isGrand){
     const offsetX = -dx * scl;
 
     if(key === 'caustic'){
-      // caustic: @keyframes가 transform 사용 → marginLeft로 우회
+      // caustic: @keyframes가 transform 사용
+      // X → marginLeft, Y → marginTop 으로 우회 (transform 건드리지 않음)
       el.style.marginLeft = offsetX + 'px';
-      el.style.transform  = isGrand
-        ? `translateY(${-cam.current}px)`
-        : 'none';
+      el.style.marginTop  = isGrand ? (-cam.current + 'px') : '0px';
 
     } else if(key === 'floor' || key === 'floorobj' || key === 'midobj'){
       // 바닥/중경: X 패럴랙스 + 대수조에서 하단 기준 카메라 오프셋
@@ -1434,8 +1433,9 @@ function onTankChanged(tankId){
     PLX_BG_MAP.forEach(({ id, key }) => {
       const el = document.getElementById(id);
       if(!el) return;
-      el.style.transform = 'none';
+      el.style.transform  = 'none';
       el.style.marginLeft = '';
+      el.style.marginTop  = '';
       if(key === 'floor' || key === 'floorobj' || key === 'midobj'){
         el.style.top = 'auto'; el.style.bottom = '0px';
       }
