@@ -100,8 +100,8 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 /* ── 프레임 이미지 레이어 ── */
 #layer-frame-img{
   position:absolute;
-  top:0; left:-120px;
-  width:calc(100% + 240px);
+  top:0; left:0;        /* 화면 기준 딱 맞게 */
+  width:100%;
   height:100%;
   z-index:55;pointer-events:none;
   object-fit:cover;
@@ -1151,7 +1151,7 @@ const PLX = {
   floor:    0.60,
   floorobj: 0.80,
   shimmer:  0.10,
-  frame:    0.95,  // 가장 앞 레이어, 가장 많이 이동
+  frame:    0.00,  // 프레임은 고정 (화면 딱 맞는 크기라 이동하면 잘림)
   fishFar:  0.35,
   fishMid:  0.55,
   fishNear: 0.85,
@@ -1321,7 +1321,7 @@ const PLX_BG_MAP = [
   { id: 'layer-floor-base', key: 'floor',    baseLeft: -120 },
   { id: 'layer-floor-obj',  key: 'floorobj', baseLeft: -120 },
   { id: 'layer-shimmer-img',key: 'shimmer',  baseLeft: -120 },
-  { id: 'layer-frame-img',  key: 'frame',    baseLeft: -120 },
+  // frame은 화면 딱 맞는 크기라 패럴랙스 제외 (고정)
 ];
 const PLX_BG_MAX_X = 60;   // X 최대 이동 픽셀 (여유분 120px 안에서 ±60px)
 const PLX_BG_MAX_Y = 60;   // Y 최대 이동 픽셀 (대수조 세로 스크롤과 별개로 미세 패럴랙스)
@@ -1438,10 +1438,13 @@ function onTankChanged(tankId){
       if(el){ el.style.top = 'auto'; el.style.bottom = '0px'; el.style.left = '-120px'; }
     });
     // 배경 레이어 left/top 복구
-    ['layer-bg-base','layer-bg-volume','layer-bg-caustic','layer-shimmer-img','layer-frame-img'].forEach(id => {
+    ['layer-bg-base','layer-bg-volume','layer-bg-caustic','layer-shimmer-img'].forEach(id => {
       const el = document.getElementById(id);
       if(el){ el.style.left = '-120px'; el.style.top = '0px'; }
     });
+    // frame은 화면 기준이라 left:0
+    const frameEl = document.getElementById('layer-frame-img');
+    if(frameEl){ frameEl.style.left = '0px'; frameEl.style.top = '0px'; }
   }
 
   // 가로 슬라이더는 모든 수조에서 표시
@@ -1480,6 +1483,12 @@ function loop(){
 
   // ── 배경 패럴랙스 업데이트 ──
   updateParallaxBg(grand);
+
+  // ── frame: 대수조에서 카메라 따라감 (left는 고정, top만 이동) ──
+  const frameEl = document.getElementById('layer-frame-img');
+  if(frameEl && frameEl.style.display !== 'none'){
+    frameEl.style.top = grand ? (-cam.current + 'px') : '0px';
+  }
 
   // ── 스크롤바/슬라이더 핸들 동기화 ──
   if(grand && window.updateScrollHandle) window.updateScrollHandle();
