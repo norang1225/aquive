@@ -100,9 +100,9 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 /* ── 프레임 이미지 레이어 ── */
 #layer-frame-img{
   position:absolute;
-  top:0; left:0;
-  width:100%;
-  height:auto;           /* base처럼 비율 유지, JS에서 px 설정 */
+  top:0; left:-40px;    /* 좌우 40px 여유 (이동폭 작으므로 조금만) */
+  width:calc(100% + 80px);
+  height:auto;
   z-index:55;pointer-events:none;
   display:none;
 }
@@ -1333,45 +1333,42 @@ function updateParallaxBg(isGrand){
   PLX_BG_MAP.forEach(({ id, key, baseLeft }) => {
     const el = document.getElementById(id);
     if(!el || el.style.display === 'none') return;
-    const scl = PLX[key] || 0;
-    const base = baseLeft ?? -80;
+    const scl  = PLX[key] || 0;
+    const base = baseLeft ?? -120;
 
-    // X: 기준 left에서 패럴랙스 오프셋
-    const leftPx = base + (-dx * scl);
+    // X: 패럴랙스 오프셋 (CSS left:-120px 기준에서 추가 이동)
+    const offsetX = -dx * scl;
 
     if(key === 'caustic'){
-      // caustic: X는 marginLeft로, Y는 대수조에서 카메라 따라감
-      el.style.marginLeft = (leftPx - base) + 'px';
-      el.style.top = isGrand ? (-cam.current + 'px') : '0px';
+      // caustic: @keyframes가 transform 사용 → marginLeft로 우회
+      el.style.marginLeft = offsetX + 'px';
+      el.style.transform  = isGrand
+        ? `translateY(${-cam.current}px)`
+        : 'none';
+
     } else if(key === 'floor' || key === 'floorobj' || key === 'midobj'){
-      // 바닥/중경 오브젝트: left 패럴랙스 + 대수조에서 카메라 따라감
-      el.style.left = leftPx + 'px';
+      // 바닥/중경: X 패럴랙스 + 대수조에서 하단 기준 카메라 오프셋
       if(isGrand){
-        const worldH = window.innerHeight * grandWorldMult;
-        const elH    = el.offsetHeight || 0;
-        const topPx  = worldH - elH - cam.current;
-        el.style.top    = topPx + 'px';
-        el.style.bottom = 'auto';
+        const worldH  = window.innerHeight * grandWorldMult;
+        const elH     = el.offsetHeight || 0;
+        const offsetY = worldH - elH - cam.current;
+        el.style.transform = `translateX(${offsetX}px) translateY(${offsetY}px)`;
+        el.style.bottom    = 'auto';
+        el.style.top       = '0px';
       } else {
-        el.style.top    = 'auto';
-        el.style.bottom = '0px';
+        el.style.transform = `translateX(${offsetX}px)`;
+        el.style.top       = 'auto';
+        el.style.bottom    = '0px';
       }
-    } else if(key === 'base'){
-      // base: left + 대수조 카메라 오프셋
-      el.style.left = leftPx + 'px';
-      el.style.top  = isGrand ? (-cam.current + 'px') : '0px';
+
     } else if(key === 'shimmer'){
-      // shimmer: 수면 고정 (항상 top:0)
-      el.style.left = leftPx + 'px';
-      el.style.top  = '0px';
-    } else if(key === 'frame'){
-      // frame: 화면 크기 고정 (left만 패럴랙스, top은 항상 0)
-      el.style.left = leftPx + 'px';
-      el.style.top  = '0px';
+      // shimmer: X만, top 고정
+      el.style.transform = `translateX(${offsetX}px)`;
+
     } else {
-      // volume 등 효과 레이어: left + 대수조에서 카메라 따라감
-      el.style.left = leftPx + 'px';
-      el.style.top  = isGrand ? (-cam.current + 'px') : '0px';
+      // base/volume 등: X + 대수조에서 카메라 오프셋
+      const offsetY = isGrand ? -cam.current : 0;
+      el.style.transform = `translateX(${offsetX}px) translateY(${offsetY}px)`;
     }
   });
 }
@@ -1433,19 +1430,22 @@ function onTankChanged(tankId){
       const el = document.getElementById(id);
       if(el){ el.style.height = '100%'; el.style.top = '0px'; }
     });
-    // floor/mid-obj 레이어 bottom:0 + left:-120px 으로 복구
-    ['layer-floor-base','layer-floor-obj','layer-mid-obj'].forEach(id => {
+    // 모든 배경 레이어 transform 초기화
+    PLX_BG_MAP.forEach(({ id, key }) => {
       const el = document.getElementById(id);
-      if(el){ el.style.top = 'auto'; el.style.bottom = '0px'; el.style.left = '-120px'; }
+      if(!el) return;
+      el.style.transform = 'none';
+      el.style.marginLeft = '';
+      if(key === 'floor' || key === 'floorobj' || key === 'midobj'){
+        el.style.top = 'auto'; el.style.bottom = '0px';
+      }
     });
-    // 배경 레이어 left/top 복구
-    ['layer-bg-base','layer-bg-volume','layer-bg-caustic','layer-shimmer-img'].forEach(id => {
-      const el = document.getElementById(id);
-      if(el){ el.style.left = '-120px'; el.style.top = '0px'; }
-    });
-    // frame은 화면 기준이라 left:0
+    // frame 초기화
     const frameEl2 = document.getElementById('layer-frame-img');
-    if(frameEl2){ frameEl2.style.left = '0px'; frameEl2.style.top = '0px'; frameEl2.style.height = ''; }
+    if(frameEl2){ frameEl2.style.transform = 'none'; frameEl2.style.height = ''; }
+    // caustic top 초기화
+    const causticEl = document.getElementById('layer-bg-caustic');
+    if(causticEl) causticEl.style.transform = 'none';
   }
 
   // 가로 슬라이더는 모든 수조에서 표시
@@ -1485,12 +1485,12 @@ function loop(){
   // ── 배경 패럴랙스 업데이트 ──
   updateParallaxBg(grand);
 
-  // ── frame: base와 동일하게 카메라 따라감, left만 패럴랙스 ──
+  // ── frame: base와 동일하게 카메라 따라감, X만 패럴랙스 ──
   const frameEl = document.getElementById('layer-frame-img');
   if(frameEl && frameEl.style.display !== 'none'){
     const offsetX = -(plx.curX * PLX_BG_MAX_X) * PLX['frame'];
-    frameEl.style.left = offsetX + 'px';
-    frameEl.style.top  = grand ? (-cam.current + 'px') : '0px';
+    const offsetY = grand ? -cam.current : 0;
+    frameEl.style.transform = `translateX(${offsetX}px) translateY(${offsetY}px)`;
   }
 
   // ── 스크롤바/슬라이더 핸들 동기화 ──
