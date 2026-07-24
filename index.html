@@ -100,8 +100,8 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 /* ── 프레임 이미지 레이어 ── */
 #layer-frame-img{
   position:absolute;
-  top:0; left:-80px;
-  width:calc(100% + 160px);
+  top:0; left:0;
+  width:100%;
   height:auto;
   z-index:55;pointer-events:none;
   display:none;
@@ -1084,13 +1084,20 @@ function showPopup(fd,mx,my){
 [farCvs,midCvs,fgCvs].forEach(cvs=>{
   cvs.addEventListener('click',e=>{
     const mx=e.clientX,my=e.clientY;
+    const grand = isGrandTank();
     // 가장 위(near)부터 역순으로 체크
     for(let i=FISH.length-1;i>=0;i--){
       const f=FISH[i];
-      // 실제 렌더 좌표 — dir 상관없이 x는 항상 왼쪽 끝
-      const fx = f.x;
-      const fy = f.y - f.h/2;
-      // 히트 영역을 실제보다 20% 넉넉하게 (움직이는 물고기 클릭 편의)
+      // 렌더링과 동일한 오프셋 계산
+      let plxXKey = 'fishMid';
+      if(f.fd.layer==='far')  plxXKey = 'fishFar';
+      if(f.fd.layer==='near') plxXKey = 'fishNear';
+      const fishPlxX   = -plx.curX * PLX_BG_MAX_X * PLX[plxXKey];
+      const camOffsetY = grand
+        ? cam.current * ((f.fd.layer==='far') ? 0.85 : (f.fd.layer==='near') ? 1.0 : 0.92)
+        : 0;
+      const fx = f.x + fishPlxX;
+      const fy = f.y - f.h/2 - camOffsetY;
       const pad = 0.1;
       const hx = fx - f.w * pad;
       const hy = fy - f.h * pad;
@@ -1152,7 +1159,7 @@ const PLX = {
   floor:    0.60,
   floorobj: 0.80,
   shimmer:  0.10,
-  frame:    0.15,  // 액자: 화면 고정이지만 살짝 입체감
+  frame:    0.00,  // 액자: 고정 (이동하면 가장자리 틈 생김)
   fishFar:  0.35,
   fishMid:  0.55,
   fishNear: 0.85,
