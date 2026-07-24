@@ -1484,10 +1484,10 @@ function loop(){
   // ── 배경 패럴랙스 업데이트 ──
   updateParallaxBg(grand);
 
-  // ── frame: 대수조에서 카메라 따라감 (left는 고정, top만 이동) ──
+  // ── frame: 항상 화면 고정 (top:0 유지) ──
   const frameEl = document.getElementById('layer-frame-img');
   if(frameEl && frameEl.style.display !== 'none'){
-    frameEl.style.top = grand ? (-cam.current + 'px') : '0px';
+    frameEl.style.top = '0px';
   }
 
   // ── 스크롤바/슬라이더 핸들 동기화 ──
