@@ -100,11 +100,10 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 /* ── 프레임 이미지 레이어 ── */
 #layer-frame-img{
   position:absolute;
-  top:0; left:0;        /* 화면 기준 딱 맞게 */
+  top:0; left:0;
   width:100%;
-  height:100%;
+  height:auto;          /* 원본 비율 유지 - 세로로 긴 이미지 전체 표시 */
   z-index:55;pointer-events:none;
-  object-fit:cover;
   display:none;
 }
 /* ── 기본 그라디언트 배경 (PNG 없을 때) ── */
