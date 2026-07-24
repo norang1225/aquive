@@ -1484,10 +1484,16 @@ function loop(){
   // ── 배경 패럴랙스 업데이트 ──
   updateParallaxBg(grand);
 
-  // ── frame: 항상 화면 고정 (top:0 유지) ──
+  // ── frame: 카메라와 함께 이동 (바닥 기준) ──
   const frameEl = document.getElementById('layer-frame-img');
   if(frameEl && frameEl.style.display !== 'none'){
-    frameEl.style.top = '0px';
+    if(grand){
+      // 바닥에서 시작: cam=최대일 때 top=0, cam=0(수면)일 때 top=scrollMax
+      const scrollMax = (grandWorldMult * window.innerHeight) - window.innerHeight;
+      frameEl.style.top = (scrollMax - cam.current) + 'px';
+    } else {
+      frameEl.style.top = '0px';
+    }
   }
 
   // ── 스크롤바/슬라이더 핸들 동기화 ──
