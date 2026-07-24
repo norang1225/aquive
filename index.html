@@ -102,7 +102,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   position:absolute;
   top:0; left:0;
   width:100%;
-  height:auto;          /* 원본 비율 유지 - 세로로 긴 이미지 전체 표시 */
+  height:auto;           /* base처럼 비율 유지, JS에서 px 설정 */
   z-index:55;pointer-events:none;
   display:none;
 }
@@ -1127,8 +1127,10 @@ function recalcGrandWorld(){
   const neededH = containerW * (img.naturalHeight / img.naturalWidth);
   grandWorldMult = neededH / containerH;
 
-  // base 레이어만 전체 높이로 설정
+  // base/frame 레이어 전체 높이로 설정
   img.style.height = neededH + 'px';
+  const frameEl = document.getElementById('layer-frame-img');
+  if(frameEl) frameEl.style.height = neededH + 'px';
 
   // 카메라를 맨 아래(바닥)로 정확히 맞춤
   if(isGrandTank()){
@@ -1150,7 +1152,7 @@ const PLX = {
   floor:    0.60,
   floorobj: 0.80,
   shimmer:  0.10,
-  frame:    0.00,  // 프레임은 고정 (화면 딱 맞는 크기라 이동하면 잘림)
+  frame:    0.15,  // 액자: 화면 고정이지만 살짝 입체감
   fishFar:  0.35,
   fishMid:  0.55,
   fishNear: 0.85,
@@ -1442,8 +1444,8 @@ function onTankChanged(tankId){
       if(el){ el.style.left = '-120px'; el.style.top = '0px'; }
     });
     // frame은 화면 기준이라 left:0
-    const frameEl = document.getElementById('layer-frame-img');
-    if(frameEl){ frameEl.style.left = '0px'; frameEl.style.top = '0px'; }
+    const frameEl2 = document.getElementById('layer-frame-img');
+    if(frameEl2){ frameEl2.style.left = '0px'; frameEl2.style.top = '0px'; frameEl2.style.height = ''; }
   }
 
   // 가로 슬라이더는 모든 수조에서 표시
@@ -1483,16 +1485,12 @@ function loop(){
   // ── 배경 패럴랙스 업데이트 ──
   updateParallaxBg(grand);
 
-  // ── frame: 카메라와 함께 이동 (바닥 기준) ──
+  // ── frame: base와 동일하게 카메라 따라감, left만 패럴랙스 ──
   const frameEl = document.getElementById('layer-frame-img');
   if(frameEl && frameEl.style.display !== 'none'){
-    if(grand){
-      // 바닥에서 시작: cam=최대일 때 top=0, cam=0(수면)일 때 top=scrollMax
-      const scrollMax = (grandWorldMult * window.innerHeight) - window.innerHeight;
-      frameEl.style.top = (scrollMax - cam.current) + 'px';
-    } else {
-      frameEl.style.top = '0px';
-    }
+    const offsetX = -(plx.curX * PLX_BG_MAX_X) * PLX['frame'];
+    frameEl.style.left = offsetX + 'px';
+    frameEl.style.top  = grand ? (-cam.current + 'px') : '0px';
   }
 
   // ── 스크롤바/슬라이더 핸들 동기화 ──
