@@ -43,9 +43,7 @@
     },
     "1": {
       "fish": [],
-      "bg": {
-        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_caustic.png"
-      }
+      "bg": {}
     },
     "2": {
       "fish": [],
