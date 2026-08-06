@@ -44,7 +44,8 @@
     "1": {
       "fish": [],
       "bg": {
-        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_volume.png"
+        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_volume.png",
+        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_base.png"
       }
     },
     "2": {
