@@ -79,7 +79,6 @@
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_base.png",
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_caustic.png",
-        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_volume.png",
         "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_floor.png",
         "floorobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_floorobj.png",
         "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_shimmer.png",
