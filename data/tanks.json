@@ -77,7 +77,8 @@
     "6": {
       "fish": [],
       "bg": {
-        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_base.png"
+        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_base.png",
+        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_caustic.png"
       }
     },
     "7": {
