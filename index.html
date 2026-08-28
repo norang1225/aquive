@@ -41,7 +41,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 }
 #layer-bg-volume {z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
 
-/* mid-obj: 오브젝트 레이어라 height:auto (비율 유지), bottom:0 기준 배치 */
+/* mid-obj: 중경 오브젝트 - 바닥 위, 물고기 near 아래 */
 #layer-mid-obj {
   position:absolute;
   bottom:0;
@@ -49,7 +49,20 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   width:calc(100% + 240px);
   height:auto;
   vertical-align:top;
-  z-index:8;
+  z-index:23;
+  pointer-events:none;
+  display:none;
+}
+
+/* far-obj: 원경 오브젝트 - caustic 위, 물고기 far 아래 */
+#layer-far-obj {
+  position:absolute;
+  bottom:0;
+  left:-120px;
+  width:calc(100% + 240px);
+  height:auto;
+  vertical-align:top;
+  z-index:5;
   pointer-events:none;
   display:none;
 }
@@ -66,8 +79,8 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   pointer-events:none;
   vertical-align:top;
 }
-#layer-floor-base { z-index:25; }
-#layer-floor-obj  { z-index:28; }
+#layer-floor-base { z-index:15; }
+#layer-floor-obj  { z-index:17; }
 
 /* 대수조: base만 세로로 늘어남 (JS recalcGrandWorld()가 px로 설정)
    volume/caustic/mid-obj는 화면 높이 유지 — 스크롤 시 반복 표시되는 효과용 */
@@ -748,7 +761,8 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   <img id="layer-bg-base"    src="" alt="" style="display:none">
   <img id="layer-bg-volume"  src="" alt="" style="display:none">
   <img id="layer-bg-caustic" src="" alt="" style="display:none">
-  <img id="layer-mid-obj"    src="" alt="" style="display:none">
+  <img id="layer-far-obj"   src="" alt="" style="display:none">
+  <img id="layer-mid-obj"   src="" alt="" style="display:none">
 
   <!-- 기포 1 (mid-obj 위, 물고기 아래) -->
   <div id="bubbles1"></div>
@@ -1155,11 +1169,12 @@ const PLX = {
   base:     0.04,
   volume:   0.08,
   caustic:  0.12,
-  midobj:   0.25,
-  floor:    0.60,
-  floorobj: 0.80,
+  farobj:   0.18,  // 원경 오브젝트
+  midobj:   0.45,  // 중경 오브젝트 (바닥보다 앞이라 더 많이)
+  floor:    0.55,
+  floorobj: 0.70,
   shimmer:  0.10,
-  frame:    0.00,  // 액자: 고정 (이동하면 가장자리 틈 생김)
+  frame:    0.00,
   fishFar:  0.35,
   fishMid:  0.55,
   fishNear: 0.85,
@@ -1325,11 +1340,12 @@ const PLX_BG_MAP = [
   { id: 'layer-bg-base',    key: 'base',     baseLeft: -120 },
   { id: 'layer-bg-volume',  key: 'volume',   baseLeft: -120 },
   { id: 'layer-bg-caustic', key: 'caustic',  baseLeft: -120 },
-  { id: 'layer-mid-obj',    key: 'midobj',   baseLeft: -120 },
+  { id: 'layer-far-obj',    key: 'farobj',   baseLeft: -120 },
   { id: 'layer-floor-base', key: 'floor',    baseLeft: -120 },
   { id: 'layer-floor-obj',  key: 'floorobj', baseLeft: -120 },
+  { id: 'layer-mid-obj',    key: 'midobj',   baseLeft: -120 },
   { id: 'layer-shimmer-img',key: 'shimmer',  baseLeft: -120 },
-  // frame은 화면 딱 맞는 크기라 패럴랙스 제외 (고정)
+  // frame은 별도 처리
 ];
 const PLX_BG_MAX_X = 60;   // X 최대 이동 픽셀 (여유분 120px 안에서 ±60px)
 const PLX_BG_MAX_Y = 60;   // Y 최대 이동 픽셀 (대수조 세로 스크롤과 별개로 미세 패럴랙스)
@@ -1352,7 +1368,7 @@ function updateParallaxBg(isGrand){
       el.style.marginLeft = offsetX + 'px';
       el.style.marginTop  = isGrand ? (-cam.current + 'px') : '0px';
 
-    } else if(key === 'floor' || key === 'floorobj' || key === 'midobj'){
+    } else if(key === 'floor' || key === 'floorobj' || key === 'midobj' || key === 'farobj'){
       // 바닥/중경: X 패럴랙스 + 대수조에서 하단 기준 카메라 오프셋
       if(isGrand){
         const worldH  = window.innerHeight * grandWorldMult;
@@ -1443,7 +1459,7 @@ function onTankChanged(tankId){
       el.style.transform  = 'none';
       el.style.marginLeft = '';
       el.style.marginTop  = '';
-      if(key === 'floor' || key === 'floorobj' || key === 'midobj'){
+      if(key === 'floor' || key === 'floorobj' || key === 'midobj' || key === 'farobj'){
         el.style.top = 'auto'; el.style.bottom = '0px';
       }
     });
@@ -1632,6 +1648,7 @@ function applyBgFromData(bg){
     'base':     {el:'layer-bg-base',    def:'default-bg'},
     'caustic':  {el:'layer-bg-caustic', def:'default-caustic'},
     'volume':   {el:'layer-bg-volume',  def:null},
+    'farobj':   {el:'layer-far-obj',    def:null},
     'midobj':   {el:'layer-mid-obj',    def:null},
     'floor':    {el:'layer-floor-base', def:null},
     'floorobj': {el:'layer-floor-obj',  def:null},
