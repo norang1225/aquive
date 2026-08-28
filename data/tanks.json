@@ -80,7 +80,8 @@
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank4_caustic.png",
         "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank4_shimmer.png",
         "frame": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank4_frame.png",
-        "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank4_midobj.png"
+        "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank4_midobj.png",
+        "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank4_farobj.png"
       }
     },
     "5": {
