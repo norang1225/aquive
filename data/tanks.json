@@ -95,7 +95,8 @@
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_base.png",
         "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_volume.png",
-        "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_shimmer.png"
+        "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_shimmer.png",
+        "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_farobj.png"
       }
     },
     "7": {
