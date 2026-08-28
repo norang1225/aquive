@@ -111,8 +111,7 @@
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank8_base.png",
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank8_caustic.png",
-        "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank8_floor.png",
-        "floorobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank8_floorobj.png"
+        "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank8_floor.png"
       }
     },
     "9": {
