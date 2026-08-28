@@ -38,6 +38,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #layer-bg-caustic{
   z-index:3;mix-blend-mode:screen;pointer-events:none;
   animation:caustic-sway 4s ease-in-out infinite;
+  transform-origin: top center;  /* 위쪽 기준으로 줄어들어 모서리가 안 보임 */
 }
 #layer-bg-volume {z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
 
