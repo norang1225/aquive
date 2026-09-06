@@ -1,7 +1,22 @@
 {
   "tanks": {
     "0": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1788731465151,
+          "name": "방어",
+          "latin": "Seriola quinqueradiata TEMMICK et SCHLEGEL",
+          "desc": "몸은 긴 방추형이고 약간 옆으로 납작［側扁］하다. 제1등지느러미는 아주 짧고, 제2등지느러미는 매우 길다. 비늘은 작고 둥글다.\n몸빛은 등쪽이 철색(鐵色)을 띤 청색이고 배쪽은 은백색인데, 주둥이에서 꼬리자루까지 담황색의 불선명한 띠가 있다. 몸길이는 1m 가량이다.\n우리 나라의 동해안과 남해안에 많이 분포한다. 방어떼는 5월 초순부터 한여름까지 북상, 회유(洄游)하고 늦여름부터 이듬해 봄에 이르는 사이에 남하, 회유한다.",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "count": 7,
+          "speed": 0.55,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1788731465151.png"
+        }
+      ],
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.png",
         "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_volume.png",
