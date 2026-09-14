@@ -44,7 +44,8 @@
       "fish": [],
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_base.png",
-        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_caustic.png"
+        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_caustic.png",
+        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_volume.png"
       }
     },
     "3": {
