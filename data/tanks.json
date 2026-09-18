@@ -1,7 +1,27 @@
 {
   "tanks": {
     "0": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1789756246093,
+          "name": "정어리",
+          "latin": "Sardinops melanostictus",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "near": 4,
+            "mid": 5,
+            "far": 5
+          },
+          "count": 14,
+          "speed": 0.55,
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789756246093.png"
+        }
+      ],
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.png",
         "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_volume.png",
