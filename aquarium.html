@@ -908,6 +908,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   <div id="ui-bl">물고기를 클릭하면 정보를 볼 수 있습니다</div>
 </div>
 
+<script src="aquive-store.js"></script>
 <script>
 // ══════════════════════════════════════════
 //  티어 배율
@@ -1034,6 +1035,7 @@ function recordVisit() {
     data.depth  = data.visits * DEPTH_PER_VISIT;
     saveDepthData(data);
     localStorage.setItem('aquive_last_session', sessionKey);
+    window.AquiveSync?.push();   // 계정 기록 저장 (로그인한 경우에만 동작)
   }
   return data;
 }
@@ -1439,6 +1441,7 @@ function applyGrandFishRange(){
 
 // 수조 전환 시 호출
 function onTankChanged(tankId){
+  window.AquiveSync?.noteTank(tankId);   // 마지막으로 본 수조 / 다녀간 수조 기록
   const wrap = document.getElementById('wrap');
   const scrollbar = document.getElementById('grand-scrollbar');
   const plxSlider = document.getElementById('grand-plx-slider');
@@ -2031,6 +2034,7 @@ function recordSighting(fishId){
   set.add(fishId);
   saveCollectedSet(set);
   if(!had){
+    window.AquiveSync?.push();   // 계정 기록 저장
     updateDexBadge();
     if(document.getElementById('dex-overlay')?.classList.contains('open')){
       renderDex();
@@ -2266,9 +2270,18 @@ document.getElementById('nav-next')?.addEventListener('click', ()=>{
 
 // 초기 로드
 (async function(){
+  // card.html 의 "이어서" 탭: ?start=continue → 마지막으로 본 수조로 이동
+  let resumeId = null;
+  if(new URLSearchParams(location.search).get('start') === 'continue'){
+    try{ resumeId = (JSON.parse(localStorage.getItem('aquive_progress')||'{}')).lastTankId; }catch(e){}
+  }
   await loadTanksJson();
   await applyTankData(0);
   updateDexBadge();
+  if(Number.isFinite(resumeId)){
+    const idx = TANKS.findIndex(t => t.id === resumeId);
+    if(idx > 0) tryNav(idx);   // 잠긴 수조면 기존처럼 잠금 안내가 뜸
+  }
 })();
 
 </script>

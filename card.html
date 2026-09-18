@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AQUIVE · Id 카드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Noto+Sans+KR:wght@400&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   AQUIVE · Id 카드 (Figma: 2001:4 첫 방문 / 79:32 2회차, 2560×1440)
+   - 두 화면은 같은 바인더를 공유 → 한 페이지에서 장면(data-scene)만 전환
+       a = 로그인 창(이름+비밀번호, 위촉 계약)   b = 로그인 후 바인더(도감·지도·ID card·탭)
+   - 디자인 좌표 그대로 배치하고 창 크기에 맞춰 비율만 조절(#stage transform)
+   ══════════════════════════════════════════ */
+:root{ --aquive:#4bb4ff; }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#000;overflow:hidden}
+body{font-family:'Inter','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',sans-serif;color:#000}
+
+#stage{position:absolute;left:0;top:0;width:2560px;height:1440px;transform-origin:0 0;background:#000}
+#stage:not(.ready){visibility:hidden}                                    /* 로그인 상태 확인이 끝나기 전엔 숨김 */
+#stage > *{position:absolute}
+#stage[data-scene="a"] .b-only, #stage[data-scene="b"] .a-only{display:none}
+svg{display:block}
+.t{font-weight:400;line-height:normal;white-space:nowrap}
+
+/* ── 바인더 (두 장면 공통) ── */
+#gray-page{left:350px;top:170px;width:1016px;height:1100px;background:rgba(123,136,152,.9);
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  clip-path:path('M1016 1085C1016 1093.28 1009.28 1100 1001 1100H131C122.716 1100 116 1093.28 116 1085V402.537C116 395.735 111.423 389.785 104.849 388.039L18.584 365.135C7.62753 362.225 4.95519e-07 352.308 0 340.972V133.028C-4.95519e-07 121.692 7.62752 111.774 18.584 108.865L104.849 85.9607C111.423 84.2152 116 78.2647 116 71.463V15C116 6.71573 122.716 0 131 0H1001C1009.28 0 1016 6.71573 1016 15V1085Z')}
+.glass{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#map-panel{left:1372px;top:207px;width:758px;height:1008px;background:#343c3f;border-radius:25px}
+#paper{left:480px;top:193px;width:858px;height:1048px;background:#ededed}
+#cover{left:509px;top:207px;width:642px;height:504px;background:#000;overflow:hidden}
+#stage[data-scene="b"] #cover{top:220px}
+#cover canvas{position:absolute;left:0;top:0;width:642px;height:504px;opacity:.2}
+#cover-link{left:509px;top:220px;width:642px;height:504px;border-radius:2px;cursor:pointer;transition:background .2s}
+#cover-link:hover{background:rgba(255,255,255,.07)}
+#cover-link:focus-visible{outline:3px solid var(--aquive);outline-offset:4px}
+#quarter{left:1372px;top:797px;width:794px;height:473px;background:rgba(79,218,246,.95);border-top-left-radius:244px}
+
+/* ── 공통 텍스트 (장면별 위치/색만 다름) ── */
+#t-cover-title{left:535px;top:237px;width:243px;text-align:center;font-size:64px;color:#fff}
+#t-cover-sub  {left:535px;top:299px;font-size:32px;color:#fff}
+#stage[data-scene="b"] #t-cover-title{top:250px}
+#stage[data-scene="b"] #t-cover-sub  {top:312px;color:rgba(123,136,152,.9)}
+#t-map{left:1395px;top:237px;width:243px;text-align:center;font-size:64px;color:#fff}
+#stage[data-scene="b"] #t-map{left:1402px;width:auto;text-align:left}
+#t-profile{left:1811px;top:174px;width:243px;text-align:center;font-size:32px;color:#000}
+
+/* ── 장면 b: Collect 카드 ── */
+#collect-card{left:606px;top:789px;width:674px;height:422px;background:rgba(255,255,255,.8)}
+#collect-bar {left:606px;top:754px;width:674px;height:59px;background:#1ab9e4}
+#t-collect{left:636px;top:819px;width:243px;text-align:center;font-size:64px;color:#343c3f}
+#t-species{left:657px;top:918px;font-size:32px;color:rgba(123,136,152,.9)}
+#t-recent {left:657px;top:992px;font-size:32px;color:rgba(123,136,152,.9)}
+.thumb{top:1066px;height:119px;background:#d9d9d9;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.thumb img{max-width:92%;max-height:92%;object-fit:contain}
+#th1{left:636px;width:182px} #th2{left:848px;width:190px} #th3{left:1068px;width:182px}
+
+/* ── 장면 b: 집게, ID card 내용 ── */
+#clip-tab{left:1159px;top:149px;width:160px;height:88px;background:#1ab9e4}
+#id-avatar{left:1811px;top:237px;width:250px;height:250px;background:#d9d9d9}
+.lbl,.val{font-size:32px;color:#000}
+#id-collect{font-size:30px}
+
+/* ── 오른쪽 탭 (처음부터 / 이어서) ── */
+.tab{width:66px;border:0;background:transparent;color:#fff;font-family:inherit;font-size:30px;font-weight:400;line-height:45px;text-align:center;cursor:default;transition:opacity .2s,text-shadow .2s}
+.tab:not(:disabled){cursor:pointer}
+.tab:not(:disabled):hover{text-shadow:0 0 12px rgba(255,255,255,.9)}
+.tab:focus-visible{outline:3px solid #fff;outline-offset:-6px}
+#tab1{left:2172px;top:216px;height:282px;padding-top:38px}
+#tab2{left:2172px;top:516px;height:282px;padding-top:41px}
+
+/* ── 장면 a: 로그인 창(유리) ── */
+#modal{left:668px;top:298px;width:1224px;height:883px;background:rgba(255,255,255,.8)}
+#note {left:594px;top:761px;width:674px;height:420px;background:rgba(255,255,255,.8)}
+#strip{left:594px;top:1151px;width:674px;height:60px;background:#1ab9e4}
+#m-title{left:767px;top:398px;width:243px;text-align:center;font-size:64px;color:#000}
+#avatar{left:768px;top:502px;width:250px;height:250px;background:#d9d9d9}
+#lbl-name{left:1048px;top:640px;font-size:32px;color:#000}
+#lbl-pw  {left:1048px;top:714px;font-size:32px;color:#000}
+.field{width:614px;height:52px;border:0;border-bottom:2px solid rgba(0,0,0,.35);background:transparent;
+  font-family:inherit;font-size:32px;font-weight:400;color:#000;outline:none;padding:0 4px 4px 0;transition:border-color .2s}
+.field::placeholder{color:rgba(0,0,0,.3)}
+.field:focus{border-bottom-color:var(--aquive)}
+.field.err{border-bottom-color:#d64545;animation:shake .35s}
+#nick{left:1178px;top:630px}
+#pw  {left:1178px;top:704px}
+#hint{left:1178px;top:757px;font-size:20px;color:#d64545;min-height:24px}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+/* 계약서 스크롤 영역 (기본 스크롤바는 숨기고 디자인의 커스텀 스크롤바 사용) */
+#contract{left:767px;top:782px;width:965px;height:352px;overflow-y:auto;scrollbar-width:none;outline:none;
+  font-size:30px;line-height:normal;color:#000;white-space:pre-line;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 110px),transparent 100%);
+          mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 110px),transparent 100%)}
+#contract::-webkit-scrollbar{display:none}
+#contract:focus-visible{outline:2px solid rgba(0,0,0,.35);outline-offset:6px}
+#contract .inner{padding-bottom:130px;word-break:keep-all}
+#sb-track{left:1762px;top:782px;width:30px;height:317px;border-radius:25px;background:rgba(255,255,255,.5);cursor:pointer;touch-action:none}
+#sb-thumb{position:absolute;left:0;top:0;width:30px;height:70px;border-radius:25px;background:#d9d9d9;cursor:grab;touch-action:none}
+#sb-thumb:active{cursor:grabbing}
+
+/* Accept 버튼 (진입화면 Connect와 동일 컴포넌트) */
+#accept{left:1130px;top:1034px;width:300px;height:100px;border:0;border-radius:25px;background:var(--aquive);color:#fff;
+  font-family:'Inter',sans-serif;font-size:32px;font-weight:400;cursor:pointer;transition:filter .2s,transform .1s}
+#accept:hover{filter:brightness(1.1)}
+#accept:active{transform:scale(.98)}
+#accept:disabled{filter:grayscale(.4) brightness(.9);cursor:default}
+#accept:focus-visible{outline:3px solid #fff;outline-offset:4px}
+
+/* 테스트 모드 안내 (Firebase 설정 전에만 표시) */
+#mode-note{left:0;top:1370px;width:2560px;text-align:center;font-size:18px;color:rgba(123,136,152,.8);display:none}
+</style>
+</head>
+<body>
+<div id="stage" data-scene="">
+
+  <svg style="left:1957px;top:53px" width="122" height="96" viewBox="0 0 122 96"><path fill="#004F88" d="M67.9998 96.0047H122C120.33 78.8381 122 53.1817 104 22.0047C93.6074 4.00473 75.1696 -0.161929 71.4998 0.00474243H-8.39233e-05C13.4999 0.00479977 35.7498 0.00489426 51.4998 22.0047C70.3588 48.3474 69.9998 82.6714 67.9998 96.0047Z"/></svg>
+  <svg style="left:1280px;top:154px" width="957" height="1132" viewBox="0 0 957 1132"><path fill="#4FDAF6" d="M885 0C893.284 0 900 6.71573 900 15V61.625L940.778 76.917C950.536 80.5762 957 89.9042 957 100.325V305.675C957 316.096 950.536 325.424 940.778 329.083L900 344.374V361.625L940.778 376.917C950.536 380.576 957 389.904 957 400.325V605.675C957 616.096 950.536 625.424 940.778 629.083L900 644.374V1117C900 1125.28 893.284 1132 885 1132H0V0H885Z"/></svg>
+  <svg style="left:380px;top:74px" width="900" height="1212" viewBox="0 0 900 1212"><path fill="#202020" d="M772.71 0C778.915 0 784.481 3.82092 786.71 9.6123L807.632 63.9785C811.346 73.631 820.621 80 830.964 80H900V1212H15C6.71573 1212 1.69128e-07 1205.28 0 1197V95C2.44818e-06 86.7157 6.71573 80 15 80H488.763C499.105 80 508.38 73.631 512.095 63.9785L533.017 9.6123C535.245 3.82106 540.81 0.000143502 547.016 0H772.71Z"/></svg>
+  <div id="gray-page"></div>
+  <div id="map-panel"></div>
+  <div id="paper" class="glass"></div>
+
+  <div id="cover" class="glass"><canvas id="cover-fish" width="642" height="504" aria-hidden="true"></canvas></div>
+  <!-- b: 검은 카드를 누르면 처음(진입) 화면으로 -->
+  <a id="cover-link" class="b-only" href="index.html" aria-label="처음 화면으로 돌아가기"></a>
+
+  <!-- a: 메모 종이 -->
+  <div id="note" class="glass a-only"></div>
+  <div id="strip" class="glass a-only"></div>
+
+  <!-- b: Collect (도감 요약) -->
+  <div id="collect-card" class="glass b-only"></div>
+  <p id="t-collect" class="t b-only">Collect</p>
+  <p id="t-species" class="t b-only">0000 species</p>
+  <p id="t-recent" class="t b-only">recent</p>
+  <div id="th1" class="thumb b-only"></div>
+  <div id="th2" class="thumb b-only"></div>
+  <div id="th3" class="thumb b-only"></div>
+  <div id="collect-bar" class="glass b-only"></div>
+
+  <div id="quarter" class="glass"></div>
+
+  <!-- b: 지도 (Figma Group 5) -->
+  <svg class="b-only" style="left:1402px;top:413px" width="666" height="354" viewBox="0 0 666 354" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="지도">
+    <g opacity="0.5">
+      <path d="M129.994 122.008C129.994 115.882 134.96 110.917 141.086 110.917H451.653C457.778 110.917 462.744 115.882 462.744 122.008V299.475C462.744 305.601 457.778 310.567 451.653 310.567H141.086C134.96 310.567 129.994 305.601 129.994 299.475V122.008Z" fill="#4BB4FF"/>
+      <path d="M496.907 232.925C496.907 226.799 501.873 221.833 507.998 221.833H654.408C660.534 221.833 665.5 226.799 665.5 232.925V299.475C665.5 305.601 660.534 310.567 654.408 310.567H507.998C501.873 310.567 496.907 305.601 496.907 299.475V232.925Z" fill="white"/>
+      <path d="M496.907 122.008C496.907 115.882 501.873 110.917 507.998 110.917H654.408C660.534 110.917 665.5 115.882 665.5 122.008V188.558C665.5 194.684 660.534 199.65 654.408 199.65H507.998C501.873 199.65 496.907 194.684 496.907 188.558V122.008Z" fill="white"/>
+      <path d="M218.728 11.0917C218.728 4.96591 223.693 0 229.819 0H451.653C457.778 0 462.744 4.96591 462.744 11.0917V57.6767C462.744 63.8024 457.778 68.7683 451.653 68.7683H229.819C223.693 68.7683 218.728 63.8024 218.728 57.6767V11.0917Z" fill="white"/>
+      <path d="M496.907 11.0917C496.907 4.96591 501.873 0 507.998 0H654.408C660.534 0 665.5 4.96591 665.5 11.0917V57.6767C665.5 63.8024 660.534 68.7683 654.408 68.7683H507.998C501.873 68.7683 496.907 63.8024 496.907 57.6767V11.0917Z" fill="white"/>
+      <path d="M66.9937 353.602H0.443682V340.292H66.9937V353.602ZM66.9937 335.856H0.443682V322.546H66.9937V335.856ZM66.9937 318.109H0.443682V304.799H66.9937V318.109ZM66.9937 300.362H0.443682V287.052H66.9937V300.362ZM66.9937 282.616H0.443682V269.306H66.9937V282.616ZM66.9937 264.869H0.443682V251.559H66.9937V264.869ZM66.9937 247.122H0.443682V233.812H66.9937V247.122ZM66.9937 229.376H0.443682V216.066H66.9937V229.376ZM66.55 211.629H1.54565e-05V198.319H66.55V211.629ZM66.9937 193.882H0.443682V180.572H66.9937V193.882ZM66.9937 176.136H0.443682V162.826H66.9937V176.136ZM66.55 158.389H1.54565e-05V145.079H66.55V158.389ZM66.55 140.642H1.54565e-05V127.332H66.55V140.642ZM66.55 122.896H1.54565e-05V109.586H66.55V122.896ZM66.55 105.149H1.54565e-05V91.839H66.55V105.149ZM66.55 87.4023H1.54565e-05V74.0923H66.55V87.4023ZM66.9937 69.6557H0.443682V0H66.9937V69.6557ZM84.7403 66.55H71.4304V0H84.7403V66.55ZM102.487 66.55H89.177V0L102.487 0V66.55ZM120.234 66.55H106.924V0L120.234 0V66.55ZM137.98 66.55H124.67V0H137.98V66.55ZM155.727 66.55H142.417V0H155.727V66.55Z" fill="url(#paint0_linear_map)"/>
+    </g>
+    <defs>
+      <linearGradient id="paint0_linear_map" x1="64.7753" y1="66.9937" x2="69.212" y2="353.602" gradientUnits="userSpaceOnUse">
+        <stop stop-color="white"/>
+        <stop offset="1" stop-color="white" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- b: 집게 (Figma Rectangle 104 + Union) -->
+  <div id="clip-tab" class="b-only"></div>
+  <svg class="b-only" style="left:1197.66px;top:77px" width="82" height="161" viewBox="0 0 82 161" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="#D9D9D9" d="M0.0859373 156.196C3.164 141.936 7.66589 119.546 11.165 98.7539C12.915 88.3554 14.4073 78.3915 15.3467 70.0625C16.2997 61.6122 16.6396 55.197 16.2324 51.6934C15.7096 47.1965 14.5713 44.5349 13.335 42.6983C12.0434 40.7798 10.5246 39.5395 8.52929 37.8125C6.59108 36.135 4.30673 34.0664 2.62011 30.7784C0.93401 27.4906 4.22991e-05 23.3153 -6.23246e-06 17.5547C0.000181594 13.746 1.82743 10.6566 4.45995 8.33694C7.02246 6.07919 10.4562 4.43022 14.1953 3.22171C21.6951 0.797835 31.4331 -0.171892 40.9541 0.0244428C50.4876 0.221113 60.1743 1.59453 67.6035 4.09768C71.2997 5.34311 74.6709 6.94522 77.1885 9.00003C79.717 11.0644 81.7546 13.9198 81.7549 17.5547C81.7548 23.3145 80.8231 27.4901 79.1367 30.7783C77.4501 34.0664 75.1658 36.135 73.2275 37.8125C71.2322 39.5395 69.7135 40.7798 68.4219 42.6983C67.1855 44.5349 66.0473 47.1965 65.5244 51.6934C65.1172 55.197 65.4571 61.6122 66.4102 70.0625C67.3496 78.3915 68.8419 88.3554 70.5918 98.7539C74.0909 119.546 78.5928 141.936 81.6709 156.196C82.0193 157.812 80.992 159.405 79.3761 159.754L77.9161 160.069C76.3001 160.417 74.7074 159.39 74.3584 157.774C71.2632 143.434 66.7358 120.928 63.2129 99.9942C61.452 89.5305 59.9363 79.4206 58.9756 70.9024C58.0285 62.5053 57.5751 55.2943 58.0937 50.8311C58.7284 45.3711 60.1957 41.519 62.2148 38.5196C64.178 35.6035 66.5655 33.6841 68.333 32.1543C70.1554 30.577 71.4895 29.2917 72.4795 27.3614L73.8101 28.0467C73.8104 28.0468 73.8107 28.0468 73.8109 28.0467C73.8116 28.0464 73.8116 28.0455 73.8109 28.0451L72.4795 27.3614C73.4697 25.4301 74.2734 22.5176 74.2734 17.5547L74.2578 17.3203C74.1818 16.7361 73.7952 15.8887 72.458 14.7969L72.1582 14.5606C70.6066 13.3807 68.2768 12.2193 65.2148 11.1875C58.7179 8.9985 49.8348 7.69035 40.8008 7.50393C31.7542 7.31734 22.9233 8.26399 16.4971 10.3409C13.274 11.3825 10.9054 12.6304 9.40624 13.9512C8.06845 15.1301 7.54709 16.235 7.4873 17.335L7.48144 17.5547C7.48149 22.5168 8.28683 25.4295 9.27734 27.3614C10.2674 29.2917 11.6014 30.577 13.4238 32.1543C15.1913 33.6841 17.5788 35.6035 19.542 38.5196C21.5611 41.519 23.0284 45.3711 23.6631 50.8311C24.1817 55.2943 23.7283 62.5053 22.7812 70.9024C21.8205 79.4206 20.3048 89.5305 18.5439 99.9942C15.021 120.928 10.4936 143.434 7.39844 157.774C7.04947 159.39 5.45671 160.417 3.84075 160.069L2.38072 159.754C0.764833 159.405 -0.262498 157.812 0.0859373 156.196Z"/>
+  </svg>
+
+  <svg style="left:1754px;top:120px" width="358" height="560" viewBox="0 0 358 560"><path fill="#fff" fill-rule="evenodd" d="M343 0C351.284 2.57703e-07 358 6.71573 358 15V545C358 553.284 351.284 560 343 560H15C6.71573 560 8.05375e-08 553.284 0 545V15C5.15439e-06 6.71573 6.71573 2.57703e-07 15 0H343ZM147.5 17C142.806 17 139 20.8056 139 25.5C139 30.1944 142.806 34 147.5 34H209.5C214.194 34 218 30.1944 218 25.5C218 20.8056 214.194 17 209.5 17H147.5Z"/></svg>
+  <svg style="left:1906px;top:53px" width="122" height="96" viewBox="0 0 122 96"><path fill="#0095FF" d="M54 96.0047H0C1.66987 78.8381 0 53.1817 18 22.0047C28.3923 4.00473 46.8301 -0.161929 50.5 0.00474243H122C108.5 0.00479977 86.2499 0.00489426 70.5 22.0047C51.641 48.3474 52 82.6714 54 96.0047Z"/></svg>
+
+  <p id="t-cover-title" class="t">AQUIVE</p>
+  <p id="t-cover-sub" class="t">Aqua Archive-Aquive</p>
+  <p id="t-map" class="t">Map</p>
+  <p id="t-profile" class="t">Profile</p>
+
+  <!-- b: ID card 내용 -->
+  <div id="id-avatar" class="b-only" role="img" aria-label="프로필 이미지 (준비 중)"></div>
+  <p class="t lbl b-only" style="left:1811px;top:512px">name</p>
+  <p id="id-name"    class="t val b-only" style="left:1923px;top:512px"></p>
+  <p class="t lbl b-only" style="left:1811px;top:555px">depth</p>
+  <p id="id-depth"   class="t val b-only" style="left:1923px;top:555px"></p>
+  <p class="t lbl b-only" style="left:1811px;top:598px">collect</p>
+  <p id="id-collect" class="t val b-only" style="left:1923px;top:598px"></p>
+
+  <!-- 탭: a에서는 장식, b에서는 버튼 -->
+  <button id="tab1" class="tab" type="button" disabled tabindex="-1">처<br>음<br>부<br>터</button>
+  <button id="tab2" class="tab b-only" type="button">이<br>어<br>서</button>
+
+  <!-- a: 로그인 창 -->
+  <div id="modal" class="glass a-only"></div>
+  <p id="m-title" class="t a-only">AQUIVE</p>
+  <div id="avatar" class="a-only" role="img" aria-label="프로필 이미지 (준비 중)"></div>
+  <label id="lbl-name" class="t a-only" for="nick">name</label>
+  <input id="nick" class="field a-only" type="text" maxlength="7" placeholder="7자 이내" autocomplete="username" spellcheck="false" enterkeyhint="next" aria-describedby="hint">
+  <label id="lbl-pw" class="t a-only" for="pw">pw</label>
+  <input id="pw" class="field a-only" type="password" maxlength="32" placeholder="6자 이상" autocomplete="current-password" enterkeyhint="done" aria-describedby="hint">
+  <p id="hint" class="t a-only" role="alert" aria-live="assertive"></p>
+
+  <div id="contract" class="a-only" tabindex="0" role="region" aria-label="위촉 계약서"><div class="inner">장소 AQUIVE 해양종자보관소
+
+본 계약은 AQUIVE 해양종자보관소 (이하 "보관소")와 아래 서명인 (이하 "연구원") 간에 체결되는 임시 위촉 계약입니다.
+
+제1조 — 위촉 목적
+보관소는 현재 진행 중인 해양 생물 탐사 및 종자 기록 프로젝트의 일환으로, 연구원을 임시 탐사 요원으로 위촉합니다. 연구원은 보관소 내 수조를 탐사하고, 발견한 생물을 도감에 기록하는 임무를 수행합니다.
+
+제2조 — 위촉 기간
+본 위촉은 연구원이 보관소에 최초 입장하는 시점부터 유효하며, 탐사 완료 시까지 지속됩니다.
+
+제3조 — 연구원 정보 등록
+보관소는 연구원 식별 및 탐사 기록 관리를 위해 아래 정보를 수집합니다.
+연구원 코드명 (닉네임)
+연구원 식별 이미지 (프로필 이미지)
+수집된 정보는 보관소 내 탐사 기록 및 도감 관리 목적으로만 사용되며, 외부에 제공되지 않습니다.
+
+제4조 — 연구원의 임무
+보관소 내 수조를 성실히 탐사할 것
+발견한 해양 생물을 도감에 기록할 것
+수심이 깊어질수록 새로운 구역이 해제되며, 연구원은 이를 탐사할 권한을 부여받음
+보관소 내 생물에게 위해를 가하지 않을 것
+
+제5조 — 보관소의 의무
+연구원의 탐사 기록을 성실히 보존할 것
+탐사 진행도에 따라 새로운 구역 접근 권한을 부여할 것
+연구원의 도감 수집 현황을 기록하고 표시할 것
+
+제6조 — 특이사항
+본 위촉은 무급 자원 탐사를 원칙으로 합니다.
+연구원은 언제든지 탐사를 중단할 수 있으나, 기록된 탐사 데이터는 보관소에 귀속됩니다.
+
+제7조 — 동의
+하단의 버튼을 누름으로써 이 모든 조항에 동의한 것으로 간주합니다.</div></div>
+  <div id="sb-track" class="a-only" aria-hidden="true"><div id="sb-thumb"></div></div>
+  <button id="accept" class="a-only" type="button">Accept</button>
+
+  <p id="mode-note" class="t">테스트 모드 · 이 브라우저에만 저장됩니다 (Firebase 연결 전)</p>
+</div>
+
+<script src="aquive-store.js"></script>
+<script>
+'use strict';
+// ══════════════════════════════════════════
+//  설정
+// ══════════════════════════════════════════
+const HOME          = 'index.html';                       // 검은 카드를 누르면
+const AQUARIUM      = 'aquarium.html';                    // 새 계정 가입 직후: 대수조부터
+const TAB_BEGIN     = 'aquarium.html?start=beginning';    // 처음부터: 대수조부터 다시 봄
+const TAB_CONTINUE  = 'aquarium.html?start=continue';     // 이어서: 마지막으로 본 수조부터
+const NICK_MAX = 7, PW_MIN = 6;
+const GH_RAW = 'https://raw.githubusercontent.com/norang1225/aquive/main/data/tanks.json';   // 수조 파일과 같은 물고기 데이터
+
+const $ = id => document.getElementById(id);
+const stage = $('stage');
+let SCALE = 1;
+
+// ══════════════════════════════════════════
+//  화면 비율 맞춤 (디자인 2560×1440)
+// ══════════════════════════════════════════
+function fit(){
+  const vw = window.innerWidth, vh = window.innerHeight;
+  SCALE = Math.min(vw/2560, vh/1440);
+  stage.style.transform = 'translate('+((vw-2560*SCALE)/2)+'px,'+((vh-1440*SCALE)/2)+'px) scale('+SCALE+')';
+  setupCover(); updateThumb();
+}
+window.addEventListener('resize', fit);
+
+// ══════════════════════════════════════════
+//  장면 전환
+// ══════════════════════════════════════════
+function setScene(s){
+  stage.dataset.scene = s;
+  const b = (s === 'b');
+  $('t-profile').textContent = b ? 'ID card' : 'Profile';
+  $('tab1').disabled = !b; $('tab1').tabIndex = b ? 0 : -1;
+  CY = b ? 285 : 298;             // 표지의 희미한 물고기 위치 (커버 카드 top이 장면마다 달라서 보정)
+  requestAnimationFrame(updateThumb);
+}
+
+// ══════════════════════════════════════════
+//  장면 a: 이름 + 비밀번호 (없으면 가입, 있으면 로그인)
+// ══════════════════════════════════════════
+const nick = $('nick'), pw = $('pw'), hint = $('hint'), btn = $('accept');
+let composing = false;
+const clean = v => v.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣA-Za-z0-9]/g, '').slice(0, NICK_MAX);
+function clearErr(){ nick.classList.remove('err'); pw.classList.remove('err'); hint.textContent = ''; }
+function showErr(msg, field){
+  hint.textContent = msg;
+  [nick, pw].forEach(f => f.classList.remove('err'));
+  void field.offsetWidth; field.classList.add('err'); field.focus();
+}
+nick.addEventListener('compositionstart', () => { composing = true; });
+nick.addEventListener('compositionend',   () => { composing = false; nick.value = clean(nick.value); });
+nick.addEventListener('input', () => { clearErr(); if(!composing){ const c = clean(nick.value); if(c !== nick.value) nick.value = c; } });
+// 붙여넣기: 허용 문자만 남긴 뒤 7자까지 넣는다 (maxlength가 필터링 전에 잘라내는 문제 방지)
+nick.addEventListener('paste', e => {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  const s = nick.selectionStart, en = nick.selectionEnd;
+  nick.value = clean(nick.value.slice(0, s) + text + nick.value.slice(en));
+  clearErr();
+});
+nick.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); pw.focus(); } });
+pw.addEventListener('input', clearErr);
+pw.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); accept(); } });
+
+const ERR = {
+  'invalid-name':   ['이름은 한글·영문·숫자 7자 이내로 입력해주세요', 'nick'],
+  'weak-password':  ['비밀번호는 6자 이상이에요', 'pw'],
+  'wrong-password': ['이미 사용 중인 이름이에요. 비밀번호를 확인해주세요', 'pw'],
+  'too-many':       ['시도가 너무 많아요. 잠시 후 다시 시도해주세요', 'pw'],
+  'network':        ['연결하지 못했어요. 잠시 후 다시 시도해주세요', 'pw'],
+  'config':         ['서버 설정을 확인해주세요 (Firebase 규칙/로그인 방식)', 'pw'],
+  'unknown':        ['문제가 생겼어요. 잠시 후 다시 시도해주세요', 'pw'],
+};
+async function accept(){
+  if(btn.disabled) return;
+  const name = clean(nick.value).trim();
+  if(!name){ showErr('이름을 입력해주세요', nick); return; }
+  if(pw.value.length < PW_MIN){ showErr(ERR['weak-password'][0], pw); return; }
+  btn.disabled = true;
+  try{
+    const { isNew, profile } = await AquiveStore.enter(name, pw.value);
+    pw.value = '';
+    if(isNew){ location.href = AQUARIUM; return; }          // 새 계정 → 계약 동의 완료 → 대수조로
+    await renderReturning(profile);                          // 기존 계정 → 바인더(2회차) 화면
+    setScene('b');
+  }catch(e){
+    const [msg, f] = ERR[e && e.code] || ERR.unknown;
+    showErr(msg, f === 'nick' ? nick : pw);
+  }
+  btn.disabled = false;
+}
+btn.addEventListener('click', accept);
+
+// 계약서 커스텀 스크롤바 (Figma: 트랙 30×317, 손잡이 최소 70)
+const contract = $('contract'), track = $('sb-track'), thumb = $('sb-thumb');
+const TRACK_H = 317, THUMB_MIN = 70;
+function updateThumb(){
+  const max = contract.scrollHeight - contract.clientHeight;
+  const th = max > 0 ? Math.max(THUMB_MIN, Math.min(TRACK_H, TRACK_H * contract.clientHeight / contract.scrollHeight)) : TRACK_H;
+  thumb.style.height = th + 'px';
+  thumb.style.top = (max > 0 ? (contract.scrollTop / max) * (TRACK_H - th) : 0) + 'px';
+}
+contract.addEventListener('scroll', updateThumb);
+function scrollToFrac(f){ contract.scrollTop = Math.max(0, Math.min(1, f)) * (contract.scrollHeight - contract.clientHeight); }
+let grab = 0, dragging = false;
+thumb.addEventListener('pointerdown', e => { dragging = true; thumb.setPointerCapture(e.pointerId); grab = e.clientY - thumb.getBoundingClientRect().top; e.stopPropagation(); });
+thumb.addEventListener('pointermove', e => {
+  if(!dragging) return;
+  const tr = track.getBoundingClientRect(), hr = thumb.getBoundingClientRect();
+  scrollToFrac((e.clientY - grab - tr.top) / (tr.height - hr.height));
+});
+thumb.addEventListener('pointerup', () => { dragging = false; });
+thumb.addEventListener('pointercancel', () => { dragging = false; });
+track.addEventListener('pointerdown', e => {
+  const tr = track.getBoundingClientRect(), hr = thumb.getBoundingClientRect();
+  scrollToFrac((e.clientY - tr.top - hr.height/2) / (tr.height - hr.height));
+});
+
+// ══════════════════════════════════════════
+//  장면 b: 로그인 후 바인더 (ID card · Collect · 탭)
+// ══════════════════════════════════════════
+function fixImageUrl(url){                                    // 수조 파일과 동일: jsdelivr → raw
+  if(url && url.includes('cdn.jsdelivr.net')) return url.replace('https://cdn.jsdelivr.net/gh/', 'https://raw.githubusercontent.com/').replace('@main/', '/main/');
+  return url;
+}
+async function loadFishIndex(){                               // fishId → 물고기 (도감/썸네일용)
+  const idx = new Map();
+  try{
+    const r = await fetch(GH_RAW + '?t=' + Date.now());
+    if(r.ok){ const j = await r.json(); Object.values(j.tanks || {}).forEach(t => (t.fish || []).forEach(f => idx.set(f.id, f))); }
+  }catch(e){}
+  try{                                                        // 관리자 로컬 데이터가 있으면 우선 (수조 파일과 같은 규칙)
+    const local = JSON.parse(localStorage.getItem('aquive_tank_data') || '{}');
+    Object.values(local).forEach(t => (t.fish || []).forEach(f => idx.set(f.id, f)));
+  }catch(e){}
+  return idx;
+}
+async function renderReturning(profile){
+  const prog = AquiveStore.readProgress();
+  const idx  = await loadFishIndex();
+  const valid = idx.size ? prog.collected.filter(id => idx.has(id)) : prog.collected;   // 삭제된 물고기는 제외
+  $('id-name').textContent    = profile.nickname;
+  $('id-depth').textContent   = (prog.depth | 0) + 'm';
+  $('id-collect').textContent = valid.length + ' 종';
+  $('t-species').textContent  = String(valid.length).padStart(4, '0') + ' species';
+  const recent = valid.slice(-3).reverse();                                              // 최근 발견한 3종 (가장 최근이 왼쪽)
+  ['th1','th2','th3'].forEach((id, i) => {
+    const box = $(id); box.innerHTML = '';
+    const f = idx.get(recent[i]);
+    if(f && f.src){ const im = new Image(); im.alt = f.name || ''; im.src = fixImageUrl(f.src); box.appendChild(im); }
+  });
+}
+$('tab1').addEventListener('click', () => { location.href = TAB_BEGIN; });
+$('tab2').addEventListener('click', () => { location.href = TAB_CONTINUE; });
+
+// ══════════════════════════════════════════
+//  표지 카드의 희미한 물고기 (Figma: 3D 캡처 이미지 20% → 같은 3D 물고기를 직접 그림)
+//  진입화면에서 본 물고기와 같은 종 (localStorage 'aquive_last_fish'), 데이터 형식은 index.html과 동일
+// ══════════════════════════════════════════
+const FISH = [{"key": "pungtungia", "latin": "PUNGTUNGIA HERZI", "common": "JAPANESE PENCIL FISH", "n": 600, "b64": "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"}, {"key": "zacco", "latin": "ZACCO PLATYPUS", "common": "PALE BLEAK", "n": 600, "b64": "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"}, {"key": "oryzias", "latin": "ORYZIAS LATIPES", "common": "RICE FISH", "n": 600, "b64": "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"}];
+const cvs = $('cover-fish'), ctx = cvs.getContext('2d');
+let fi = parseInt(localStorage.getItem('aquive_last_fish'));
+if(!(fi >= 0 && fi < FISH.length)) fi = Math.floor(Math.random()*FISH.length);
+const fish = FISH[fi], N = fish.n;
+const FD = (function(b64, n){
+  const bin = atob(b64), u8 = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i);
+  const dv = new DataView(u8.buffer), out = new Float32Array(n*6);
+  for(let i=0;i<n;i++){
+    for(let k=0;k<3;k++) out[i*6+k] = dv.getInt16((i*3+k)*2, true)/10000;
+    const nx=dv.getInt8(n*6+i*3), ny=dv.getInt8(n*6+i*3+1), nz=dv.getInt8(n*6+i*3+2), l=Math.hypot(nx,ny,nz)||1;
+    out[i*6+3]=nx/l; out[i*6+4]=ny/l; out[i*6+5]=nz/l;
+  }
+  return out;
+})(fish.b64, N);
+const CAPTION = fish.latin ? fish.latin + '  ·  ' + fish.common : fish.common;
+
+const CW = 642, CH = 504, S = 190, K = S/200, CX = 351;
+let CY = 298;
+function setupCover(){
+  const dpr = window.devicePixelRatio || 1;
+  cvs.width = Math.round(CW*SCALE*dpr); cvs.height = Math.round(CH*SCALE*dpr);
+  ctx.setTransform(SCALE*dpr,0,0,SCALE*dpr,0,0);
+}
+const D='0123456789', rc=()=>D[Math.floor(Math.random()*10)], ri=(a,b)=>Math.floor(Math.random()*(b-a))+a, cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+const chars = Array.from({length:N}, rc), tm = new Uint8Array(N), iv = Array.from({length:N}, () => ri(18,55));
+const LX=-0.4, LY=0.5, LZ=0.7, LL=Math.sqrt(LX*LX+LY*LY+LZ*LZ);
+const FONTS=[]; for(let s=5;s<=12;s++) FONTS[s]='bold '+(s*K).toFixed(1)+"px 'Courier New',monospace";
+const sx=new Float32Array(N), sy=new Float32Array(N), sz=new Float32Array(N), lt=new Float32Array(N), rm=new Float32Array(N);
+const order = Array.from({length:N}, (_,i)=>i);
+function drawFish(){
+  ctx.clearRect(0,0,CW,CH);
+  for(let i=0;i<N;i++){ tm[i]++; if(tm[i]>=iv[i]){ tm[i]=0; chars[i]=rc(); iv[i]=ri(18,55); } }
+  for(let i=0;i<N;i++){
+    const o=i*6, px=FD[o], py=FD[o+1], pz=FD[o+2], nx=FD[o+3], ny=FD[o+4], nz=FD[o+5];
+    lt[i]=cl((nx*LX+ny*LY+nz*LZ)/LL,0.05,1); rm[i]=Math.pow(1-Math.abs(nz),3);
+    sx[i]=CX+px*S; sy[i]=CY-py*S; sz[i]=pz;
+  }
+  order.sort((a,b)=>sz[a]-sz[b]);
+  ctx.textBaseline='middle'; ctx.textAlign='center';
+  for(let n=0;n<N;n++){
+    const i=order[n], l=lt[i], rim=rm[i], spec=Math.max(0,l-0.6)*2.5, br=0.45+rim*0.55;
+    ctx.font=FONTS[cl(Math.round(5+br*7),5,12)];
+    ctx.fillStyle='rgba('+cl(Math.round(60+rim*180+spec*80),0,255)+','+cl(Math.round(140+rim*100+l*60+spec*30),0,255)+',255,'+cl(0.35+br*0.65,0,1)+')';
+    ctx.fillText(chars[i], sx[i], sy[i]);
+  }
+  ctx.font = "6px 'Courier New',monospace"; ctx.fillStyle = 'rgba(100,190,255,0.35)';    // 하단 캡션 (진입화면과 같은 형식)
+  ctx.fillText(CAPTION.toUpperCase(), CW/2, CH-8);
+  requestAnimationFrame(drawFish);
+}
+
+// ══════════════════════════════════════════
+//  시작: 이미 로그인돼 있으면 바로 바인더(b), 아니면 로그인 창(a)
+// ══════════════════════════════════════════
+(async function start(){
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+  if(AquiveStore.mode === 'local') $('mode-note').style.display = 'block';
+  try{
+    if(new URLSearchParams(location.search).has('logout')){            // card.html?logout=1 → 로그아웃 (공용 PC/테스트용)
+      await withTimeout(AquiveStore.signOut(), 6000);
+      history.replaceState(null, '', location.pathname);
+    }
+  }catch(e){ console.warn('[AQUIVE] 로그아웃 실패', e); }
+  let profile = null;
+  try{ profile = await withTimeout(AquiveStore.resume(), 8000); }catch(e){ console.warn('[AQUIVE] 로그인 상태 확인 실패', e); }
+  if(profile){ await renderReturning(profile); setScene('b'); }
+  else { setScene('a'); }
+  fit();
+  stage.classList.add('ready');
+  drawFish();
+  if(!profile) nick.focus({preventScroll:true});
+})();
+</script>
+</body>
+</html>
