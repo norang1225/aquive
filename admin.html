@@ -171,6 +171,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oxaniu
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .form-row.full{grid-template-columns:1fr}
 .form-row.three{grid-template-columns:1fr 1fr 1fr}
+.layer-counts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.layer-count{display:flex;flex-direction:column;gap:4px}
+.layer-count span{font-size:10px;color:var(--text-muted);letter-spacing:.08em}
 .form-group label{
   display:block;font-size:9px;letter-spacing:.16em;
   color:var(--text-muted);margin-bottom:5px;text-transform:uppercase;
@@ -381,9 +384,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oxaniu
                 <textarea id="f-desc" placeholder="물고기 설명..."></textarea>
               </div>
             </div>
-            <div class="form-row three">
+            <div class="form-row">
               <div class="form-group">
-                <label>크기 티어</label>
+                <label>크기 티어 <span style="color:var(--text-muted);font-weight:400">(등록 1건당 고정)</span></label>
                 <select id="f-tier">
                   <option value="xl">XL — 초대형</option>
                   <option value="lg">LG — 대형</option>
@@ -391,25 +394,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oxaniu
                   <option value="md" selected>MD — 중형</option>
                   <option value="sm">SM — 소형</option>
                 </select>
-              </div>
-              <div class="form-group">
-                <label>레이어</label>
-                <select id="f-layer">
-                  <option value="near">Near — 근경</option>
-                  <option value="mid" selected>Mid — 중경</option>
-                  <option value="far">Far — 원경</option>
-                  <option value="bot">Bot — 바닥</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>마릿수</label>
-                <input type="number" id="f-count" value="1" min="1" max="30">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>수심</label>
-                <input type="text" id="f-dep" placeholder="예: 수심 0–200m">
               </div>
               <div class="form-group">
                 <label>유영 속도</label>
@@ -420,6 +404,23 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oxaniu
                   <option value="0.8">빠름</option>
                   <option value="1.2">매우 빠름</option>
                 </select>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>거리별 마릿수 <span id="f-layer-total" style="color:var(--text-muted);font-weight:400">· 합계 1마리</span></label>
+                <div class="layer-counts">
+                  <div class="layer-count"><span>NEAR · 근경</span><input type="number" id="f-cnt-near" value="0" min="0" max="30"></div>
+                  <div class="layer-count"><span>MID · 중경</span><input type="number" id="f-cnt-mid" value="1" min="0" max="30"></div>
+                  <div class="layer-count"><span>FAR · 원경</span><input type="number" id="f-cnt-far" value="0" min="0" max="30"></div>
+                  <div class="layer-count"><span>BOT · 바닥</span><input type="number" id="f-cnt-bot" value="0" min="0" max="30"></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>수심</label>
+                <input type="text" id="f-dep" placeholder="예: 수심 0–200m">
               </div>
             </div>
             <button class="btn-add" id="fish-add-btn">+ 이 수조에 물고기 추가</button>
@@ -522,7 +523,6 @@ const TANKS = [
   {id:4,  name:'대형어관',   nameEn:'OCEAN GIANTS',       unlock:-500},
   {id:5,  name:'가오리관',   nameEn:'STINGRAY BAY',       unlock:-700},
   {id:6,  name:'극지어관',   nameEn:'POLAR ZONE',         unlock:-1000},
-  {id:7,  name:'심해어관',   nameEn:'DEEP SEA',           unlock:-1200},
   {id:8,  name:'두족류관',   nameEn:'CEPHALOPOD ZONE',    unlock:-1500},
   {id:9,  name:'해파리관',   nameEn:'JELLYFISH HALL',     unlock:-2000},
   {id:10, name:'발광생물관', nameEn:'BIOLUMINESCENCE',    unlock:-3000},
@@ -788,6 +788,39 @@ fishImgZone.addEventListener('drop', e => {
   fishImgInput.dispatchEvent(new Event('change'));
 });
 
+// ── 거리별 마릿수: 물고기 1건이 여러 거리(layer)에 동시에 배치됨 ──
+const LAYER_KEYS  = ['near','mid','far','bot'];
+const LAYER_LABEL = {near:'Near', mid:'Mid', far:'Far', bot:'Bot'};
+// 신규 데이터 {layers:{near:2,mid:3}} / 구버전 데이터 {layer, count} 모두 지원
+function fishLayerMap(f){
+  if(f.layers && typeof f.layers === 'object'){
+    const m = {};
+    LAYER_KEYS.forEach(k=>{ const n = parseInt(f.layers[k])||0; if(n>0) m[k]=n; });
+    if(Object.keys(m).length) return m;
+  }
+  return { [f.layer||'mid']: parseInt(f.count)||1 };
+}
+function fishLayerText(f){
+  const m = fishLayerMap(f);
+  const total = Object.values(m).reduce((a,b)=>a+b,0);
+  const parts = LAYER_KEYS.filter(k=>m[k]).map(k=>`${LAYER_LABEL[k]}×${m[k]}`);
+  return parts.join(' / ') + (parts.length>1 ? ` (총 ${total})` : '');
+}
+function readLayerCounts(){
+  const m = {};
+  LAYER_KEYS.forEach(k=>{
+    let n = parseInt(document.getElementById('f-cnt-'+k).value) || 0;
+    n = Math.max(0, Math.min(30, n));
+    if(n > 0) m[k] = n;
+  });
+  return m;
+}
+function updateLayerTotal(){
+  const total = Object.values(readLayerCounts()).reduce((a,b)=>a+b,0);
+  document.getElementById('f-layer-total').textContent = `· 합계 ${total}마리`;
+}
+LAYER_KEYS.forEach(k=> document.getElementById('f-cnt-'+k).addEventListener('input', updateLayerTotal));
+
 document.getElementById('fish-add-btn').addEventListener('click', addFish);
 
 function addFish(){
@@ -797,15 +830,18 @@ function addFish(){
   const desc  = document.getElementById('f-desc').value.trim();
   const dep   = document.getElementById('f-dep').value.trim();
   const tier  = document.getElementById('f-tier').value;
-  const layer = document.getElementById('f-layer').value;
-  const count = parseInt(document.getElementById('f-count').value) || 1;
+  const layers = readLayerCounts();
+  const count  = Object.values(layers).reduce((a,b)=>a+b,0);   // 총 마릿수
+  if(!count){ showToast('거리별 마릿수를 1마리 이상 입력해주세요.','error'); return; }
+  // 구버전 호환용 대표 거리(마릿수 가장 많은 거리)
+  const layer  = LAYER_KEYS.filter(k=>layers[k]).sort((x,y)=>layers[y]-layers[x])[0];
   const speed = parseFloat(document.getElementById('f-speed').value) || 0.55;
 
   const img = new Image();
   img.onload = () => {
     const fish = {
       id: Date.now(),
-      name, latin, desc, dep, tier, layer, count, speed,
+      name, latin, desc, dep, tier, layers, layer, count, speed,
       src: pendingFishImg.src,
       imgW: img.naturalWidth,
       imgH: img.naturalHeight,
@@ -831,8 +867,8 @@ function resetFishForm(){
   fishImgZone.querySelector('.img-upload-text').textContent = '클릭하거나 드래그\nPNG 투명 배경 권장';
   ['f-name','f-latin','f-desc','f-dep'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-tier').value = 'md';
-  document.getElementById('f-layer').value = 'mid';
-  document.getElementById('f-count').value = '1';
+  LAYER_KEYS.forEach(k=> document.getElementById('f-cnt-'+k).value = (k==='mid' ? '1' : '0'));
+  updateLayerTotal();
   document.getElementById('f-speed').value = '0.55';
 }
 
@@ -854,7 +890,7 @@ function renderFishList(){
       <img class="fish-thumb" src="${f.src}" alt="${f.name}">
       <div class="fish-info">
         <div class="fish-name">${f.name}</div>
-        <div class="fish-meta">${f.tier.toUpperCase()} · ${f.layer} · ×${f.count} · ${f.latin||'—'}</div>
+        <div class="fish-meta">${f.tier.toUpperCase()} · ${fishLayerText(f)} · ${f.latin||'—'}</div>
       </div>
       <button class="fish-del" data-id="${f.id}">×</button>
     </div>
@@ -1008,7 +1044,7 @@ async function updateTanksJson(){
         const fileName = `tank${tank.id}_${f.id}.${ext}`;
         return {
           id:f.id, name:f.name, latin:f.latin, desc:f.desc,
-          dep:f.dep, tier:f.tier, layer:f.layer,
+          dep:f.dep, tier:f.tier, layer:f.layer, layers:f.layers,
           count:f.count, speed:f.speed, imgW:f.imgW, imgH:f.imgH,
           src:`https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/${fileName}`
         };
