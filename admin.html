@@ -534,10 +534,9 @@ const BG_SLOTS = [
   {key:'base',    label:'BASE',       sub:'배경 기본색',      emoji:'🎨'},
   {key:'caustic', label:'CAUSTIC',    sub:'수면 빛 줄기',     emoji:'✨'},
   {key:'volume',  label:'VOLUMETRIC', sub:'수중 빛 산란',     emoji:'🌫'},
-  {key:'farobj',  label:'FAR OBJ',    sub:'원경 오브젝트',    emoji:'🏔'},
+  {key:'midobj',  label:'MID OBJ',    sub:'중경 바위·산호',   emoji:'🪸'},
   {key:'floor',   label:'FLOOR BASE', sub:'바닥 모래',        emoji:'🏖'},
   {key:'floorobj',label:'FLOOR OBJ',  sub:'바닥 산호·해초',   emoji:'🌿'},
-  {key:'midobj',  label:'MID OBJ',    sub:'중경 바위·산호',   emoji:'🪸'},
   {key:'shimmer', label:'SHIMMER',    sub:'유리 반사광',      emoji:'💧'},
   {key:'frame',   label:'FRAME',      sub:'수조 프레임',      emoji:'🖼'},
 ];
@@ -595,11 +594,64 @@ document.getElementById('logout-btn').addEventListener('click', ()=>{
 // ══════════════════════════════════════════
 //  초기화
 // ══════════════════════════════════════════
-function init(){
+async function init(){
+  // 1. localStorage 데이터 먼저 로드 (빠른 초기 렌더용)
   tankData = loadData();
   buildSidebar();
   selectTank(0);
   loadSettings();
+
+  // 2. GitHub tanks.json 불러와서 병합
+  await syncFromGithub();
+}
+
+// GitHub tanks.json → localStorage 병합
+async function syncFromGithub(){
+  const user = getGhUser();
+  const repo = getGhRepo();
+  if(!user || !repo) return;
+
+  try{
+    const url = `https://raw.githubusercontent.com/${user}/${repo}/main/data/tanks.json?t=${Date.now()}`;
+    const res = await fetch(url);
+    if(!res.ok) return;
+    const json = await res.json();
+    if(!json.tanks) return;
+
+    let merged = false;
+    // GitHub 데이터를 기준으로 병합
+    // 각 수조별로 GitHub 쪽 fish/bg가 더 많거나 다르면 GitHub 우선
+    Object.entries(json.tanks).forEach(([id, ghData])=>{
+      const tid = parseInt(id);
+      const local = getTankData(tid);
+
+      // fish: GitHub에만 있는 항목 추가 (id 기준)
+      const localIds = new Set(local.fish.map(f=>f.id));
+      const ghOnly = (ghData.fish||[]).filter(f=>!localIds.has(f.id));
+      if(ghOnly.length > 0){
+        local.fish = [...local.fish, ...ghOnly];
+        merged = true;
+      }
+
+      // bg: GitHub에 있는 키가 local에 없으면 추가
+      Object.entries(ghData.bg||{}).forEach(([k,v])=>{
+        if(v && !local.bg[k]){
+          local.bg[k] = v;
+          merged = true;
+        }
+      });
+    });
+
+    if(merged){
+      saveData();
+      buildSidebar();
+      selectTank(currentTankId);
+      showToast('GitHub 데이터와 동기화 완료', 'success');
+    }
+  } catch(e){
+    // 네트워크 오류 등은 조용히 무시
+    console.warn('[AQUIVE admin] GitHub sync failed:', e.message);
+  }
 }
 
 // ══════════════════════════════════════════
@@ -895,7 +947,7 @@ async function uploadFishToGithub(fish){
   const path = `images/fish/${ghFileName}`;
 
   // CDN URL을 fish 객체에 저장
-  const cdnUrl = `https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/${ghFileName}`;
+  const cdnUrl = `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/fish/${ghFileName}`;
   fish.src = cdnUrl;
   fish.cdnUrl = cdnUrl;
 
@@ -925,7 +977,7 @@ async function uploadBgToGithub(slotKey, b64src, fileName){
   const ghFileName = `tank${currentTankId}_${slotKey}.${ext}`;
   const path = `images/bg/${ghFileName}`;
 
-  const cdnUrl = `https://raw.githubusercontent.com/${user}/${repo}/main/images/bg/${ghFileName}`;
+  const cdnUrl = `https://cdn.jsdelivr.net/gh/${user}/${repo}@main/images/bg/${ghFileName}`;
 
   // 실제 파일명 + CDN URL 저장
   const d = getTankData(currentTankId);
@@ -965,10 +1017,10 @@ async function updateTanksJson(){
         Object.entries(d.bg)
           .filter(([k, v]) => v && !v.startsWith('data:') && !v.startsWith('blob:'))
           .map(([k, v]) => {
-            // 이미 CDN URL이면 그대로, raw URL이면 변환
-            if(v.includes('cdn.jsdelivr.net')) return [k, v];
             const fileName = d.bgFileNames?.[k] || `tank${tank.id}_${k}.png`;
-            return [k, `https://raw.githubusercontent.com/${user}/${repo}/main/images/bg/${fileName}`];
+            // 항상 raw URL로 저장 (CDN은 캐시 딜레이 있음)
+            const rawUrl = `https://raw.githubusercontent.com/${user}/${repo}/main/images/bg/${fileName}`;
+            return [k, rawUrl];
           })
       )
     };
