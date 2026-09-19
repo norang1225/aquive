@@ -363,6 +363,16 @@ track.addEventListener('pointerdown', e => {
   scrollToFrac((e.clientY - tr.top - hr.height/2) / (tr.height - hr.height));
 });
 
+// 마우스 휠/트랙패드: 유리 패널 어디에 있어도(스크롤바·Accept 버튼·제목 위 포함) 계약서가 스크롤된다
+window.addEventListener('wheel', e => {
+  if(stage.dataset.scene !== 'a' || e.ctrlKey) return;                 // 로그인 창일 때만 (핀치 확대는 그대로)
+  const r = $('modal').getBoundingClientRect();
+  if(e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
+  e.preventDefault();
+  const px = e.deltaMode === 1 ? e.deltaY*40 : e.deltaMode === 2 ? e.deltaY*contract.clientHeight*SCALE : e.deltaY;
+  contract.scrollTop += px / SCALE;                                     // 화면 비율만큼 보정
+}, { passive:false });
+
 // ══════════════════════════════════════════
 //  장면 b: 로그인 후 바인더 (ID card · Collect · 탭)
 // ══════════════════════════════════════════

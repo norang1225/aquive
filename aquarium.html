@@ -158,22 +158,30 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 /* ── 수류 캔버스 ── */
 
 /* ── 팝업 ── */
+/* ── 물고기 정보창 (Figma 물고기 정보, 900×300 · 2560×1440 기준) ──
+   --u 배율로 축소/확대. 눌러서 열고, 바깥을 누르거나 Esc로 닫는다. 설명이 길면 안에서 스크롤(휠·바 모두 가능) */
 #popup{
-  position:fixed;z-index:200;
-  background:rgba(0,15,45,0.9);
-  border:1px solid rgba(120,210,255,0.2);
-  border-radius:12px;padding:18px 22px;max-width:250px;
-  color:#c0e8ff;pointer-events:none;
-  opacity:0;transform:translateY(8px);
-  transition:opacity .25s,transform .25s;
-  backdrop-filter:blur(14px);
-  box-shadow:0 8px 40px rgba(0,50,140,0.35);
+  position:fixed;left:0;top:0;z-index:200;width:900px;height:300px;
+  transform-origin:0 0;transform:scale(var(--u));
+  border-radius:25px;background:rgba(255,255,255,.8);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  color:#000;font-family:'Inter','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',sans-serif;font-weight:400;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .2s,visibility 0s linear .2s;
 }
-#popup.on{opacity:1;transform:translateY(0)}
-#popup h3{font-family:'Cinzel',serif;font-size:14px;color:#e8f8ff;margin-bottom:3px;letter-spacing:.07em}
-#popup .lat{font-size:11px;color:rgba(150,215,255,0.5);font-style:italic;margin-bottom:10px}
-#popup p{font-size:12px;color:rgba(180,230,255,0.75);line-height:1.65}
-#popup .badge{display:inline-block;margin-top:10px;font-size:10px;padding:2px 10px;border:1px solid rgba(120,210,255,0.2);border-radius:20px;color:rgba(140,215,255,0.6)}
+#popup.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .2s,visibility 0s}
+#p-img{position:absolute;left:30px;top:32px;width:392px;height:235px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#p-img img{max-width:100%;max-height:100%;object-fit:contain}
+#p-name{position:absolute;left:452px;top:32px;width:380px;font-size:30px;line-height:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#p-lat {position:absolute;left:452px;top:75px;width:380px;font-size:32px;line-height:normal;color:rgba(0,0,0,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#p-desc-wrap{position:absolute;left:452px;top:118px;width:418px;height:149px;overflow-y:auto;scrollbar-width:none}
+#p-desc-wrap::-webkit-scrollbar{display:none}
+#p-desc{font-size:20px;line-height:normal;white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere}
+/* 설명이 넘칠 때만 나타나는 스크롤바 (시안에는 없음: 계약서 화면의 스크롤바와 같은 모양으로 작게) */
+#p-sb{position:absolute;left:880px;top:118px;width:10px;height:149px;border-radius:5px;background:rgba(0,0,0,.08);display:none;touch-action:none;cursor:pointer}
+#p-sb.show{display:block}
+#p-sb-thumb{position:absolute;left:0;top:0;width:10px;height:36px;border-radius:5px;background:rgba(0,0,0,.35);cursor:grab;touch-action:none}
+#p-sb-thumb:active{cursor:grabbing}
 
 /* ── HUD (Figma 대수조 85:146, 2560×1440 기준) ──
    --u = 화면 배율. JS가 min(가로/2560, 세로/1440)으로 설정 → 아이맥 27"(CSS 2560×1440)에서 1 = 시안 그대로 */
@@ -340,155 +348,49 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 .map-room.locked:hover{filter:none}
 .map-room:focus-visible{outline:3px solid #fff;outline-offset:3px}
 
-/* ══════════════════════════════════════
-   도감 (Specimen Codex)
-══════════════════════════════════════ */
-#dex-overlay{
-  position:fixed;inset:0;z-index:120;
-  background:rgba(2,10,26,0.78);
-  backdrop-filter:blur(6px);
-  opacity:0;pointer-events:none;
-  transition:opacity .3s ease;
-  display:flex;align-items:center;justify-content:center;
-  padding:40px 24px;
-}
-#dex-overlay.open{opacity:1;pointer-events:all}
+/* ═══════════════════════════════════
+   도감 (Figma 도감 / 도감2, 2560×1440 기준) — 책을 펼친 모양 + 좌우 책갈피
+   - 지도와 같은 방식: 디자인 좌표로 그리고 --u 배율. HUD(z 90~91) 아래에 떠서 HUD는 그대로 보인다.
+════════════════════════════════════ */
+#dex-overlay{position:fixed;inset:0;z-index:80;visibility:hidden}
+#dex-overlay.open{visibility:visible}
+#dex-stage{position:absolute;left:50%;top:0;width:2560px;height:1440px;margin-left:-1280px;transform-origin:50% 0;transform:scale(var(--u));pointer-events:none}
+#dex-stage > *{position:absolute}
+.dex-font{font-family:'Inter','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',sans-serif;font-weight:400;line-height:normal;white-space:nowrap}
+.dex-page{display:block;pointer-events:none}
+.dex-page svg{display:block;pointer-events:none}
+.dex-page svg path{pointer-events:auto}
+.dex-page-cover{pointer-events:auto;background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.dex-ring{width:100px;height:20px;border-radius:15px;background:rgba(123,136,152,.9);pointer-events:none}
+.dex-tab{width:100px;height:100px;padding:0;border:0;cursor:pointer;pointer-events:auto;background:rgba(255,255,255,.8);transition:background .2s;-webkit-tap-highlight-color:transparent}
+.dex-tab.left{border-radius:25px 0 0 25px}
+.dex-tab.right{border-radius:0 25px 25px 0}
+.dex-tab:not(.current):not(.locked):hover{background:rgba(255,255,255,.96)}
+.dex-tab.locked{cursor:default}
+.dex-tab.locked > svg{opacity:.55}
+.dex-tab:focus-visible{outline:3px solid #4BB4FF;outline-offset:-3px}
+.dex-tab > svg{position:absolute;top:34px}
+.dex-tab.left > svg{left:26px}
+.dex-tab.right > svg{left:44px}
+.dex-card{width:380px;height:290px;padding:0;border:0;background:none;text-align:left;cursor:default;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+.dex-card.found{cursor:pointer}
+.dex-thumb-box{position:absolute;left:0;top:0;width:380px;height:200px;border-radius:25px;background:#d9d9d9;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:filter .2s}
+.dex-card.found:hover .dex-thumb-box{filter:brightness(.95)}
+.dex-card:focus-visible{outline:3px solid #4BB4FF;outline-offset:4px;border-radius:25px}
+.dex-thumb{max-width:calc(100% - 40px);max-height:calc(100% - 30px);object-fit:contain}
+.dex-card.unfound .dex-thumb{filter:brightness(0) saturate(100%) opacity(.62)}
+.dex-name{position:absolute;left:0;top:205px;width:380px;font-size:30px;color:#000;overflow:hidden;text-overflow:ellipsis}
+.dex-latin{position:absolute;left:0;top:248px;width:380px;font-size:32px;color:#d9d9d9;overflow:hidden;text-overflow:ellipsis}
+.dex-card.unfound .dex-name{color:rgba(0,0,0,.35);letter-spacing:.1em}
+.dex-pgnum{width:100px;text-align:center;font-size:30px;color:#000;pointer-events:none}
+.dex-pgbtn{width:60px;height:60px;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+.dex-pgbtn:disabled{cursor:default}
+.dex-pgbtn svg{position:absolute;display:block;pointer-events:none}
+.dex-pgbtn:focus-visible{outline:2px solid #4BB4FF;border-radius:12px}
+.dex-empty{font-size:30px;color:#d9d9d9;text-align:center;width:760px}
+.dex-cover-title{font-size:64px;color:#343C3F;text-align:center;width:243px}
+.dex-cover-sub{font-size:32px;color:rgba(123,136,152,.9)}
 
-#dex-panel{
-  position:relative;
-  width:min(960px, 94vw);
-  max-height:88vh;
-  background:linear-gradient(165deg, rgba(6,26,52,0.97) 0%, rgba(3,16,36,0.99) 100%);
-  border:1px solid rgba(120,200,255,0.22);
-  border-radius:18px;
-  box-shadow:0 30px 90px rgba(0,10,40,0.6), 0 0 0 1px rgba(255,255,255,0.03) inset;
-  padding:26px 30px 22px;
-  display:flex;flex-direction:column;
-  transform:translateY(14px) scale(0.97);
-  transition:transform .35s cubic-bezier(.2,.8,.2,1);
-}
-#dex-overlay.open #dex-panel{transform:translateY(0) scale(1)}
-
-#dex-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;flex-shrink:0}
-#dex-title{font-family:'Cinzel',serif;font-size:17px;letter-spacing:.12em;color:rgba(230,245,255,0.92)}
-#dex-title .sub{
-  display:block;font-family:'Oxanium',sans-serif;font-size:9px;
-  letter-spacing:.2em;color:rgba(140,200,255,0.45);margin-top:4px;text-transform:uppercase;
-}
-#dex-close{
-  width:30px;height:30px;border-radius:50%;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(120,200,255,0.18);
-  color:rgba(180,220,255,0.6);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:15px;transition:all .2s;flex-shrink:0;
-}
-#dex-close:hover{background:rgba(255,90,90,0.12);border-color:rgba(255,120,120,0.3);color:rgba(255,180,180,0.85)}
-
-#dex-progress{
-  display:flex;align-items:center;gap:12px;margin:16px 0 14px;flex-shrink:0;
-}
-#dex-progress-bar-wrap{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden}
-#dex-progress-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,rgba(120,210,255,0.7),rgba(255,210,130,0.85));transition:width .4s ease;width:0%}
-#dex-progress-label{
-  font-family:'Oxanium',sans-serif;font-size:11px;letter-spacing:.1em;
-  color:rgba(200,230,255,0.7);white-space:nowrap;
-  font-variant-numeric:tabular-nums;
-}
-
-#dex-scroll{
-  overflow-y:auto;flex:1;padding-right:6px;margin-right:-6px;
-}
-#dex-scroll::-webkit-scrollbar{width:5px}
-#dex-scroll::-webkit-scrollbar-track{background:transparent}
-#dex-scroll::-webkit-scrollbar-thumb{background:rgba(120,180,230,0.18);border-radius:3px}
-
-.dex-section{margin-bottom:22px}
-.dex-section-head{
-  display:flex;align-items:baseline;gap:10px;margin-bottom:10px;
-  padding-bottom:7px;border-bottom:1px solid rgba(120,190,255,0.12);
-}
-.dex-section-name{
-  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:12px;font-weight:600;
-  letter-spacing:.1em;color:rgba(220,240,255,0.85);
-}
-.dex-section-en{
-  font-family:'Oxanium',sans-serif;font-size:9px;letter-spacing:.14em;
-  color:rgba(140,200,255,0.4);text-transform:uppercase;
-}
-.dex-section-count{
-  margin-left:auto;font-family:'Oxanium',sans-serif;font-size:10px;
-  letter-spacing:.06em;color:rgba(160,210,255,0.4);font-variant-numeric:tabular-nums;
-}
-
-.dex-grid{
-  display:grid;grid-template-columns:repeat(auto-fill, minmax(124px, 1fr));
-  gap:10px;
-}
-.dex-card{
-  position:relative;
-  background:rgba(255,255,255,0.025);
-  border:1px solid rgba(120,190,255,0.14);
-  border-radius:10px;
-  padding:12px 8px 10px;
-  display:flex;flex-direction:column;align-items:center;
-  cursor:pointer;transition:all .2s;
-  min-height:118px;
-}
-.dex-card:hover{
-  background:rgba(120,190,255,0.06);
-  border-color:rgba(150,210,255,0.32);
-  transform:translateY(-2px);
-}
-.dex-card.found{border-color:rgba(255,205,110,0.22)}
-.dex-card.found:hover{border-color:rgba(255,210,120,0.5)}
-
-.dex-thumb-wrap{
-  width:84px;height:54px;display:flex;align-items:center;justify-content:center;
-  margin-bottom:8px;
-}
-.dex-thumb{
-  max-width:84px;max-height:54px;object-fit:contain;
-  transition:filter .25s;
-}
-.dex-card.unfound .dex-thumb{
-  filter:brightness(0) saturate(100%) opacity(0.62);
-}
-.dex-card.found .dex-thumb{
-  filter:none;
-}
-.dex-card.unfound:hover .dex-thumb{
-  filter:brightness(0) saturate(100%) opacity(0.8);
-}
-
-.dex-card-name{
-  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:10.5px;font-weight:600;
-  letter-spacing:.03em;color:rgba(220,240,255,0.85);text-align:center;
-  line-height:1.3;
-}
-.dex-card.unfound .dex-card-name{color:rgba(150,165,185,0.4)}
-.dex-card-name.masked{letter-spacing:.12em}
-
-.dex-card-tag{
-  position:absolute;top:6px;right:6px;
-  font-size:9px;color:rgba(255,210,130,0.7);
-}
-
-#dex-empty{
-  text-align:center;padding:60px 20px;
-  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:12px;
-  letter-spacing:.1em;color:rgba(160,210,255,0.4);line-height:1.8;
-}
-
-@media (max-width:640px){
-  #dex-overlay{padding:14px}
-  #dex-panel{width:100%;max-height:94vh;padding:18px 14px 14px;border-radius:14px}
-  #dex-title{font-size:14px}
-  #dex-title .sub{font-size:8px;letter-spacing:.14em}
-  .dex-grid{grid-template-columns:repeat(auto-fill, minmax(96px, 1fr));gap:8px}
-  .dex-thumb-wrap{width:64px;height:44px}
-  .dex-thumb{max-width:64px;max-height:44px}
-}
 </style>
 </head>
 <body>
@@ -531,11 +433,12 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:55;pointer-events:none;">
 
   <!-- 팝업 -->
-  <div id="popup">
-    <h3 id="p-name"></h3>
-    <div class="lat" id="p-lat"></div>
-    <p id="p-desc"></p>
-    <span class="badge" id="p-dep"></span>
+  <div id="popup" role="dialog" aria-label="물고기 정보">
+    <div id="p-img"><img id="p-imgel" alt=""></div>
+    <div id="p-name"></div>
+    <div id="p-lat"></div>
+    <div id="p-desc-wrap"><div id="p-desc"></div></div>
+    <div id="p-sb"><div id="p-sb-thumb"></div></div>
   </div>
 
   <!-- HUD (Figma 대수조 85:146) -->
@@ -588,22 +491,8 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     <div class="lock-msg" id="lock-msg"></div>
   </div>
 
-  <!-- 생물 도감 오버레이 -->
-  <div id="dex-overlay">
-    <div id="dex-panel">
-      <div id="dex-head">
-        <div id="dex-title">SPECIMEN CODEX<span class="sub">생물 도감 · 직접 관찰한 개체가 기록됩니다</span></div>
-        <button id="dex-close" aria-label="도감 닫기">&times;</button>
-      </div>
-      <div id="dex-progress">
-        <div id="dex-progress-bar-wrap"><div id="dex-progress-bar"></div></div>
-        <div id="dex-progress-label">0 / 0</div>
-      </div>
-      <div id="dex-scroll">
-        <div id="dex-content"></div>
-      </div>
-    </div>
-  </div>
+  <!-- 생물 도감 (JS가 renderDex에서 그림) -->
+  <div id="dex-overlay"><div id="dex-stage"></div></div>
 
   <!-- 건물 지도 (JS가 renderMapFloor에서 그림) -->
   <div id="map-overlay"><div id="map-stage"></div></div>
@@ -806,23 +695,79 @@ rebuildFish();
 //  팝업
 // ══════════════════════════════════════════
 const popup = document.getElementById('popup');
+const pDescWrap = document.getElementById('p-desc-wrap');
+const pSb = document.getElementById('p-sb'), pThumb = document.getElementById('p-sb-thumb');
+const POP_SB_H = 149, POP_THUMB_MIN = 36, POP_IDLE_MS = 25000;   // 스크롤 트랙 높이 / 손잡이 최소 / 조작 없이 두면 자동으로 닫히는 시간
 let popT;
-function showPopup(fd,mx,my){
-  document.getElementById('p-name').textContent = fd.name;
-  document.getElementById('p-lat').textContent  = fd.latin;
-  document.getElementById('p-desc').textContent = fd.desc;
-  document.getElementById('p-dep').textContent  = fd.dep;
-  const pw=252,ph=172;
-  let px=mx+18, py=my-ph/2;
-  if(px+pw>window.innerWidth-10) px=mx-pw-18;
-  if(py<10) py=10;
-  if(py+ph>window.innerHeight-10) py=window.innerHeight-ph-10;
-  popup.style.left=px+'px'; popup.style.top=py+'px';
+const popScale = () => Math.min(window.innerWidth/2560, window.innerHeight/1440);
+
+// 설명이 넘칠 때만 스크롤바 표시 + 손잡이 위치/크기 갱신
+function popupSyncBar(){
+  const max = pDescWrap.scrollHeight - pDescWrap.clientHeight;
+  if(max <= 1){ pSb.classList.remove('show'); return; }
+  pSb.classList.add('show');
+  const th = Math.max(POP_THUMB_MIN, Math.min(POP_SB_H, POP_SB_H * pDescWrap.clientHeight / pDescWrap.scrollHeight));
+  pThumb.style.height = th + 'px';
+  pThumb.style.top = (pDescWrap.scrollTop / max) * (POP_SB_H - th) + 'px';
+}
+pDescWrap.addEventListener('scroll', popupSyncBar);
+function popupIdle(){ clearTimeout(popT); popT = setTimeout(hidePopup, POP_IDLE_MS); }
+function hidePopup(){ popup.classList.remove('on'); clearTimeout(popT); }
+
+function fillPopup(fd){
+  document.getElementById('p-name').textContent = fd.name  || '';
+  document.getElementById('p-lat').textContent  = fd.latin || '';
+  document.getElementById('p-desc').textContent = fd.desc  || '';
+  const im = document.getElementById('p-imgel'); im.src = fd.src || ''; im.alt = fd.name || '';
+  pDescWrap.scrollTop = 0;
+}
+// 시안: 카드의 왼쪽 아래 모서리가 클릭한 물고기 근처(카드는 물고기 오른쪽 위). 화면 밖으로 나가면 안쪽으로 당김. mx가 없으면 화면 중앙
+function placePopup(mx, my){
+  const u = popScale(), W = 900*u, H = 300*u, vw = window.innerWidth, vh = window.innerHeight, topMin = 80*u, m = 10;
+  let left, top;
+  if(mx == null){ left = (vw-W)/2; top = (vh-H)/2; }
+  else { left = mx; top = my - H; if(top < topMin) top = my + 24*u; }
+  left = Math.max(m, Math.min(vw-W-m, left));
+  top  = Math.max(topMin, Math.min(vh-H-m, top));
+  popup.style.left = left+'px'; popup.style.top = top+'px';
   popup.classList.add('on');
-  clearTimeout(popT);
-  popT=setTimeout(()=>popup.classList.remove('on'),5500);
+  requestAnimationFrame(popupSyncBar);
+  popupIdle();
+}
+function showPopup(fd,mx,my){
+  fillPopup(fd);
+  placePopup(mx,my);
   recordSighting(fd.id);
 }
+
+// 마우스 휠/트랙패드: 정보창 어디에 있어도(이미지·바 위 포함) 설명이 스크롤되고, 뒤의 수조(대수조 세로 스크롤)는 움직이지 않는다
+popup.addEventListener('wheel', e=>{
+  if(e.ctrlKey) return;
+  e.preventDefault(); e.stopPropagation();
+  const max = pDescWrap.scrollHeight - pDescWrap.clientHeight;
+  if(max > 1){
+    const u = popScale();
+    const px = e.deltaMode===1 ? e.deltaY*40 : e.deltaMode===2 ? e.deltaY*pDescWrap.clientHeight*u : e.deltaY;
+    pDescWrap.scrollTop += px / u;
+  }
+  popupIdle();
+}, {passive:false});
+// 스크롤바 드래그 / 트랙 클릭
+let pGrab = 0, pDrag = false;
+const popScrollTo = f => { pDescWrap.scrollTop = Math.max(0, Math.min(1, f)) * (pDescWrap.scrollHeight - pDescWrap.clientHeight); popupIdle(); };
+pThumb.addEventListener('pointerdown', e=>{ pDrag = true; pThumb.setPointerCapture(e.pointerId); pGrab = e.clientY - pThumb.getBoundingClientRect().top; e.stopPropagation(); });
+pThumb.addEventListener('pointermove', e=>{ if(!pDrag) return; const tr = pSb.getBoundingClientRect(), hr = pThumb.getBoundingClientRect(); popScrollTo((e.clientY - pGrab - tr.top) / (tr.height - hr.height)); });
+pThumb.addEventListener('pointerup', ()=>{ pDrag = false; });
+pThumb.addEventListener('pointercancel', ()=>{ pDrag = false; });
+pSb.addEventListener('pointerdown', e=>{ const tr = pSb.getBoundingClientRect(), hr = pThumb.getBoundingClientRect(); popScrollTo((e.clientY - tr.top - hr.height/2) / (tr.height - hr.height)); });
+popup.addEventListener('pointermove', popupIdle);
+
+// 정보창 바깥을 누르면 닫힘. 도감/지도의 빈 곳을 누른 경우에는 정보창만 닫고 도감/지도는 그대로 둔다
+document.addEventListener('click', e=>{
+  if(!popup.classList.contains('on') || popup.contains(e.target)) return;
+  hidePopup();
+  if(e.target.id === 'dex-overlay' || e.target.id === 'map-overlay'){ e.stopPropagation(); e.preventDefault(); }
+}, true);
 
 [farCvs,midCvs,fgCvs].forEach(cvs=>{
   cvs.addEventListener('click',e=>{
@@ -1086,6 +1031,7 @@ function applyGrandFishRange(){
 
 // 수조 전환 시 호출
 function onTankChanged(tankId){
+  hidePopup();
   window.AquiveSync?.noteTank(tankId);   // 마지막으로 본 수조 / 다녀간 수조 기록
   const wrap = document.getElementById('wrap');
   const scrollbar = document.getElementById('grand-scrollbar');
@@ -1449,6 +1395,7 @@ function mk(tag, cls, styles, html){
   return e;
 }
 const pxs = n => n + 'px';
+function mkText(cls, styles, text){ const e = mk('div', cls, styles); e.textContent = text; return e; }   // 글자는 HTML로 해석하지 않음
 
 function renderMapFloor(floor){
   mapCurrentFloor = floor;
@@ -1511,6 +1458,7 @@ function selectTankFromMap(tankId){
 }
 
 function openMap(){
+  hidePopup();
   closeDex();
   renderMapFloor(tankFloorOf(TANKS[currentTankIdx].id) || '1F');
   document.getElementById('map-overlay').classList.add('open');
@@ -1598,105 +1546,206 @@ function maskName(name){
   return name.replace(/./g, '?');
 }
 
+// ══════════════════════════════════════════
+//  도감 화면 (Figma 도감 / 도감2)
+//  · 책갈피 = 수조 1개. 양쪽에 반씩(12개면 왼쪽 6 · 오른쪽 6) 배치 → 모든 수조가 들어감
+//  · 지금 보는 수조의 책갈피만 페이지와 하나의 모양으로 이어져 있다 (지도의 활성 탭과 같은 방식). 나머지는 떨어져 있음
+//  · 한 페이지 6마리(2×3). 첫 화면 = 표지 + 1페이지, 이후 두 페이지씩 넘김
+// ══════════════════════════════════════════
+const DEX_PER_PAGE = 6;
+let dexTank = 0, dexSpread = 0;            // dexTank = TANKS 배열의 인덱스
+const DEX_TAB_W = 91, DEX_TAB_R = 25, DEX_TAB_FILLET = 14;   // 책갈피가 페이지 밖으로 나온 폭 / 바깥 모서리 / 페이지와 만나는 오목 모서리
+
+const DEX_P_L = 'M772.71 0C778.915 0 784.481 3.82091 786.71 9.6123L807.632 63.9785C811.346 73.631 820.621 80 830.964 80H900V1212H15C6.71573 1212 0 1205.28 0 1197V95C4.12325e-06 86.7157 6.71573 80 15 80H488.763C499.105 80 508.38 73.631 512.095 63.9785L533.017 9.6123C535.245 3.82106 540.81 0.000150332 547.016 0H772.71Z';
+const DEX_P_R = 'M127.29 0C121.085 0 115.519 3.82091 113.29 9.6123L92.3682 63.9785C88.6536 73.631 79.3787 80 69.0361 80H0V1212H885C893.284 1212 900 1205.28 900 1197V95C900 86.7157 893.284 80 885 80H411.237C400.895 80 391.62 73.631 387.905 63.9785L366.983 9.6123C364.755 3.82106 359.19 0.000150332 352.984 0H127.29Z';
+const DEX_P_COVER = 'M900 0V1132H15C6.71573 1132 2.44818e-06 1125.28 0 1117V15C1.69128e-07 6.71573 6.71573 0 15 0H900Z';
+const DEX_ARR_PREV = 'M1.78873e-07 12.9902L22.5 -0.000146598L22.5 25.9806L1.78873e-07 12.9902Z';
+const DEX_ARR_NEXT = 'M22.5 12.9902L-1.2235e-06 25.9806L-8.78432e-08 -0.000147849L22.5 12.9902Z';
+const DEX_LOCK = 'M33.3887 0.00488281C41.4938 0.210486 48.001 6.84533 48.001 15V24.2998C54.8472 25.69 60 31.7435 60 39V51C59.9999 59.2841 53.2841 65.9999 45 66H15C6.71582 66 0.000146962 59.2841 0 51V39C0 31.7428 5.15379 25.6893 12.001 24.2998V15C12.001 6.84537 18.5082 0.210548 26.6133 0.00488281L27.001 0H33.001L33.3887 0.00488281ZM27.001 9C23.6873 9.00004 21.001 11.6863 21.001 15V24H39.001V15C39.001 11.6863 36.3147 9 33.001 9H27.001Z';
+
+// SVG 경로(M L H V C A Z)의 x 좌표를 dx만큼 이동
+function dexShiftPath(d, dx){
+  return d.replace(/([MLHVCAZ])([^MLHVCAZ]*)/g, (_, cmd, args)=>{
+    const nums = (args.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi) || []).map(Number);
+    if(cmd==='Z') return 'Z';
+    let out = nums.slice();
+    if(cmd==='H') out[0] += dx;
+    else if(cmd==='V') {}
+    else if(cmd==='A'){ for(let i=0;i<out.length;i+=7) out[i+5] += dx; }
+    else { for(let i=0;i<out.length;i+=2) out[i] += dx; }   // M L C
+    return cmd + out.join(' ');
+  });
+}
+
+// 페이지 가장자리(왼쪽 x=0 / 오른쪽 x=900)에서 y1~y1+100 구간을 바깥으로 튀어나오게 하는 경로 조각
+function dexBulge(side, y1){
+  const y2 = y1+100, W=DEX_TAB_W, R=DEX_TAB_R, r=DEX_TAB_FILLET;
+  if(side==='left'){
+    return 'V'+(y2+r)+'A'+r+' '+r+' 0 0 0 '+(-r)+' '+y2+'H'+(-(W-R))+'A'+R+' '+R+' 0 0 1 '+(-W)+' '+(y2-R)+
+           'V'+(y1+R)+'A'+R+' '+R+' 0 0 1 '+(-(W-R))+' '+y1+'H'+(-r)+'A'+r+' '+r+' 0 0 0 0 '+(y1-r);
+  }
+  const X=900;
+  return 'V'+(y2+r)+'A'+r+' '+r+' 0 0 1 '+(X+r)+' '+y2+'H'+(X+W-R)+'A'+R+' '+R+' 0 0 0 '+(X+W)+' '+(y2-R)+
+         'V'+(y1+R)+'A'+R+' '+R+' 0 0 0 '+(X+W-R)+' '+y1+'H'+(X+r)+'A'+r+' '+r+' 0 0 1 '+X+' '+(y1-r);
+}
+
+// kind: 'L'(왼쪽 안쪽 페이지) 'C'(표지) 'R'(오른쪽 페이지). bulge = {side, tabTop} 이면 그 높이에 책갈피를 합침
+function dexPagePath(kind, bulge, pageTop){
+  const base   = kind==='L' ? DEX_P_L : kind==='C' ? DEX_P_COVER : DEX_P_R;
+  const marker = kind==='L' ? 'V95C4.12325e-06' : kind==='C' ? 'V15C1.69128e-07' : 'V95C900 86.7157';
+  let d = base;
+  if(bulge){
+    d = d.replace(marker, dexBulge(bulge.side, bulge.tabTop - pageTop) + marker);
+  }
+  return dexShiftPath(d, kind==='R' ? 0 : 100);     // 왼쪽 페이지들은 튀어나온 만큼 100px 여백을 둔 상자에 그림
+}
+
+function dexTabSide(i){ return i < Math.ceil(TANKS.length/2) ? 'left' : 'right'; }
+function dexTabRow(i){ const half = Math.ceil(TANKS.length/2); return i < half ? i : i-half; }
+function dexTabTop(row){ return 187 + 115*row; }
+
 function renderDex(){
-  const content = document.getElementById('dex-content');
-  const groups = getAllFishAcrossTanks();
+  const stage = document.getElementById('dex-stage');
+  if(!stage) return;
+  const all = getAllFishAcrossTanks();
   const collected = getCollectedSet();
+  const tank = TANKS[dexTank];
 
-  let totalFish = 0, totalFound = 0;
-  content.innerHTML = '';
+  // 이 수조의 물고기 → 페이지로 나눔
+  const list = [];
+  const g0 = all.find(x=>x.tank.id===tank.id);
+  if(g0) g0.fish.forEach(f=> list.push({fd:f, tank:g0.tank}));
+  const pages = [];
+  for(let i=0;i<list.length;i+=DEX_PER_PAGE) pages.push(list.slice(i,i+DEX_PER_PAGE));
+  if(!pages.length) pages.push([]);
+  const total = pages.length;
+  const spreads = 1 + Math.ceil((total-1)/2);
+  dexSpread = Math.max(0, Math.min(spreads-1, dexSpread));
+  const cover = (dexSpread === 0);
+  const leftNo  = cover ? 0 : 2*dexSpread;          // 0 = 표지
+  const rightNo = cover ? 1 : 2*dexSpread + 1;
+  const hasRight = rightNo <= total;
+  const prevOff = (dexSpread === 0), nextOff = (dexSpread >= spreads-1);
 
-  groups.forEach(group=>{
-    if(!group.fish.length) return;
-    totalFish += group.fish.length;
+  stage.innerHTML = '';
 
-    const section = document.createElement('div');
-    section.className = 'dex-section';
-
-    const foundInSection = group.fish.filter(f=>collected.has(f.id)).length;
-    totalFound += foundInSection;
-
-    const head = document.createElement('div');
-    head.className = 'dex-section-head';
-    head.innerHTML = `
-      <span class="dex-section-name">${group.tank.name}</span>
-      <span class="dex-section-en">${group.tank.nameEn}</span>
-      <span class="dex-section-count">${foundInSection} / ${group.fish.length}</span>
-    `;
-    section.appendChild(head);
-
-    const grid = document.createElement('div');
-    grid.className = 'dex-grid';
-
-    group.fish.forEach(fd=>{
-      const found = collected.has(fd.id);
-      const card = document.createElement('div');
-      card.className = 'dex-card '+(found?'found':'unfound');
-
-      const thumbWrap = document.createElement('div');
-      thumbWrap.className = 'dex-thumb-wrap';
-      const img = document.createElement('img');
-      img.className = 'dex-thumb';
-      img.src = fd.src;
-      img.alt = found ? fd.name : '미확인 개체';
-      img.loading = 'lazy';
-      thumbWrap.appendChild(img);
-      card.appendChild(thumbWrap);
-
-      const nameEl = document.createElement('div');
-      nameEl.className = 'dex-card-name'+(found?'':' masked');
-      nameEl.textContent = found ? fd.name : maskName(fd.name);
-      card.appendChild(nameEl);
-
-      if(found){
-        card.addEventListener('click', ()=> showDexDetail(fd, group.tank));
-      }
-
-      grid.appendChild(card);
+  // 1) 떨어져 있는 책갈피 (현재 수조 것은 페이지와 합쳐서 그리므로 제외) — 페이지 뒤에 깔림
+  TANKS.forEach((tk,i)=>{
+    if(i === dexTank) return;
+    const side = dexTabSide(i), locked = !isTankUnlocked(tk);
+    const b = mk('button', 'dex-tab '+side+(locked?' locked':''),
+      {left: side==='left' ? '289px' : '2171px', top: pxs(dexTabTop(dexTabRow(i)))});
+    b.type = 'button';
+    b.title = tk.name + (locked ? ' (잠김)' : '');
+    b.setAttribute('aria-label', tk.name + (locked ? ' (잠김)' : ''));
+    if(locked){
+      b.innerHTML = '<svg width="30" height="33" viewBox="0 0 60 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" fill="#343C3F" d="'+DEX_LOCK+'"/></svg>';
+    }
+    b.addEventListener('click', ()=>{
+      if(locked){ showLockToast(tk); return; }
+      dexTank = i; dexSpread = 0; renderDex();
     });
-
-    section.appendChild(grid);
-    content.appendChild(section);
+    stage.appendChild(b);
   });
 
-  if(totalFish === 0){
-    content.innerHTML = '<div id="dex-empty">아직 등록된 생물이 없습니다<br><span style="opacity:.6">수조를 둘러보며 새로운 개체를 만나보세요</span></div>';
+  // 2) 페이지 (현재 수조의 책갈피가 있는 쪽 페이지에 책갈피를 합침)
+  const cur = {side: dexTabSide(dexTank), tabTop: dexTabTop(dexTabRow(dexTank))};
+  const bl = (cur.side==='left')  ? cur : null;
+  const br = (cur.side==='right') ? cur : null;
+  if(cover){
+    const clip = "path('"+dexPagePath('C', bl, 148)+"')";     // 반투명 표지: 책갈피도 같은 반투명으로 이어짐
+    stage.appendChild(mk('div','dex-page dex-page-cover',{left:'280px',top:'148px',width:'1000px',height:'1132px',clipPath:clip,webkitClipPath:clip}));
+  } else {
+    stage.appendChild(mk('div','dex-page',{left:'280px',top:'68px',width:'1000px',height:'1212px'},
+      '<svg width="1000" height="1212" viewBox="0 0 1000 1212" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="'+dexPagePath('L', bl, 68)+'"/></svg>'));
+  }
+  stage.appendChild(mk('div','dex-page',{left:'1280px',top:'68px',width:'1000px',height:'1212px'},
+    '<svg width="1000" height="1212" viewBox="0 0 1000 1212" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="'+dexPagePath('R', br, 68)+'"/></svg>'));
+
+  // 3) 링 (책 가운데)
+  (cover ? [193,713,1233] : [190,710,1230]).forEach(y=> stage.appendChild(mk('div','dex-ring',{left:'1230px',top:pxs(y)})));
+
+  // 4) 표지 (첫 화면 왼쪽): Collect / 전체 발견 수 / 이 수조 정보
+  if(cover){
+    let totalFound = 0;
+    all.forEach(g=> g.fish.forEach(f=>{ if(collected.has(f.id)) totalFound++; }));
+    const inTank = list.filter(x=>collected.has(x.fd.id)).length;
+    stage.appendChild(mk('div','dex-font dex-cover-title',{left:'480px',top:'248px'},'Collect'));
+    stage.appendChild(mk('div','dex-font dex-cover-sub',{left:'501px',top:'347px'}, String(totalFound).padStart(4,'0')+' species'));
+    stage.appendChild(mkText('dex-font dex-cover-sub',{left:'501px',top:'430px'}, tank.name));
+    stage.appendChild(mkText('dex-font dex-cover-sub',{left:'501px',top:'478px'}, '발견 '+inTank+' / '+list.length));
   }
 
-  const pct = totalFish ? Math.round((totalFound/totalFish)*100) : 0;
-  document.getElementById('dex-progress-bar').style.width = pct+'%';
-  document.getElementById('dex-progress-label').textContent = totalFound+' / '+totalFish;
+  // 5) 물고기 카드 (페이지당 2열×3행)
+  const ROWS = [248,560,872];
+  const drawPage = (no, cols)=>{
+    const items = pages[no-1] || [];
+    if(no === 1 && !items.length){
+      stage.appendChild(mk('div','dex-font dex-empty',{left:pxs(cols[0]),top:'520px'},'아직 등록된 생물이 없어요'));
+      return;
+    }
+    items.forEach((it,i)=>{
+      const fd = it.fd, found = collected.has(fd.id);
+      const card = mk('button','dex-card '+(found?'found':'unfound'),{left:pxs(cols[i%2]),top:pxs(ROWS[Math.floor(i/2)])});
+      card.type = 'button';
+      card.setAttribute('aria-label', found ? fd.name : '미발견 개체');
+      const box = mk('div','dex-thumb-box');
+      const img = document.createElement('img');
+      img.className = 'dex-thumb'; img.src = fd.src; img.alt = found ? fd.name : ''; img.loading = 'lazy';
+      box.appendChild(img);
+      card.appendChild(box);
+      card.appendChild(mkText('dex-font dex-name',null, found ? fd.name : maskName(fd.name)));
+      if(found) card.appendChild(mkText('dex-font dex-latin',null, fd.latin || ''));
+      if(found) card.addEventListener('click', ()=> showDexDetail(fd, it.tank));
+      stage.appendChild(card);
+    });
+  };
+  const pager = (no, prevX, numCx, nextX)=>{
+    stage.appendChild(mk('div','dex-font dex-pgnum',{left:pxs(numCx-50),top:'1213px'}, no+'/'+total));
+    const step = (d)=>()=>{ dexSpread += d; renderDex(); };
+    const pb = mk('button','dex-pgbtn',{left:pxs(prevX+11.5-30),top:pxs(1232-30)},
+      '<svg width="23" height="26" viewBox="0 0 23 26" fill="none" style="left:18px;top:17px"><path d="'+DEX_ARR_PREV+'" fill="'+(prevOff?'#D9D9D9':'#343C3F')+'"/></svg>');
+    pb.type='button'; pb.disabled = prevOff; pb.setAttribute('aria-label','이전 페이지'); pb.addEventListener('click', step(-1));
+    const nb = mk('button','dex-pgbtn',{left:pxs(nextX+19-30),top:pxs(1228-30)},
+      '<svg width="23" height="26" viewBox="0 0 23 26" fill="none" style="left:18px;top:17px"><path d="'+DEX_ARR_NEXT+'" fill="'+(nextOff?'#D9D9D9':'#343C3F')+'"/></svg>');
+    nb.type='button'; nb.disabled = nextOff; nb.setAttribute('aria-label','다음 페이지'); nb.addEventListener('click', step(1));
+    stage.appendChild(pb); stage.appendChild(nb);
+  };
+  if(!cover){ drawPage(leftNo, [415,825]); pager(leftNo, 750, 830, 880); }
+  if(hasRight){ drawPage(rightNo, [1356,1766]); pager(rightNo, 1650, 1730, 1780); }
 }
 
 function showDexDetail(fd, tank){
-  document.getElementById('p-name').textContent = fd.name;
-  document.getElementById('p-lat').textContent  = fd.latin;
-  document.getElementById('p-desc').textContent = fd.desc;
-  document.getElementById('p-dep').textContent  = fd.dep;
-  popup.style.left = (window.innerWidth/2 - 126)+'px';
-  popup.style.top  = (window.innerHeight/2 - 86)+'px';
-  popup.classList.add('on');
-  clearTimeout(popT);
-  popT = setTimeout(()=>popup.classList.remove('on'), 4500);
+  fillPopup(fd);
+  placePopup(null, null);   // 도감에서는 화면 중앙에 (기록은 이미 발견된 종)
 }
 
 function openDex(){
+  hidePopup();
   closeMap();
+  // 지금 있는 수조의 표지부터 펼친다
+  dexTank = currentTankIdx;
+  dexSpread = 0;
   renderDex();
   document.getElementById('dex-overlay').classList.add('open');
+  document.getElementById('dex-toggle')?.classList.add('active');   // 오른쪽 '도감' 탭이 하늘색으로
 }
 function closeDex(){
-  document.getElementById('dex-overlay').classList.remove('open');
+  document.getElementById('dex-overlay')?.classList.remove('open');
+  document.getElementById('dex-toggle')?.classList.remove('active');
 }
 
-document.getElementById('dex-toggle')?.addEventListener('click', openDex);
-document.getElementById('dex-close')?.addEventListener('click', closeDex);
+// '도감' 탭은 열기/닫기 토글, 책 바깥(빈 곳)을 눌러도 닫힘
+document.getElementById('dex-toggle')?.addEventListener('click', ()=>{
+  document.getElementById('dex-overlay').classList.contains('open') ? closeDex() : openDex();
+});
 document.getElementById('dex-overlay')?.addEventListener('click', (e)=>{
   if(e.target.id === 'dex-overlay') closeDex();
 });
 
 document.addEventListener('keydown', (e)=>{
   if(e.key !== 'Escape') return;
+  if(popup.classList.contains('on')){ hidePopup(); return; }   // 정보창이 열려 있으면 정보창부터 닫기
   if(document.getElementById('dex-overlay')?.classList.contains('open')) closeDex();
   else if(document.getElementById('map-overlay')?.classList.contains('open')) closeMap();
 });
