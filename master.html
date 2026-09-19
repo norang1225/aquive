@@ -376,6 +376,15 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #dex-overlay.open{visibility:visible}
 #dex-stage{position:absolute;left:50%;top:0;width:2560px;height:1440px;margin-left:-1280px;transform-origin:50% 0;transform:scale(var(--u));pointer-events:none}
 #dex-stage > *{position:absolute}
+#dex-stage{perspective:6500px}   /* 클수록 원근감이 약해짐 (책장이 화면 밖으로 커져 나가지 않게) */
+.dex-grp,.dex-leaf,.dex-face{position:absolute;left:0;top:0;width:2560px;height:1440px;pointer-events:none}
+.dex-grp > *{position:absolute}   /* 페이지 묶음 안의 요소도 좌표(left/top)로 배치 */
+.dex-leaf{transform-origin:1280px 720px;transform-style:preserve-3d;will-change:transform}
+.dex-leaf *{pointer-events:none !important}
+.dex-old *{pointer-events:none !important}
+.dex-face{-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.dex-face-back{transform:rotateY(180deg)}
+.dex-shade{position:absolute;background:#000;opacity:0;pointer-events:none}
 .dex-font{font-family:'Inter','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',sans-serif;font-weight:400;line-height:normal;white-space:nowrap}
 .dex-page{display:block;pointer-events:none}
 .dex-page svg{display:block;pointer-events:none}
@@ -1628,9 +1637,51 @@ function dexTabSide(i){ return i < Math.ceil(TANKS.length/2) ? 'left' : 'right';
 function dexTabRow(i){ const half = Math.ceil(TANKS.length/2); return i < half ? i : i-half; }
 function dexTabTop(row){ return 187 + 115*row; }
 
-function renderDex(){
+let dexGroupsNow = null;      // 지금 화면에 놓인 왼쪽/오른쪽 페이지 묶음 {L, R}
+let dexFlipFinish = null;     // 넘김 애니메이션이 진행 중이면 즉시 마무리하는 함수
+const dexReduceMotion = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const dexGrp = () => mk('div','dex-grp');
+
+// 열거나 수조를 바꿀 때: 카드·글자가 아래에서 살짝 올라오며 차례로 나타남
+function dexIntro(root){
+  root.querySelectorAll('.dex-card,.dex-pgnum,.dex-pgbtn,.dex-cover-title,.dex-cover-sub,.dex-empty').forEach((el,i)=>{
+    el.animate([{opacity:0,transform:'translateY(16px)'},{opacity:1,transform:'translateY(0)'}],
+               {duration:320,delay:Math.min(i,12)*35,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'});
+  });
+}
+
+// 페이지 넘김: 책장(leaf)이 책등(x=1280)을 축으로 180° 회전. dir='next'면 오른쪽 페이지가 왼쪽으로, 'prev'면 왼쪽 페이지가 오른쪽으로
+//  · 앞면 = 넘어가는 옛 페이지, 뒷면 = 새로 펼쳐질 반대편 페이지. 책장 아래에는 새 페이지와 옛 페이지가 놓여 있다가, 끝나면 최종 화면으로 교체
+function dexFlip(stage, dir, prev, gL, gR, rings){
+  const leaf = mk('div','dex-leaf'), f1 = mk('div','dex-face'), f2 = mk('div','dex-face dex-face-back');
+  const shadeAt = x => ({left:pxs(x), top:'68px', width:'900px', height:'1212px'});
+  const sh1 = mk('div','dex-shade', shadeAt(dir==='next' ? 1280 : 380));
+  const sh2 = mk('div','dex-shade', shadeAt(dir==='next' ? 380 : 1280));
+  if(dir === 'next'){ prev.L.classList.add('dex-old'); stage.append(prev.L, gR); f1.append(prev.R); f2.append(gL.cloneNode(true)); }
+  else              { prev.R.classList.add('dex-old'); stage.append(gL, prev.R); f1.append(prev.L); f2.append(gR.cloneNode(true)); }
+  f1.append(sh1); f2.append(sh2); leaf.append(f1, f2);
+  stage.append(leaf); rings.forEach(r => stage.append(r));          // 링은 책장 위에
+
+  const angle = dir === 'next' ? -180 : 180;
+  const anim = leaf.animate([{transform:'rotateY(0deg)'},{transform:'rotateY('+angle+'deg)'}],
+                            {duration:680, easing:'cubic-bezier(.5,.05,.25,1)', fill:'forwards'});
+  sh1.animate([{opacity:0},{opacity:.22}], {duration:340, easing:'ease-in',  fill:'forwards'});     // 넘어가며 살짝 어두워졌다가
+  sh2.animate([{opacity:.22},{opacity:0}], {duration:340, delay:340, easing:'ease-out', fill:'both'}); // 내려앉으며 밝아짐
+
+  const done = ()=>{
+    if(dexFlipFinish !== done) return;
+    dexFlipFinish = null; anim.cancel(); leaf.remove();
+    if(dir === 'next'){ prev.L.remove(); stage.insertBefore(gL, gR); }
+    else              { prev.R.remove(); gL.after(gR); }
+  };
+  dexFlipFinish = done; anim.onfinish = done;
+}
+
+// mode: 'open'(열기) | 'swap'(다른 수조 책갈피) | 'next' | 'prev'(페이지 넘김) | 없음(즉시 다시 그리기)
+function renderDex(mode){
   const stage = document.getElementById('dex-stage');
   if(!stage) return;
+  if(dexFlipFinish) dexFlipFinish();                     // 진행 중이던 넘김은 즉시 마무리
   const all = getAllFishAcrossTanks();
   const collected = getCollectedSet();
   const tank = TANKS[dexTank];
@@ -1651,6 +1702,7 @@ function renderDex(){
   const hasRight = rightNo <= total;
   const prevOff = (dexSpread === 0), nextOff = (dexSpread >= spreads-1);
 
+  const prev = dexGroupsNow;                         // 넘김 애니메이션에 쓸 이전 화면
   stage.innerHTML = '';
 
   // 1) 떨어져 있는 책갈피 (현재 수조 것은 페이지와 합쳐서 그리므로 제외) — 페이지 뒤에 깔림
@@ -1667,45 +1719,46 @@ function renderDex(){
     }
     b.addEventListener('click', ()=>{
       if(locked){ showLockToast(tk); return; }
-      dexTank = i; dexSpread = 0; renderDex();
+      dexTank = i; dexSpread = 0; renderDex('swap');
     });
     stage.appendChild(b);
   });
 
-  // 2) 페이지 (현재 수조의 책갈피가 있는 쪽 페이지에 책갈피를 합침)
+  // 2) 왼쪽/오른쪽 페이지 묶음 (현재 수조의 책갈피가 있는 쪽 페이지에 책갈피를 합침)
+  const gL = dexGrp(), gR = dexGrp();
   const cur = {side: dexTabSide(dexTank), tabTop: dexTabTop(dexTabRow(dexTank))};
   const bl = (cur.side==='left')  ? cur : null;
   const br = (cur.side==='right') ? cur : null;
   if(cover){
     const clip = "path('"+dexPagePath('C', bl, 148)+"')";     // 반투명 표지: 책갈피도 같은 반투명으로 이어짐
-    stage.appendChild(mk('div','dex-page dex-page-cover',{left:'280px',top:'148px',width:'1000px',height:'1132px',clipPath:clip,webkitClipPath:clip}));
+    gL.appendChild(mk('div','dex-page dex-page-cover',{left:'280px',top:'148px',width:'1000px',height:'1132px',clipPath:clip,webkitClipPath:clip}));
   } else {
-    stage.appendChild(mk('div','dex-page',{left:'280px',top:'68px',width:'1000px',height:'1212px'},
+    gL.appendChild(mk('div','dex-page',{left:'280px',top:'68px',width:'1000px',height:'1212px'},
       '<svg width="1000" height="1212" viewBox="0 0 1000 1212" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="'+dexPagePath('L', bl, 68)+'"/></svg>'));
   }
-  stage.appendChild(mk('div','dex-page',{left:'1280px',top:'68px',width:'1000px',height:'1212px'},
+  gR.appendChild(mk('div','dex-page',{left:'1280px',top:'68px',width:'1000px',height:'1212px'},
     '<svg width="1000" height="1212" viewBox="0 0 1000 1212" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="'+dexPagePath('R', br, 68)+'"/></svg>'));
 
   // 3) 링 (책 가운데)
-  (cover ? [193,713,1233] : [190,710,1230]).forEach(y=> stage.appendChild(mk('div','dex-ring',{left:'1230px',top:pxs(y)})));
+  const rings = (cover ? [193,713,1233] : [190,710,1230]).map(y=> mk('div','dex-ring',{left:'1230px',top:pxs(y)}));
 
   // 4) 표지 (첫 화면 왼쪽): Collect / 전체 발견 수 / 이 수조 정보
   if(cover){
     let totalFound = 0;
     all.forEach(g=> g.fish.forEach(f=>{ if(collected.has(f.id)) totalFound++; }));
     const inTank = list.filter(x=>collected.has(x.fd.id)).length;
-    stage.appendChild(mk('div','dex-font dex-cover-title',{left:'480px',top:'248px'},'Collect'));
-    stage.appendChild(mk('div','dex-font dex-cover-sub',{left:'501px',top:'347px'}, String(totalFound).padStart(4,'0')+' species'));
-    stage.appendChild(mkText('dex-font dex-cover-sub',{left:'501px',top:'430px'}, tank.name));
-    stage.appendChild(mkText('dex-font dex-cover-sub',{left:'501px',top:'478px'}, '발견 '+inTank+' / '+list.length));
+    gL.appendChild(mk('div','dex-font dex-cover-title',{left:'480px',top:'248px'},'Collect'));
+    gL.appendChild(mk('div','dex-font dex-cover-sub',{left:'501px',top:'347px'}, String(totalFound).padStart(4,'0')+' species'));
+    gL.appendChild(mkText('dex-font dex-cover-sub',{left:'501px',top:'430px'}, tank.name));
+    gL.appendChild(mkText('dex-font dex-cover-sub',{left:'501px',top:'478px'}, '발견 '+inTank+' / '+list.length));
   }
 
   // 5) 물고기 카드 (페이지당 2열×3행)
   const ROWS = [248,560,872];
-  const drawPage = (no, cols)=>{
+  const drawPage = (grp, no, cols)=>{
     const items = pages[no-1] || [];
     if(no === 1 && !items.length){
-      stage.appendChild(mk('div','dex-font dex-empty',{left:pxs(cols[0]),top:'520px'},'아직 등록된 생물이 없어요'));
+      grp.appendChild(mk('div','dex-font dex-empty',{left:pxs(cols[0]),top:'520px'},'아직 등록된 생물이 없어요'));
       return;
     }
     items.forEach((it,i)=>{
@@ -1721,22 +1774,32 @@ function renderDex(){
       card.appendChild(mkText('dex-font dex-name',null, found ? fd.name : maskName(fd.name)));
       if(found) card.appendChild(mkText('dex-font dex-latin',null, fd.latin || ''));
       if(found) card.addEventListener('click', ()=> showDexDetail(fd, it.tank));
-      stage.appendChild(card);
+      grp.appendChild(card);
     });
   };
-  const pager = (no, prevX, numCx, nextX)=>{
-    stage.appendChild(mk('div','dex-font dex-pgnum',{left:pxs(numCx-50),top:'1213px'}, no+'/'+total));
-    const step = (d)=>()=>{ dexSpread += d; renderDex(); };
+  const pager = (grp, no, prevX, numCx, nextX)=>{
+    grp.appendChild(mk('div','dex-font dex-pgnum',{left:pxs(numCx-50),top:'1213px'}, no+'/'+total));
+    const step = (d)=>()=>{ dexSpread += d; renderDex(d > 0 ? 'next' : 'prev'); };
     const pb = mk('button','dex-pgbtn',{left:pxs(prevX+11.5-30),top:pxs(1232-30)},
       '<svg width="23" height="26" viewBox="0 0 23 26" fill="none" style="left:18px;top:17px"><path d="'+DEX_ARR_PREV+'" fill="'+(prevOff?'#D9D9D9':'#343C3F')+'"/></svg>');
     pb.type='button'; pb.disabled = prevOff; pb.setAttribute('aria-label','이전 페이지'); pb.addEventListener('click', step(-1));
     const nb = mk('button','dex-pgbtn',{left:pxs(nextX+19-30),top:pxs(1228-30)},
       '<svg width="23" height="26" viewBox="0 0 23 26" fill="none" style="left:18px;top:17px"><path d="'+DEX_ARR_NEXT+'" fill="'+(nextOff?'#D9D9D9':'#343C3F')+'"/></svg>');
     nb.type='button'; nb.disabled = nextOff; nb.setAttribute('aria-label','다음 페이지'); nb.addEventListener('click', step(1));
-    stage.appendChild(pb); stage.appendChild(nb);
+    grp.appendChild(pb); grp.appendChild(nb);
   };
-  if(!cover){ drawPage(leftNo, [415,825]); pager(leftNo, 750, 830, 880); }
-  if(hasRight){ drawPage(rightNo, [1356,1766]); pager(rightNo, 1650, 1730, 1780); }
+  if(!cover){ drawPage(gL, leftNo, [415,825]); pager(gL, leftNo, 750, 830, 880); }
+  if(hasRight){ drawPage(gR, rightNo, [1356,1766]); pager(gR, rightNo, 1650, 1730, 1780); }
+
+  // 6) 화면에 올리기: 페이지 넘김이면 책장 회전, 아니면 바로 (열기·수조 변경은 카드가 차례로 나타남)
+  dexGroupsNow = {L:gL, R:gR};
+  if((mode === 'next' || mode === 'prev') && prev && !dexReduceMotion()){
+    dexFlip(stage, mode, prev, gL, gR, rings);
+    return;
+  }
+  stage.append(gL, gR);
+  rings.forEach(r => stage.append(r));
+  if((mode === 'open' || mode === 'swap') && !dexReduceMotion()) dexIntro(stage);
 }
 
 function showDexDetail(fd, tank){
@@ -1918,7 +1981,7 @@ function openDex(){
   // 지금 있는 수조의 표지부터 펼친다
   dexTank = currentTankIdx;
   dexSpread = 0;
-  renderDex();
+  renderDex('open');
   document.getElementById('dex-overlay').classList.add('open');
   document.getElementById('dex-toggle')?.classList.add('active');   // 오른쪽 '도감' 탭이 하늘색으로
 }

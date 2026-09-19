@@ -88,11 +88,16 @@ svg{display:block}
   font-family:inherit;font-size:32px;font-weight:400;color:#000;outline:none;padding:0 4px 4px 0;transition:border-color .2s}
 .field::placeholder{color:rgba(0,0,0,.3)}
 .field:focus{border-bottom-color:var(--aquive)}
-.field.err{border-bottom-color:#d64545;animation:shake .35s}
+.field.err{border-bottom-color:#d64545;animation:shake .35s !important}   /* 입장 모션보다 항상 우선 */
 #nick{left:1178px;top:630px}
 #pw  {left:1178px;top:704px}
 #hint{left:1178px;top:757px;font-size:20px;color:#d64545;min-height:24px}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+/* ── 입장 모션: 바인더의 겹들이 아래에서 올라오며 차례로 쌓임 (JS가 .rise 와 --i 를 붙임) ── */
+@keyframes rise{from{opacity:0;transform:translateY(90px)}to{opacity:1;transform:none}}
+#stage.enter .rise{animation:rise .52s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i) * .09s)}
+@media (prefers-reduced-motion:reduce){#stage.enter .rise{animation:none}}   /* 시스템 '동작 줄이기'를 켠 경우 모션 없음 */
 
 /* 계약서 스크롤 영역 (기본 스크롤바는 숨기고 디자인의 커스텀 스크롤바 사용) */
 #contract{left:767px;top:782px;width:965px;height:352px;overflow-y:auto;scrollbar-width:none;outline:none;
@@ -330,6 +335,7 @@ async function accept(){
     if(isNew){ location.href = AQUARIUM; return; }          // 새 계정 → 계약 동의 완료 → 대수조로
     await renderReturning(profile);                          // 기존 계정 → 바인더(2회차) 화면
     setScene('b');
+    playEnter();                                             // 로그인 창이 사라지고 바인더가 다시 쌓임
   }catch(e){
     const [msg, f] = ERR[e && e.code] || ERR.unknown;
     showErr(msg, f === 'nick' ? nick : pw);
@@ -482,6 +488,26 @@ avB.addEventListener('click', () => AquiveAvatars.openChooser(stage, profileNow 
 window.addEventListener('keydown', e => { if(e.key === 'Escape') AquiveAvatars.closeChooser(); });
 
 // ══════════════════════════════════════════
+//  입장 모션: 바인더의 겹들이 아래에서 올라오며 차례로 쌓임 (순서 = 아래 배열 순서)
+// ══════════════════════════════════════════
+const RISE = [
+  ['svg[style*="left:380px;top:74px"]'],                                           // 어두운 표지
+  ['svg[style*="left:1280px;top:154px"]'],                                         // 하늘색 페이지
+  ['#gray-page'],                                                                  // 회색 페이지
+  ['#map-panel', '#t-map'],                                                        // 지도 패널
+  ['#paper'],                                                                      // 흰 종이
+  ['#cover', '#cover-link', '#t-cover-title', '#t-cover-sub', '#note', '#strip'],  // 표지 카드
+  ['#collect-card', '#t-collect', '#t-species', '#t-recent', '#th1', '#th2', '#th3', '#collect-bar'],   // Collect
+  ['#quarter', 'svg[aria-label="지도"]'],                                          // 하늘색 판 + 지도 그림
+  ['#clip-tab', 'svg[style*="left:1197.66px"]'],                                   // 집게
+  ['#tab1', '#tab2'],                                                              // 오른쪽 탭
+  ['svg[style*="left:1957px"]', 'svg[style*="left:1754px"]', 'svg[style*="left:1906px"]', '#t-profile', '#id-avatar', '#stage .lbl', '#stage .val'],   // ID 카드
+  ['#modal', '#m-title', '#avatar', '#lbl-name', '#nick', '#lbl-pw', '#pw', '#hint', '#contract', '#sb-track', '#accept'],   // 로그인 창 (장면 a)
+];
+RISE.forEach((sels, i) => sels.forEach(sel => document.querySelectorAll(sel).forEach(el => { el.classList.add('rise'); el.style.setProperty('--i', i); })));
+function playEnter(){ stage.classList.remove('enter'); void stage.offsetWidth; stage.classList.add('enter'); }   // 처음부터 다시 재생
+
+// ══════════════════════════════════════════
 //  시작: 이미 로그인돼 있으면 바로 바인더(b), 아니면 로그인 창(a)
 // ══════════════════════════════════════════
 (async function start(){
@@ -499,6 +525,7 @@ window.addEventListener('keydown', e => { if(e.key === 'Escape') AquiveAvatars.c
   else { setScene('a'); }
   fit();
   stage.classList.add('ready');
+  playEnter();
   drawFish();
   if(!profile) nick.focus({preventScroll:true});
 })();
