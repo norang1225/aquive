@@ -173,6 +173,10 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 .me-tabbtn span{position:absolute;left:16px;width:40px;text-align:center;line-height:45px;transition:text-shadow .2s}
 .me-tabbtn:hover span{text-shadow:0 0 12px rgba(255,255,255,.9)}
 .me-tabbtn:focus-visible{outline:3px solid #fff;outline-offset:-6px}
+.me-hit{padding:0;border:0;background:transparent;cursor:pointer;pointer-events:auto;transition:background .2s;-webkit-tap-highlight-color:transparent}
+.me-hit-light:hover{background:rgba(0,0,0,.05)}
+.me-hit-dark:hover{background:rgba(255,255,255,.08)}
+.me-hit:focus-visible{outline:3px solid #4BB4FF;outline-offset:-3px}
 .me-thumb{background:#d9d9d9;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .me-thumb img{max-width:92%;max-height:92%;object-fit:contain}
 
@@ -1918,6 +1922,15 @@ function renderMe(profile){
   });
   add(mk('div','me-glass',{left:'590px',top:'760px',width:'674px',height:'59px',background:'#1ab9e4'}));
 
+  // 눌러서 이동: Collect(흰 카드) → 도감, Map(검은 패널·하늘색 판) → 지도. (ID card·탭·집게는 이 위에 놓여 그대로 동작)
+  const hit = (l,t,w,h,label,cls,radius,fn)=>{
+    const b = add(mk('button','me-hit '+cls,{left:pxs(l),top:pxs(t),width:pxs(w),height:pxs(h),borderRadius:radius||'0'}));
+    b.type='button'; b.setAttribute('aria-label',label); b.addEventListener('click', fn); return b;
+  };
+  hit(590,760,674,457,'도감 열기','me-hit-light','0',()=>{ closeMe(); openDex(); });
+  hit(1356,213,758,1008,'지도 열기','me-hit-dark','25px',()=>{ closeMe(); openMap(); });
+  hit(1356,803,794,473,'지도 열기','me-hit-dark','244px 0 0 0',()=>{ closeMe(); openMap(); });
+
   // 집게
   add(mk('div','',{left:'1143px',top:'155px',width:'160px',height:'88px',background:'#1ab9e4'}));
   add(mk('div','',{left:'1181.66px',top:'83px',width:'82px',height:'161px'}, svg(82,161,'<path fill="#D9D9D9" d="'+ME_CLIP+'"/>')));
@@ -2067,19 +2080,18 @@ function showLockToast(tank){
 function tryNav(idx){
   const tank = TANKS[idx];
   if(!isTankUnlocked(tank)){ showLockToast(tank); return; }
-  switchTankWithData(idx);
+  return switchTankWithData(idx);   // 끝날 때까지 기다릴 수 있도록 Promise를 돌려줌
 }
 
 async function switchTankWithData(idx){
   if(idx === currentTankIdx) return;
   const overlay = document.getElementById('tank-overlay');
   if(overlay) overlay.classList.add('fade-in');
-  setTimeout(async ()=>{
-    currentTankIdx = idx;
-    updateNavUI();
-    await applyTankData(TANKS[idx].id); // 데이터 키는 인덱스가 아니라 tank id
-    if(overlay) overlay.classList.remove('fade-in');
-  }, 350);
+  await new Promise(r => setTimeout(r, 350));
+  currentTankIdx = idx;
+  updateNavUI();
+  await applyTankData(TANKS[idx].id); // 데이터 키는 인덱스가 아니라 tank id
+  if(overlay) overlay.classList.remove('fade-in');
 }
 
 // 화살표 이벤트
@@ -2094,6 +2106,7 @@ document.getElementById('nav-next')?.addEventListener('click', ()=>{
 (async function(){
   // card.html 의 "이어서" 탭: ?start=continue → 마지막으로 본 수조로 이동
   let resumeId = null;
+  const openWhat = new URLSearchParams(location.search).get('open');   // 'dex' | 'map' : card.html 의 Collect / Map 을 눌러 들어온 경우
   if(new URLSearchParams(location.search).get('start') === 'continue'){
     try{ resumeId = (JSON.parse(localStorage.getItem('aquive_progress')||'{}')).lastTankId; }catch(e){}
   }
@@ -2103,7 +2116,11 @@ document.getElementById('nav-next')?.addEventListener('click', ()=>{
   updateDexBadge();
   if(Number.isFinite(resumeId)){
     const idx = TANKS.findIndex(t => t.id === resumeId);
-    if(idx > 0) tryNav(idx);   // 잠긴 수조면 기존처럼 잠금 안내가 뜸
+    if(idx > 0) await tryNav(idx);   // 잠긴 수조면 기존처럼 잠금 안내가 뜸 (이동이 끝난 뒤에 열도록 기다림)
+  }
+  if(openWhat === 'dex' || openWhat === 'map'){
+    openWhat === 'dex' ? openDex() : openMap();
+    const u = new URL(location.href); u.searchParams.delete('open'); history.replaceState(null, '', u.pathname + u.search);   // 새로고침해도 다시 열리지 않게
   }
 })();
 

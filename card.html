@@ -119,6 +119,12 @@ svg{display:block}
 #accept:disabled{filter:grayscale(.4) brightness(.9);cursor:default}
 #accept:focus-visible{outline:3px solid #fff;outline-offset:4px}
 
+/* 눌러서 이동하는 영역 (Collect → 도감, Map → 지도) */
+.hit{padding:0;border:0;background:transparent;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
+.hit-light:hover{background:rgba(0,0,0,.05)}
+.hit-dark:hover{background:rgba(255,255,255,.08)}
+.hit:focus-visible{outline:3px solid var(--aquive);outline-offset:-3px}
+
 /* 테스트 모드 안내 (Firebase 설정 전에만 표시) */
 #mode-note{left:0;top:1370px;width:2560px;text-align:center;font-size:18px;color:rgba(123,136,152,.8);display:none}
 </style>
@@ -176,6 +182,11 @@ svg{display:block}
   <svg class="b-only" style="left:1197.66px;top:77px" width="82" height="161" viewBox="0 0 82 161" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path fill="#D9D9D9" d="M0.0859373 156.196C3.164 141.936 7.66589 119.546 11.165 98.7539C12.915 88.3554 14.4073 78.3915 15.3467 70.0625C16.2997 61.6122 16.6396 55.197 16.2324 51.6934C15.7096 47.1965 14.5713 44.5349 13.335 42.6983C12.0434 40.7798 10.5246 39.5395 8.52929 37.8125C6.59108 36.135 4.30673 34.0664 2.62011 30.7784C0.93401 27.4906 4.22991e-05 23.3153 -6.23246e-06 17.5547C0.000181594 13.746 1.82743 10.6566 4.45995 8.33694C7.02246 6.07919 10.4562 4.43022 14.1953 3.22171C21.6951 0.797835 31.4331 -0.171892 40.9541 0.0244428C50.4876 0.221113 60.1743 1.59453 67.6035 4.09768C71.2997 5.34311 74.6709 6.94522 77.1885 9.00003C79.717 11.0644 81.7546 13.9198 81.7549 17.5547C81.7548 23.3145 80.8231 27.4901 79.1367 30.7783C77.4501 34.0664 75.1658 36.135 73.2275 37.8125C71.2322 39.5395 69.7135 40.7798 68.4219 42.6983C67.1855 44.5349 66.0473 47.1965 65.5244 51.6934C65.1172 55.197 65.4571 61.6122 66.4102 70.0625C67.3496 78.3915 68.8419 88.3554 70.5918 98.7539C74.0909 119.546 78.5928 141.936 81.6709 156.196C82.0193 157.812 80.992 159.405 79.3761 159.754L77.9161 160.069C76.3001 160.417 74.7074 159.39 74.3584 157.774C71.2632 143.434 66.7358 120.928 63.2129 99.9942C61.452 89.5305 59.9363 79.4206 58.9756 70.9024C58.0285 62.5053 57.5751 55.2943 58.0937 50.8311C58.7284 45.3711 60.1957 41.519 62.2148 38.5196C64.178 35.6035 66.5655 33.6841 68.333 32.1543C70.1554 30.577 71.4895 29.2917 72.4795 27.3614L73.8101 28.0467C73.8104 28.0468 73.8107 28.0468 73.8109 28.0467C73.8116 28.0464 73.8116 28.0455 73.8109 28.0451L72.4795 27.3614C73.4697 25.4301 74.2734 22.5176 74.2734 17.5547L74.2578 17.3203C74.1818 16.7361 73.7952 15.8887 72.458 14.7969L72.1582 14.5606C70.6066 13.3807 68.2768 12.2193 65.2148 11.1875C58.7179 8.9985 49.8348 7.69035 40.8008 7.50393C31.7542 7.31734 22.9233 8.26399 16.4971 10.3409C13.274 11.3825 10.9054 12.6304 9.40624 13.9512C8.06845 15.1301 7.54709 16.235 7.4873 17.335L7.48144 17.5547C7.48149 22.5168 8.28683 25.4295 9.27734 27.3614C10.2674 29.2917 11.6014 30.577 13.4238 32.1543C15.1913 33.6841 17.5788 35.6035 19.542 38.5196C21.5611 41.519 23.0284 45.3711 23.6631 50.8311C24.1817 55.2943 23.7283 62.5053 22.7812 70.9024C21.8205 79.4206 20.3048 89.5305 18.5439 99.9942C15.021 120.928 10.4936 143.434 7.39844 157.774C7.04947 159.39 5.45671 160.417 3.84075 160.069L2.38072 159.754C0.764833 159.405 -0.262498 157.812 0.0859373 156.196Z"/>
   </svg>
+
+  <!-- b: 눌러서 이동 — Collect(흰 카드) → 도감, Map(검은 패널·하늘색 판) → 지도 (수조 화면에서 열림) -->
+  <button id="hit-collect" class="hit hit-light b-only" type="button" aria-label="도감 열기" style="left:606px;top:754px;width:674px;height:457px"></button>
+  <button id="hit-map"     class="hit hit-dark b-only"  type="button" aria-label="지도 열기" style="left:1372px;top:207px;width:758px;height:1008px;border-radius:25px"></button>
+  <button id="hit-quarter" class="hit hit-dark b-only"  type="button" aria-label="지도 열기" style="left:1372px;top:797px;width:794px;height:473px;border-radius:244px 0 0 0"></button>
 
   <svg style="left:1754px;top:120px" width="358" height="560" viewBox="0 0 358 560"><path fill="#fff" fill-rule="evenodd" d="M343 0C351.284 2.57703e-07 358 6.71573 358 15V545C358 553.284 351.284 560 343 560H15C6.71573 560 8.05375e-08 553.284 0 545V15C5.15439e-06 6.71573 6.71573 2.57703e-07 15 0H343ZM147.5 17C142.806 17 139 20.8056 139 25.5C139 30.1944 142.806 34 147.5 34H209.5C214.194 34 218 30.1944 218 25.5C218 20.8056 214.194 17 209.5 17H147.5Z"/></svg>
   <svg style="left:1906px;top:53px" width="122" height="96" viewBox="0 0 122 96"><path fill="#0095FF" d="M54 96.0047H0C1.66987 78.8381 0 53.1817 18 22.0047C28.3923 4.00473 46.8301 -0.161929 50.5 0.00474243H122C108.5 0.00479977 86.2499 0.00489426 70.5 22.0047C51.641 48.3474 52 82.6714 54 96.0047Z"/></svg>
@@ -257,6 +268,8 @@ const HOME          = 'index.html';                       // 검은 카드를 �
 const AQUARIUM      = 'aquarium.html';                    // 새 계정 가입 직후: 대수조부터
 const TAB_BEGIN     = 'aquarium.html?start=beginning';    // 처음부터: 대수조부터 다시 봄
 const TAB_CONTINUE  = 'aquarium.html?start=continue';     // 이어서: 마지막으로 본 수조부터
+const OPEN_DEX      = 'aquarium.html?start=continue&open=dex'; // Collect(흰 카드): 마지막으로 본 수조에서 도감을 연 채로 입장
+const OPEN_MAP      = 'aquarium.html?start=continue&open=map'; // Map(검은 패널): 마지막으로 본 수조에서 지도를 연 채로 입장
 const NICK_MAX = 7, PW_MIN = 6;
 const GH_RAW = 'https://raw.githubusercontent.com/norang1225/aquive/main/data/tanks.json';   // 수조 파일과 같은 물고기 데이터
 
@@ -416,6 +429,9 @@ async function renderReturning(profile){
 }
 $('tab1').addEventListener('click', () => { location.href = TAB_BEGIN; });
 $('tab2').addEventListener('click', () => { location.href = TAB_CONTINUE; });
+$('hit-collect').addEventListener('click', () => { location.href = OPEN_DEX; });
+$('hit-map').addEventListener('click',     () => { location.href = OPEN_MAP; });
+$('hit-quarter').addEventListener('click', () => { location.href = OPEN_MAP; });
 
 // ══════════════════════════════════════════
 //  표지 카드의 희미한 물고기 (Figma: 3D 캡처 이미지 20% → 같은 3D 물고기를 직접 그림)
