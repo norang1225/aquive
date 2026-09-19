@@ -40,7 +40,8 @@
   //   · 위에서부터 1번, 2번… (계정에는 이 번호만 저장된다 → 순서를 바꾸면 사람들의 프로필도 바뀌니, 새 그림은 맨 뒤에 추가할 것)
   //   · 비워 두면 임시 그림 6개가 나온다 (동작 확인용)
   const AVATAR_BASE  = 'https://raw.githubusercontent.com/norang1225/aquive/main/images/avatars/';
-  const AVATAR_FILES = [];
+  const AVATAR_FILES = ['avatar-1.png', 'avatar-2.png', 'avatar-3.png', 'avatar-4.png', 'avatar-5.png', 'avatar-6.png'];   // Figma의 Frame 1~6 (250×250)
+  //   ↑ GitHub의 images/avatars/ 폴더에 이 이름으로 올리면 적용됨. 파일이 없으면 임시 그림이 대신 나온다
   const AVATAR_PLACEHOLDER_COUNT = 6;
   const PUSH_DELAY = 1200;                    // 기록 저장 지연(ms) — 잦은 저장 방지
 
