@@ -181,7 +181,7 @@ svg{display:block}
   <p id="t-profile" class="t">Profile</p>
 
   <!-- b: ID card 내용 -->
-  <div id="id-avatar" class="b-only" role="img" aria-label="프로필 이미지 (준비 중)"></div>
+  <button id="id-avatar" class="b-only" type="button"></button>
   <p class="t lbl b-only" style="left:1811px;top:512px">name</p>
   <p id="id-name"    class="t val b-only" style="left:1923px;top:512px"></p>
   <p class="t lbl b-only" style="left:1811px;top:555px">depth</p>
@@ -196,7 +196,7 @@ svg{display:block}
   <!-- a: 로그인 창 -->
   <div id="modal" class="glass a-only"></div>
   <p id="m-title" class="t a-only">AQUIVE</p>
-  <div id="avatar" class="a-only" role="img" aria-label="프로필 이미지 (준비 중)"></div>
+  <button id="avatar" class="a-only" type="button"></button>
   <label id="lbl-name" class="t a-only" for="nick">name</label>
   <input id="nick" class="field a-only" type="text" maxlength="7" placeholder="7자 이내" autocomplete="username" spellcheck="false" enterkeyhint="next" aria-describedby="hint">
   <label id="lbl-pw" class="t a-only" for="pw">pw</label>
@@ -325,7 +325,7 @@ async function accept(){
   if(pw.value.length < PW_MIN){ showErr(ERR['weak-password'][0], pw); return; }
   btn.disabled = true;
   try{
-    const { isNew, profile } = await AquiveStore.enter(name, pw.value);
+    const { isNew, profile } = await AquiveStore.enter(name, pw.value, { avatarId: pendingAvatar });
     pw.value = '';
     if(isNew){ location.href = AQUARIUM; return; }          // 새 계정 → 계약 동의 완료 → 대수조로
     await renderReturning(profile);                          // 기존 계정 → 바인더(2회차) 화면
@@ -365,7 +365,7 @@ track.addEventListener('pointerdown', e => {
 
 // 마우스 휠/트랙패드: 유리 패널 어디에 있어도(스크롤바·Accept 버튼·제목 위 포함) 계약서가 스크롤된다
 window.addEventListener('wheel', e => {
-  if(stage.dataset.scene !== 'a' || e.ctrlKey) return;                 // 로그인 창일 때만 (핀치 확대는 그대로)
+  if(stage.dataset.scene !== 'a' || e.ctrlKey || AquiveAvatars.isOpen()) return;   // 로그인 창일 때만 (핀치 확대·프로필 선택 창이 열려 있을 때는 제외)
   const r = $('modal').getBoundingClientRect();
   if(e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
   e.preventDefault();
@@ -393,6 +393,7 @@ async function loadFishIndex(){                               // fishId → 물�
   return idx;
 }
 async function renderReturning(profile){
+  profileNow = profile; AquiveAvatars.paint(avB, profile.avatarId);   // 프로필 이미지
   const prog = AquiveStore.readProgress();
   const idx  = await loadFishIndex();
   const valid = idx.size ? prog.collected.filter(id => idx.has(id)) : prog.collected;   // 삭제된 물고기는 제외
@@ -465,6 +466,20 @@ function drawFish(){
   ctx.fillText(CAPTION.toUpperCase(), CW/2, CH-8);
   requestAnimationFrame(drawFish);
 }
+
+// ══════════════════════════════════════════
+//  프로필 이미지 (몇 종류 중 고르기) — 그림 목록은 aquive-store.js 의 AVATAR_FILES
+// ══════════════════════════════════════════
+let pendingAvatar = null;                    // 처음 가입할 때 고른 번호 (Accept 때 계정에 저장)
+let profileNow = null;                       // 로그인한 계정의 프로필
+const avA = $('avatar'), avB = $('id-avatar');
+AquiveAvatars.paint(avA, null);
+avA.addEventListener('click', () => AquiveAvatars.openChooser(stage, pendingAvatar, id => { pendingAvatar = id; AquiveAvatars.paint(avA, id); }));
+avB.addEventListener('click', () => AquiveAvatars.openChooser(stage, profileNow && profileNow.avatarId, async id => {
+  try{ await AquiveStore.setAvatar(id); if(profileNow) profileNow.avatarId = id; AquiveAvatars.paint(avB, id); }
+  catch(e){ console.warn('[AQUIVE] 프로필 이미지 저장 실패', e); }
+}));
+window.addEventListener('keydown', e => { if(e.key === 'Escape') AquiveAvatars.closeChooser(); });
 
 // ══════════════════════════════════════════
 //  시작: 이미 로그인돼 있으면 바로 바인더(b), 아니면 로그인 창(a)
