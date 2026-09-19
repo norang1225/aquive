@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>AQUIVE — Grand Ocean Tank</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Oxanium:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Cinzel:wght@400;600&family=Oxanium:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;background:#042840}
 body{font-family:'Raleway',sans-serif;user-select:none}
@@ -175,104 +175,61 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #popup p{font-size:12px;color:rgba(180,230,255,0.75);line-height:1.65}
 #popup .badge{display:inline-block;margin-top:10px;font-size:10px;padding:2px 10px;border:1px solid rgba(120,210,255,0.2);border-radius:20px;color:rgba(140,215,255,0.6)}
 
-/* ── UI 라벨 ── */
-#ui-tl{position:fixed;top:26px;left:34px;z-index:90;line-height:1;font-family:'Oxanium','Noto Sans KR',sans-serif}
-#ui-tank-name{
-  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:.2em;text-transform:uppercase;
-  color:rgba(230,245,255,0.8);
-  margin-bottom:9px;
-  font-variant-numeric:tabular-nums;
-  font-feature-settings:'tnum' 1;
-  text-shadow:
-    -0.5px -0.5px 2px rgba(255,255,255,0.5),
-     0.5px  0.5px 2px rgba(0,10,35,0.85);
+/* ── HUD (Figma 대수조 85:146, 2560×1440 기준) ──
+   --u = 화면 배율. JS가 min(가로/2560, 세로/1440)으로 설정 → 아이맥 27"(CSS 2560×1440)에서 1 = 시안 그대로 */
+:root{--u:1;--px:calc(var(--u) * 1px)}
+.hud-text{
+  position:fixed;top:calc(30 * var(--px));z-index:90;
+  font-family:'Inter','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',sans-serif;
+  font-size:max(14px, calc(30 * var(--px)));font-weight:400;line-height:normal;
+  color:#fff;white-space:nowrap;pointer-events:none;
+  text-shadow:0 0 6px rgba(0,10,40,.55);   /* 밝은 배경에서도 읽히도록 (시안엔 없음, 어두운 배경에선 거의 안 보임) */
 }
-#ui-depth-wrap{display:flex;align-items:baseline;gap:4px}
-#ui-depth{
-  font-family:'Oxanium',sans-serif;font-size:32px;font-weight:700;
-  letter-spacing:.02em;
-  color:rgba(230,245,255,0.85);
-  font-variant-numeric:tabular-nums;
-  font-feature-settings:'tnum' 1;
-  text-shadow:
-    -0.5px -0.5px 2px rgba(255,255,255,0.5),
-     0.5px  0.5px 2px rgba(0,10,35,0.85);
-  transition:all 0.6s ease;
-}
-#ui-depth-unit{
-  font-family:'Oxanium',sans-serif;font-size:13px;font-weight:700;
-  letter-spacing:.06em;
-  color:rgba(230,245,255,0.85);
-  font-variant-numeric:tabular-nums;
-  font-feature-settings:'tnum' 1;
-  text-shadow:
-    -0.5px -0.5px 2px rgba(255,255,255,0.5),
-     0.5px  0.5px 2px rgba(0,10,35,0.85);
-}
-#ui-visit{
-  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:10px;font-weight:600;
-  letter-spacing:.12em;
-  color:rgba(230,245,255,0.8);
-  margin-top:7px;
-  font-variant-numeric:tabular-nums;
-  font-feature-settings:'tnum' 1;
-  text-shadow:
-    -0.5px -0.5px 2px rgba(255,255,255,0.5),
-     0.5px  0.5px 2px rgba(0,10,35,0.85);
-}
-#ui-tr{position:fixed;top:132px;right:34px;z-index:90;font-size:10px;letter-spacing:.18em;color:rgba(160,220,255,0.28)}
+#hud-depth{left:calc(31 * var(--px))}
+#hud-name {left:50%;transform:translateX(-50%)}
+#hud-unlock{right:calc(31 * var(--px))}
+#ui-depth{font-variant-numeric:tabular-nums}
+#ui-tr{display:none}   /* 코드가 값을 써 넣는 옛 요소 (시안엔 없어서 숨김) */
 
-/* ── 지도 토글 버튼 ── */
-#map-toggle{
-  position:fixed;top:24px;right:34px;z-index:91;
-  width:40px;height:40px;border-radius:50%;
-  background:rgba(0,20,55,0.55);
-  border:1px solid rgba(120,210,255,0.25);
-  color:rgba(190,230,255,0.75);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;backdrop-filter:blur(10px);
-  transition:all .2s;
+/* 오른쪽 탭 (지도 / 도감 / 내 정보) */
+.hud-tab{
+  position:fixed;right:0;z-index:91;width:calc(80 * var(--px));padding:0;border:0;background:none;
+  cursor:pointer;transition:filter .2s;-webkit-tap-highlight-color:transparent;
 }
-#map-toggle:hover{
-  background:rgba(0,45,110,0.7);
-  border-color:rgba(150,220,255,0.55);
-  color:rgba(225,245,255,0.95);
+.hud-tab svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.hud-tab:hover{filter:brightness(1.4)}
+.hud-tab.active svg path{fill:#4BB4FF}
+.hud-tab.active:hover{filter:none}   /* 활성 탭은 시안 색(#4BB4FF) 그대로 */   /* 지도가 열려 있는 동안 '지도' 탭 (시안: 하늘색) */
+.hud-tab:focus-visible{outline:2px solid #fff;outline-offset:-4px}
+.tab-lg{height:calc(300 * var(--px))}
+.tab-sm{height:calc(100 * var(--px))}
+#map-toggle{top:calc(98 * var(--px))}
+#dex-toggle{top:calc(398 * var(--px))}
+#me-tab    {top:calc(698 * var(--px))}
+.tab-txt{
+  position:absolute;left:calc(20 * var(--px));top:calc(60 * var(--px));width:calc(40 * var(--px));
+  font-family:'Inter','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',sans-serif;
+  font-size:max(13px, calc(30 * var(--px)));font-weight:400;line-height:1.2;color:#fff;text-align:center;
 }
-#map-toggle svg{width:18px;height:18px}
-#map-toggle.hide-self{opacity:0;pointer-events:none}
 
-/* ── 도감 토글 버튼 ── */
-#dex-toggle{
-  position:fixed;top:78px;right:34px;z-index:91;
-  width:40px;height:40px;border-radius:50%;
-  background:rgba(0,20,55,0.55);
-  border:1px solid rgba(120,210,255,0.25);
-  color:rgba(190,230,255,0.75);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;backdrop-filter:blur(10px);
-  transition:all .2s;
+/* 하단 좌우 화살표 (반투명 유리 사각형) */
+.nav-arrow{
+  position:fixed;bottom:calc(30 * var(--px));z-index:90;
+  width:calc(100 * var(--px));height:calc(100 * var(--px));padding:0;border:0;border-radius:25%;
+  background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  cursor:pointer;transition:background .2s,opacity .2s;-webkit-tap-highlight-color:transparent;
 }
-#dex-toggle:hover{
-  background:rgba(0,45,110,0.7);
-  border-color:rgba(150,220,255,0.55);
-  color:rgba(225,245,255,0.95);
-}
-#dex-toggle svg{width:18px;height:18px}
-#dex-badge{
-  position:absolute;bottom:-3px;right:-3px;
-  min-width:16px;height:16px;border-radius:8px;padding:0 4px;
-  background:rgba(255,205,110,0.95);
-  color:rgba(40,25,5,0.95);
-  font-family:'Oxanium',sans-serif;font-size:8.5px;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
-  line-height:1;
-}
+.nav-arrow svg{width:100%;height:100%;display:block}
+#nav-prev{left:calc(50% - 250 * var(--px))}
+#nav-next{left:calc(50% + 150 * var(--px))}
+.nav-arrow:hover{background:rgba(0,0,0,.58)}
+.nav-arrow:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.nav-arrow:disabled{opacity:.2;cursor:default;pointer-events:none}
 
 /* ── 대수조 세로 스크롤바 ── */
 #grand-scrollbar{
   position:fixed;
-  right:18px;
+  right:calc(80 * var(--px) + 24px);   /* 오른쪽 탭 왼쪽에 붙임 */
   top:50%;
   transform:translateY(-50%);
   width:4px;
@@ -318,115 +275,10 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #grand-scroll-track::before{ top:-4px; }
 #grand-scroll-track::after { bottom:-4px; }
 
-/* ── 대수조 가로 패럴랙스 슬라이더 ── */
-#grand-plx-slider{
-  position:fixed;
-  bottom:18px;
-  left:50%;
-  transform:translateX(-50%);
-  width:min(240px, 30vw);
-  height:4px;
-  z-index:91;
-  display:none;  /* 대수조에서만 JS로 표시 */
-}
-#grand-plx-track{
-  position:absolute;inset:0;
-  background:rgba(150,210,255,0.1);
-  border-radius:2px;
-  border:1px solid rgba(120,190,255,0.15);
-}
-#grand-plx-handle{
-  position:absolute;
-  top:50%;transform:translateY(-50%);
-  left:50%;           /* 기본 중앙 */
-  margin-left:-6px;   /* 핸들 폭/2 보정 */
-  width:12px;height:12px;
-  border-radius:50%;
-  background:rgba(160,220,255,0.55);
-  border:1px solid rgba(200,240,255,0.4);
-  cursor:grab;
-  transition:background .15s, width .15s, height .15s;
-}
-#grand-plx-handle:hover,
-#grand-plx-handle.dragging{
-  background:rgba(200,235,255,0.8);
-  border-color:rgba(230,248,255,0.7);
-  width:14px;height:14px;margin-left:-7px;
-  cursor:grabbing;
-}
-/* 트랙 양끝 표시 */
-#grand-plx-track::before,
-#grand-plx-track::after{
-  content:'';
-  position:absolute;top:50%;transform:translateY(-50%);
-  width:6px;height:6px;border-radius:50%;
-  background:rgba(150,210,255,0.25);
-}
-#grand-plx-track::before{ left:-4px; }
-#grand-plx-track::after { right:-4px; }
-/* 방향 힌트 텍스트 */
-#grand-plx-slider::before,
-#grand-plx-slider::after{
-  content:'◂';
-  position:absolute;top:50%;transform:translateY(-50%);
-  font-size:8px;color:rgba(150,210,255,0.3);
-  pointer-events:none;
-}
-#grand-plx-slider::before{ left:-14px; }
-#grand-plx-slider::after { right:-14px; content:'▸'; }
-#ui-bl{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:90;font-size:10px;letter-spacing:.18em;color:rgba(150,215,255,0.22);white-space:nowrap}
-
 /* ══════════════════════════════════════
    편집 패널
 ══════════════════════════════════════ */
 
-
-/* ── 수조 네비게이션 ── */
-#tank-nav{
-  position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
-  z-index:90;display:flex;align-items:center;gap:16px;
-}
-.nav-arrow{
-  width:36px;height:36px;border-radius:50%;
-  background:rgba(0,20,60,0.5);
-  border:1px solid rgba(100,200,255,0.2);
-  color:rgba(180,230,255,0.6);
-  font-size:16px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .2s;backdrop-filter:blur(8px);
-}
-.nav-arrow:hover{
-  background:rgba(0,40,100,0.7);
-  border-color:rgba(140,220,255,0.5);
-  color:rgba(220,245,255,0.95);
-}
-.nav-arrow:disabled{
-  opacity:0.2;cursor:default;pointer-events:none;
-}
-#tank-nav-info{
-  display:flex;flex-direction:column;align-items:center;gap:5px;
-}
-#tank-nav-name{
-  font-family:'Oxanium','Noto Sans KR',sans-serif;
-  font-size:11px;font-weight:600;letter-spacing:.18em;
-  color:rgba(230,245,255,0.8);
-  text-shadow:-0.5px -0.5px 2px rgba(255,255,255,0.5),0.5px 0.5px 2px rgba(0,10,35,0.85);
-  white-space:nowrap;
-}
-#tank-nav-dots{display:flex;gap:5px;align-items:center}
-.nav-dot{
-  width:5px;height:5px;border-radius:50%;
-  background:rgba(150,210,255,0.25);
-  transition:all .3s;cursor:pointer;
-}
-.nav-dot.active{
-  width:18px;border-radius:3px;
-  background:rgba(180,230,255,0.7);
-}
-.nav-dot.locked{
-  background:rgba(100,150,200,0.15);
-  border:1px solid rgba(100,180,255,0.15);
-}
 
 /* ── 수조 전환 오버레이 ── */
 #tank-overlay{
@@ -458,148 +310,35 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   color:rgba(180,225,255,0.7);line-height:1.7;
 }
 
-/* ══════════════════════════════════════
-   건물 지도
-══════════════════════════════════════ */
-#map-overlay{
-  position:fixed;inset:0;z-index:120;
-  background:rgba(2,10,26,0.78);
-  backdrop-filter:blur(6px);
-  opacity:0;pointer-events:none;
-  transition:opacity .3s ease;
-  display:flex;align-items:center;justify-content:center;
-  padding:40px 24px;
+/* ═══════════════════════════════════
+   건물 지도 (Figma 지도1F / 지도B1F / 지도B2F, 2560×1440 기준)
+   - 디자인 좌표 그대로 그리고 --u 배율로 축소/확대. HUD(z 90~91) 아래에 떠서 HUD는 그대로 보인다.
+   - 오버레이에는 어두운 막(scrim)이 없다 (시안: 패널 뒤만 블러). 패널 바깥을 누르면 닫힌다.
+════════════════════════════════════ */
+#map-overlay{position:fixed;inset:0;z-index:80;visibility:hidden}
+#map-overlay.open{visibility:visible}
+#map-stage{position:absolute;left:50%;top:0;width:2560px;height:1440px;margin-left:-1280px;transform-origin:50% 0;transform:scale(var(--u));pointer-events:none}
+#map-stage > *{position:absolute}
+#map-panel{background:rgba(52,60,63,.8);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);pointer-events:auto}
+.map-tab-shape,.map-decor{display:block;pointer-events:none}
+.map-tab{
+  width:300px;height:80px;padding:21px 0 0;border:0;background:none;color:#fff;
+  font-family:'Inter','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',sans-serif;font-size:30px;font-weight:400;line-height:normal;text-align:center;
+  cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent;
 }
-#map-overlay.open{opacity:1;pointer-events:all}
-
-#map-panel{
-  position:relative;
-  width:min(880px, 92vw);
-  max-height:88vh;
-  background:linear-gradient(165deg, rgba(6,26,52,0.97) 0%, rgba(3,16,36,0.99) 100%);
-  border:1px solid rgba(120,200,255,0.22);
-  border-radius:18px;
-  box-shadow:0 30px 90px rgba(0,10,40,0.6), 0 0 0 1px rgba(255,255,255,0.03) inset;
-  padding:26px 30px 22px;
-  transform:translateY(14px) scale(0.97);
-  transition:transform .35s cubic-bezier(.2,.8,.2,1);
-  overflow:hidden;
+.map-tab.active{cursor:default}
+.map-tab:focus-visible{outline:2px solid #fff;outline-offset:-6px}
+.map-room{
+  padding:0;border:0;border-radius:25px;background:#fff;color:#000;
+  font-family:'Inter','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',sans-serif;font-size:30px;font-weight:400;line-height:normal;white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;
+  transition:filter .2s;-webkit-tap-highlight-color:transparent;
 }
-#map-overlay.open #map-panel{transform:translateY(0) scale(1)}
-
-@media (max-width:640px){
-  #map-overlay{padding:14px}
-  #map-panel{width:100%;max-height:94vh;padding:18px 14px 14px;border-radius:14px}
-  #map-title{font-size:14px}
-  #map-title .sub{font-size:8px;letter-spacing:.16em;margin-top:3px}
-  #map-floor-tabs{margin:12px 0 10px}
-  .floor-tab{padding:6px 13px;font-size:9px}
-  #map-legend{font-size:9px;gap:12px;margin-top:10px}
-  #map-stage{max-height:none}
-}
-
-#map-head{
-  display:flex;align-items:baseline;justify-content:space-between;
-  margin-bottom:4px;
-}
-#map-title{
-  font-family:'Cinzel',serif;font-size:17px;letter-spacing:.12em;
-  color:rgba(230,245,255,0.92);
-}
-#map-title .sub{
-  display:block;font-family:'Oxanium',sans-serif;font-size:9px;
-  letter-spacing:.24em;color:rgba(140,200,255,0.45);margin-top:4px;
-  text-transform:uppercase;
-}
-#map-close{
-  width:30px;height:30px;border-radius:50%;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(120,200,255,0.18);
-  color:rgba(180,220,255,0.6);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:15px;transition:all .2s;flex-shrink:0;
-}
-#map-close:hover{background:rgba(255,90,90,0.12);border-color:rgba(255,120,120,0.3);color:rgba(255,180,180,0.85)}
-
-#map-floor-tabs{
-  display:flex;gap:6px;margin:16px 0 14px;
-}
-.floor-tab{
-  padding:7px 16px;border-radius:20px;
-  font-family:'Oxanium',sans-serif;font-size:10px;font-weight:600;
-  letter-spacing:.14em;color:rgba(160,210,255,0.45);
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(120,200,255,0.12);
-  cursor:pointer;transition:all .2s;white-space:nowrap;
-}
-.floor-tab:hover{color:rgba(200,230,255,0.7);border-color:rgba(140,210,255,0.3)}
-.floor-tab.active{
-  color:rgba(15,30,55,0.95);
-  background:rgba(190,230,255,0.85);
-  border-color:rgba(190,230,255,0.85);
-}
-
-#map-stage{
-  position:relative;width:100%;
-  aspect-ratio:880/640;
-  max-height:62vh;
-  border-radius:12px;
-  overflow:hidden;
-  background:radial-gradient(ellipse 90% 70% at 50% 10%, rgba(20,55,95,0.5) 0%, rgba(4,18,38,0.9) 70%);
-  border:1px solid rgba(100,170,230,0.12);
-}
-#map-stage svg{width:100%;height:100%;display:block}
-
-.map-room{cursor:pointer;transition:filter .2s}
-.map-room:hover .room-fill{filter:brightness(1.25)}
-.map-room:hover .room-label{fill:rgba(235,248,255,0.98)}
-.map-room.current .room-fill{filter:brightness(1.1)}
-.map-room.locked{cursor:default}
-.map-room.locked:hover .room-fill{filter:none}
-
-.room-fill{transition:filter .2s, opacity .2s}
-.room-label{
-  font-family:'Oxanium','Noto Sans KR',sans-serif;
-  pointer-events:none;user-select:none;
-}
-.room-pulse{
-  pointer-events:none;
-  animation:room-pulse-anim 2.2s ease-in-out infinite;
-}
-@keyframes room-pulse-anim{
-  0%,100%{opacity:.9;stroke-width:2}
-  50%{opacity:.25;stroke-width:5}
-}
-
-#map-legend{
-  display:flex;align-items:center;gap:18px;
-  margin-top:14px;font-size:10px;letter-spacing:.08em;
-  color:rgba(160,210,255,0.4);flex-wrap:wrap;
-}
-#map-legend span{display:flex;align-items:center;gap:6px}
-.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-
-#map-tooltip{
-  position:absolute;z-index:5;
-  background:rgba(2,12,30,0.95);
-  border:1px solid rgba(130,205,255,0.3);
-  border-radius:10px;padding:10px 14px;
-  pointer-events:none;opacity:0;transition:opacity .15s;
-  transform:translate(-50%,-100%);
-  white-space:nowrap;
-}
-#map-tooltip.show{opacity:1}
-#map-tooltip .tt-name{
-  font-family:'Oxanium','Noto Sans KR',sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:.08em;color:rgba(225,245,255,0.92);
-}
-#map-tooltip .tt-en{
-  font-family:'Oxanium',sans-serif;font-size:8px;letter-spacing:.12em;
-  color:rgba(140,200,255,0.5);margin-top:2px;text-transform:uppercase;
-}
-#map-tooltip .tt-lock{
-  font-size:9px;color:rgba(255,150,150,0.6);margin-top:5px;letter-spacing:.06em;
-}
+.map-room:hover{filter:brightness(.93)}
+.map-room.current{background:#4BB4FF}
+.map-room.locked{background:rgba(255,255,255,.5);cursor:default}
+.map-room.locked:hover{filter:none}
+.map-room:focus-visible{outline:3px solid #fff;outline-offset:3px}
 
 /* ══════════════════════════════════════
    도감 (Specimen Codex)
@@ -799,34 +538,31 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     <span class="badge" id="p-dep"></span>
   </div>
 
-  <!-- UI 라벨 -->
-  <div id="ui-tl">
-    <div id="ui-tank-name">대형 수조 &nbsp;·&nbsp; GRAND OCEAN TANK</div>
-    <div id="ui-depth-wrap">
-      <div id="ui-depth">0</div>
-      <div id="ui-depth-unit">m</div>
-    </div>
-    <div id="ui-visit"></div>
-  </div>
-  <div id="ui-tr">0 specimens</div>
+  <!-- HUD (Figma 대수조 85:146) -->
+  <div id="hud-depth" class="hud-text">수심 <span id="ui-depth">0</span>m</div>
+  <div id="hud-name" class="hud-text">대수조</div>
+  <div id="hud-unlock" class="hud-text">해금된 수조 <span id="hud-unlock-cur">1</span>/<span id="hud-unlock-total">12</span></div>
+  <div id="ui-tr"></div>
 
-  <!-- 지도 토글 -->
-  <button id="map-toggle" title="건물 지도" aria-label="건물 지도 열기">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="3 6 9 4 15 6 21 4 21 18 15 20 9 18 3 20"></polygon>
-      <line x1="9" y1="4" x2="9" y2="18"></line>
-      <line x1="15" y1="6" x2="15" y2="20"></line>
-    </svg>
+  <!-- 오른쪽 탭: 지도 -->
+  <button id="map-toggle" class="hud-tab tab-lg" title="건물 지도" aria-label="건물 지도 열기">
+    <svg viewBox="0 0 80 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#343C3F" d="M16.2219 276.083C6.46434 272.424 -1.61312e-06 263.096 -2.06864e-06 252.675L-1.10448e-05 47.325C-1.15003e-05 36.9039 6.46431 27.5759 16.2219 23.9168L80 -3.49691e-06L80 300L16.2219 276.083Z"/></svg>
+    <span class="tab-txt">지<br>도</span>
   </button>
 
-  <!-- 도감 토글 -->
-  <button id="dex-toggle" title="생물 도감" aria-label="생물 도감 열기">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-    </svg>
-    <span id="dex-badge" style="display:none">0</span>
+  <!-- 오른쪽 탭: 도감 -->
+  <button id="dex-toggle" class="hud-tab tab-lg" title="생물 도감" aria-label="생물 도감 열기">
+    <svg viewBox="0 0 80 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#343C3F" d="M16.2219 276.083C6.46434 272.424 -1.61312e-06 263.096 -2.06864e-06 252.675L-1.10448e-05 47.325C-1.15003e-05 36.9039 6.46431 27.5759 16.2219 23.9168L80 -3.49691e-06L80 300L16.2219 276.083Z"/></svg>
+    <span class="tab-txt">도<br>감</span>
   </button>
+
+  <!-- 오른쪽 탭: 내 정보 (ID card 화면으로) -->
+  <a id="me-tab" class="hud-tab tab-sm" href="card.html" title="내 정보" aria-label="내 정보(ID card) 보기">
+    <svg viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#343C3F" d="M21.8991 92.7374C9.38841 91.1736 -2.55206e-06 80.5385 -4.20541e-06 67.9304L-8.908e-06 32.0696C-1.05613e-05 19.4615 9.3884 8.82645 21.8991 7.2626L80 -1.16564e-06L80 100L21.8991 92.7374Z"/>
+      <path fill="#fff" d="M43.0059 25.4355C50.8325 25.4356 57.1777 31.7808 57.1777 39.6074C57.1777 43.7384 55.4089 47.4556 52.5889 50.0459C55.3321 52.4386 57.6381 55.8363 59.2803 59.9043C62.3813 67.5863 55.2852 74.5645 47.001 74.5645H39.21C30.9257 74.5645 23.8296 67.5863 26.9307 59.9043C28.5525 55.8868 30.8221 52.5234 33.5205 50.1357C30.6434 47.542 28.834 43.7861 28.834 39.6074C28.834 31.7808 35.1792 25.4355 43.0059 25.4355Z"/>
+    </svg>
+  </a>
 
   <!-- 대수조 세로 스크롤바 -->
   <div id="grand-scrollbar">
@@ -835,21 +571,13 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     </div>
   </div>
 
-  <!-- 대수조 가로 패럴랙스 슬라이더 -->
-  <div id="grand-plx-slider">
-    <div id="grand-plx-track">
-      <div id="grand-plx-handle"></div>
-    </div>
-  </div>
-  <!-- 수조 네비게이션 -->
-  <div id="tank-nav">
-    <button class="nav-arrow" id="nav-prev">&#8592;</button>
-    <div id="tank-nav-info">
-      <div id="tank-nav-name">대수조 · GRAND OCEAN TANK</div>
-      <div id="tank-nav-dots"></div>
-    </div>
-    <button class="nav-arrow" id="nav-next">&#8594;</button>
-  </div>
+  <!-- 수조 이동 화살표 -->
+  <button class="nav-arrow" id="nav-prev" aria-label="이전 수조">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#fff" fill-opacity="0.8" d="M36.2842 21.5358C38.2368 19.5831 41.4028 19.5831 43.3555 21.5358C45.308 23.4884 45.3081 26.6545 43.3555 28.607L26.9609 45.0006H85C87.7614 45.0006 90 47.2392 90 50.0006C89.9997 52.7618 87.7613 55.0006 85 55.0006H27.0713L43.3555 71.2848C45.3079 73.2374 45.308 76.4035 43.3555 78.3561C41.4029 80.3085 38.2368 80.3085 36.2842 78.3561L11.5352 53.607C11.5208 53.5927 11.5073 53.5776 11.4932 53.5631C10.5719 52.6563 10.0001 51.3954 10 50.0006C10 49.3052 10.1419 48.6424 10.3984 48.0406C10.6417 47.4007 11.0198 46.8003 11.5352 46.2848L36.2842 21.5358Z"/></svg>
+  </button>
+  <button class="nav-arrow" id="nav-next" aria-label="다음 수조">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#fff" fill-opacity="0.8" d="M63.7158 78.4638C61.7632 80.4164 58.5972 80.4164 56.6445 78.4638C54.6923 76.5112 54.6922 73.346 56.6445 71.3934L73.0381 54.9999L15 54.9999C12.2386 54.9999 10.0001 52.7613 10 49.9999C10 47.2385 12.2386 44.9999 15 44.9999L72.9297 44.9999L56.6445 28.7157C54.692 26.7632 54.6921 23.5971 56.6445 21.6444C58.5972 19.6918 61.7632 19.6918 63.7158 21.6444L88.4648 46.3935C88.4785 46.4071 88.4914 46.4216 88.5049 46.4354C89.4272 47.3425 90 48.6041 90 49.9999C90 50.6974 89.8576 51.3616 89.5996 51.9647C89.3562 52.6027 88.9789 53.2016 88.4648 53.7157L63.7158 78.4638Z"/></svg>
+  </button>
 
   <!-- 전환 오버레이 -->
   <div id="tank-overlay"></div>
@@ -877,37 +605,19 @@ body{font-family:'Raleway',sans-serif;user-select:none}
     </div>
   </div>
 
-  <!-- 건물 지도 오버레이 -->
-  <div id="map-overlay">
-    <div id="map-panel">
-      <div id="map-head">
-        <div id="map-title">AQUIVE FLOOR GUIDE<span class="sub">시설 안내도 · 수조를 클릭하면 이동합니다</span></div>
-        <button id="map-close" aria-label="지도 닫기">&times;</button>
-      </div>
-      <div id="map-floor-tabs">
-        <div class="floor-tab" data-floor="1F">1F</div>
-        <div class="floor-tab" data-floor="B1">B1F</div>
-        <div class="floor-tab" data-floor="B2">B2F</div>
-      </div>
-      <div id="map-stage">
-        <svg id="map-svg" viewBox="0 0 880 640" xmlns="http://www.w3.org/2000/svg"></svg>
-        <div id="map-tooltip">
-          <div class="tt-name" id="tt-name"></div>
-          <div class="tt-en" id="tt-en"></div>
-          <div class="tt-lock" id="tt-lock"></div>
-        </div>
-      </div>
-      <div id="map-legend">
-        <span><span class="legend-dot" style="background:rgba(120,210,255,0.8)"></span>이동 가능</span>
-        <span><span class="legend-dot" style="background:rgba(160,180,200,0.35)"></span>잠김</span>
-        <span><span class="legend-dot" style="background:rgba(255,210,120,0.85)"></span>현재 위치</span>
-      </div>
-    </div>
-  </div>
+  <!-- 건물 지도 (JS가 renderMapFloor에서 그림) -->
+  <div id="map-overlay"><div id="map-stage"></div></div>
 
-  <div id="ui-bl">물고기를 클릭하면 정보를 볼 수 있습니다</div>
 </div>
 
+<!-- [MASTER] 계정 기록 저장 스크립트(aquive-store.js)를 넣지 않음 -->
+<script>
+// HUD 배율: 디자인(2560×1440) 대비 현재 창 크기 (CSS의 --u)
+(function(){
+  const set = () => document.documentElement.style.setProperty('--u', Math.min(window.innerWidth/2560, window.innerHeight/1440));
+  window.addEventListener('resize', set); set();
+})();
+</script>
 <script>
 // ══════════════════════════════════════════
 //  티어 배율
@@ -1034,6 +744,7 @@ function recordVisit() {
     data.depth  = data.visits * DEPTH_PER_VISIT;
     saveDepthData(data);
     localStorage.setItem('aquive_last_session', sessionKey);
+    window.AquiveSync?.push();   // 계정 기록 저장 (로그인한 경우에만 동작)
   }
   return data;
 }
@@ -1045,7 +756,7 @@ function renderDepth() {
   if(!depthEl) return;
 
   // 숫자 카운트업 애니메이션
-  const target = -data.depth;
+  const target = data.depth;   // 새 HUD: '수심 100m' (양수 표기)
   let current = 0;
   const step = target / 40;
   let frame = 0;
@@ -1203,9 +914,8 @@ const plx = { mouseX: 0, mouseY: 0, curX: 0, curY: 0 };
 // 대수조 세로 스크롤 카메라 오프셋
 const cam = { target: 0, current: 0 };
 
-// 마우스 추적 — X 패럴랙스 (모든 수조, 슬라이더 드래그 중에는 덮어쓰지 않음)
+// 마우스 추적 — X 패럴랙스 (모든 수조): 마우스의 좌우 위치가 배경 이동량이 된다
 window.addEventListener('mousemove', e => {
-  if(window._plxDragging) return;  // 드래그 중에는 마우스 위치 무시
   plx.mouseX = (e.clientX / window.innerWidth - 0.5);  // -0.5 ~ 0.5
 });
 
@@ -1288,69 +998,6 @@ window.addEventListener('mousemove', e => {
     cam.target = Math.max(0, Math.min(scrollH(), cam.target + e.deltaY * 0.8));
     e.preventDefault();
   }, { passive: false });
-})();
-
-// ── 대수조 가로 패럴랙스 슬라이더 ──
-(function(){
-  const slider = document.getElementById('grand-plx-slider');
-  const track  = document.getElementById('grand-plx-track');
-  const handle = document.getElementById('grand-plx-handle');
-  if(!slider || !track || !handle) return;
-
-  let dragging = false;
-  let dragStartX = 0;
-  let dragStartPlxX = 0;  // 드래그 시작 시점의 plx.mouseX
-
-  function trackW() { return track.getBoundingClientRect().width; }
-
-  // plx.mouseX(-0.5~0.5) → 핸들 위치 동기화 (모든 수조)
-  window.updatePlxHandle = function(){
-    const tw = trackW();
-    const hw = 12;
-    const travel = tw - hw;
-    const px = ((plx.curX + 0.5) * travel);
-    handle.style.left = Math.max(0, Math.min(travel, px)) + 'px';
-    handle.style.marginLeft = '0';
-  };
-
-  // 트랙 클릭 → 해당 위치로 이동
-  track.addEventListener('mousedown', e => {
-    if(e.target === handle) return;
-    const rect = track.getBoundingClientRect();
-    const tw = rect.width;
-    const hw = 12;
-    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left - hw/2) / (tw - hw)));
-    plx.mouseX = ratio - 0.5;  // 0~1 → -0.5~0.5
-    e.preventDefault();
-  });
-
-  // 핸들 드래그
-  handle.addEventListener('mousedown', e => {
-    dragging = true;
-    window._plxDragging = true;
-    dragStartX = e.clientX;
-    dragStartPlxX = plx.mouseX;
-    handle.classList.add('dragging');
-    e.preventDefault();
-    e.stopPropagation();
-  });
-
-  window.addEventListener('mousemove', e => {
-    if(!dragging) return;
-    const tw = trackW();
-    const hw = 12;
-    const travel = tw - hw;
-    const dx = e.clientX - dragStartX;
-    const ratio = travel > 0 ? dx / travel : 0;
-    plx.mouseX = Math.max(-0.5, Math.min(0.5, dragStartPlxX + ratio));
-  });
-
-  window.addEventListener('mouseup', () => {
-    if(!dragging) return;
-    dragging = false;
-    window._plxDragging = false;
-    handle.classList.remove('dragging');
-  });
 })();
 
 // 패럴랙스 배경 레이어 업데이트 (CSS transform)
@@ -1439,9 +1086,9 @@ function applyGrandFishRange(){
 
 // 수조 전환 시 호출
 function onTankChanged(tankId){
+  window.AquiveSync?.noteTank(tankId);   // 마지막으로 본 수조 / 다녀간 수조 기록
   const wrap = document.getElementById('wrap');
   const scrollbar = document.getElementById('grand-scrollbar');
-  const plxSlider = document.getElementById('grand-plx-slider');
 
   if(tankId === 0){
     // 대수조: grand-mode + 세로 스크롤바 활성화
@@ -1489,14 +1136,9 @@ function onTankChanged(tankId){
     if(causticEl) causticEl.style.transform = 'none';
   }
 
-  // 가로 슬라이더는 모든 수조에서 표시
-  if(plxSlider) plxSlider.style.display = 'block';
-
   // 패럴랙스 X는 수조 전환 시 중앙으로 부드럽게 복귀
   plx.mouseX = 0;
   plx.curX   = 0;
-  const plxHandle = document.getElementById('grand-plx-handle');
-  if(plxHandle){ plxHandle.style.left = ''; plxHandle.style.marginLeft = '0'; }
 }
 
 // ══════════════════════════════════════════
@@ -1536,7 +1178,6 @@ function loop(){
 
   // ── 스크롤바/슬라이더 핸들 동기화 ──
   if(grand && window.updateScrollHandle) window.updateScrollHandle();
-  if(window.updatePlxHandle) window.updatePlxHandle();  // 모든 수조에서
 
   farCtx.clearRect(0,0,vw,vh);
   midCtx.clearRect(0,0,vw,vh);
@@ -1723,9 +1364,9 @@ async function applyTankData(tankId){
 // ── 수조 데이터 ──
 const TANKS = [
   {id:0,  name:'대수조',     nameEn:'GRAND OCEAN TANK',   unlock:0},
-  {id:1,  name:'연안 수조',  nameEn:'COASTAL TANK',       unlock:-50},
-  {id:2,  name:'산호초관',   nameEn:'CORAL REEF',         unlock:-100},
-  {id:3,  name:'열대어관',   nameEn:'TROPICAL FISH',      unlock:-250},
+  {id:1,  name:'연안수조',  nameEn:'COASTAL TANK',       unlock:-50},
+  {id:2,  name:'산호수조',   nameEn:'CORAL REEF',         unlock:-100},
+  {id:3,  name:'열대수조',   nameEn:'TROPICAL FISH',      unlock:-250},
   {id:4,  name:'대형어관',   nameEn:'OCEAN GIANTS',       unlock:-500},
   {id:5,  name:'가오리관',   nameEn:'STINGRAY BAY',       unlock:-700},
   {id:6,  name:'극지어관',   nameEn:'POLAR ZONE',         unlock:-1000},
@@ -1733,252 +1374,130 @@ const TANKS = [
   {id:9,  name:'해파리관',   nameEn:'JELLYFISH HALL',     unlock:-2000},
   {id:10, name:'발광생물관', nameEn:'BIOLUMINESCENCE',    unlock:-3000},
   {id:11, name:'해구관',     nameEn:'HADAL ZONE',         unlock:-4000},
-  {id:12, name:'멸종 보관소',nameEn:'EXTINCTION ARCHIVE', unlock:-4000, autoUnlock:true},
+  {id:12, name:'멸종보관소',nameEn:'EXTINCTION ARCHIVE', unlock:-4000, autoUnlock:true},
 ];
 
 // ══════════════════════════════════════════
-//  건물 지도 — 층별 룸 배치 데이터
+//  건물 지도 (Figma 지도1F / 지도B1F / 지도B2F)
+//  좌표는 모두 디자인 기준(2560×1440). 방 색: 현재 위치 = 파랑, 열림 = 흰색, 잠김 = 반투명 + 자물쇠
 // ══════════════════════════════════════════
-// 대수조(id:0)는 1F·B1 양쪽에 보이드로 표시되는 특수 케이스라 별도 처리.
-const MAP_ROOMS = {
-  '1F': [
-    {id:1, x:60,  y:60,  w:270, h:130},
-    {id:2, x:60,  y:220, w:270, h:130},
-    {id:4, x:550, y:60,  w:270, h:130},
-    {id:3, x:550, y:220, w:270, h:130},
-  ],
-  'B1': [
-    {id:5,  x:75,  y:60,  w:230, h:110},
-    {id:6,  x:575, y:60,  w:230, h:110},
-    {id:8,  x:75,  y:200, w:230, h:110},
-    {id:10, x:575, y:200, w:230, h:110},
-    {id:9,  x:75,  y:340, w:230, h:110},
-    {id:11, x:575, y:340, w:230, h:110},
-  ],
-  'B2': [
-    {id:12, x:340, y:240, w:200, h:140},
-  ],
+const MAP_TAB_D   = 'M23.9168 16.2219C27.5759 6.46434 36.9039 0 47.325 0H252.675C263.096 0 272.424 6.46432 276.083 16.2219L300 80H0L23.9168 16.2219Z';
+const MAP_STAIRS_D = 'M151 797H1V767H151V797ZM151 757H1V727H151V757ZM151 717H1V687H151V717ZM151 677H1V647H151V677ZM151 637H1V607H151V637ZM151 597H1V567H151V597ZM151 557H1V527H151V557ZM151 517H1V487H151V517ZM150 477H0V447H150V477ZM151 437H1V407H151V437ZM151 397H1V367H151V397ZM150 357H0V327H150V357ZM150 317H0V287H150V317ZM150 277H0V247H150V277ZM150 237H0V207H150V237ZM150 197H0V167H150V197ZM151 157H1V0H151V157ZM191 150H161V0H191V150ZM231 150H201V0H231V150ZM271 150H241V0H271V150ZM311 150H281V0H311V150ZM351 150H321V0H351V150Z';
+const MAP_BARS_D   = 'M30 150H0V0H30V150ZM70 150H40V0H70V150ZM110 150H80V0H110V150ZM150 150H120V0H150V150ZM190 150H160V0H190V150ZM230 150H200V0H230V150ZM270 150H240V0H270V150ZM310 150H280V0H310V150ZM350 150H320V0H350V150ZM390 150H360V0H390V150Z';
+const MAP_LOCK_D   = 'M33.3887 0.00488281C41.4938 0.210486 48.001 6.84533 48.001 15V24.2998C54.8472 25.69 60 31.7435 60 39V51C59.9999 59.2841 53.2841 65.9999 45 66H15C6.71582 66 0.000146962 59.2841 0 51V39C0 31.7428 5.15379 25.6893 12.001 24.2998V15C12.001 6.84537 18.5082 0.210548 26.6133 0.00488281L27.001 0H33.001L33.3887 0.00488281ZM27.001 9C23.6873 9.00004 21.001 11.6863 21.001 15V24H39.001V15C39.001 11.6863 36.3147 9 33.001 9H27.001Z';
+
+const svgStairs = (x1,y1,x2,y2) => '<svg width="351" height="797" viewBox="0 0 351 797" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="'+MAP_STAIRS_D+'" fill="url(#mapGrad)"/><defs><linearGradient id="mapGrad" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient></defs></svg>';
+const svgBars   = (x1,x2) => '<svg width="390" height="150" viewBox="0 0 390 150" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="'+MAP_BARS_D+'" fill="url(#mapGradBars)"/><defs><linearGradient id="mapGradBars" x1="'+x1+'" y1="75" x2="'+x2+'" y2="75" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient></defs></svg>';
+
+// tabs: 층 탭 (x = 안 눌린 탭 모양의 위치, cx = 글자 중심), rooms: tankId + 위치/크기, decor: 계단 그림
+const MAP_FLOORS = {
+  '1F': {
+    panel: 'M1700 1055C1700 1068.81 1688.81 1080 1675 1080H25C11.1929 1080 0 1068.81 0 1055V90.632C0 84.7601 4.76012 80 10.632 80C15.0639 80 19.0309 77.2509 20.5871 73.1012L41.917 16.2217C45.5762 6.46425 54.9042 0 65.3252 0H270.675C281.096 0 290.424 6.46424 294.083 16.2217L311.917 63.7781C315.576 73.5357 324.904 80 335.325 80H1675C1688.81 80 1700 91.1929 1700 105V1055Z',
+    tabs: [ {floor:'1F',  cx:598,  active:true},
+            {floor:'B1F', cx:911,  x:761},
+            {floor:'B2F', cx:1211, x:1061} ],
+    rooms: [ {id:0, x:823,  y:548, w:750, h:450},
+             {id:4, x:1023, y:298, w:550, h:155},
+             {id:3, x:1650, y:298, w:380, h:155},
+             {id:2, x:1650, y:548, w:380, h:200},
+             {id:1, x:1650, y:798, w:380, h:200} ],
+    decor: [ {x:530, y:298, w:351, h:797, html:svgStairs(146,151,156,797)} ],
+  },
+  'B1F': {
+    panel: 'M1700 1055C1700 1068.81 1688.81 1080 1675 1080H25C11.1929 1080 0 1068.81 0 1055V105C0 91.1929 11.1929 80 25 80H313.675C324.096 80 333.424 73.5357 337.083 63.7781L354.917 16.2217C358.576 6.46425 367.904 0 378.325 0H583.675C594.096 0 603.424 6.46424 607.083 16.2217L624.917 63.7781C628.576 73.5357 637.904 80 648.325 80H1675C1688.81 80 1700 91.1929 1700 105V1055Z',
+    tabs: [ {floor:'1F',  cx:598,  x:448},
+            {floor:'B1F', cx:911,  active:true},
+            {floor:'B2F', cx:1230, x:1080} ],
+    rooms: [ {id:0,  x:823,  y:548, w:750, h:450},
+             {id:5,  x:823,  y:298, w:750, h:155},
+             {id:6,  x:1673, y:298, w:357, h:150},
+             {id:8,  x:1673, y:548, w:150, h:130},
+             {id:10, x:1880, y:548, w:150, h:130},
+             {id:9,  x:1673, y:716, w:150, h:130},
+             {id:11, x:1880, y:716, w:150, h:130} ],
+    decor: [ {x:530,  y:298, w:351, h:797, html:svgStairs(88,797,88,159)},
+             {x:1640, y:945, w:390, h:150, html:svgBars(390,0)} ],
+  },
+  'B2F': {
+    panel: 'M1700 1055C1700 1068.81 1688.81 1080 1675 1080H25C11.1929 1080 0 1068.81 0 1055V105C0 91.1929 11.1929 80 25 80H613.675C624.096 80 633.424 73.5357 637.083 63.7781L654.917 16.2217C658.576 6.46425 667.904 0 678.325 0H883.675C894.096 0 903.424 6.46424 907.083 16.2217L924.917 63.7781C928.576 73.5357 937.904 80 948.325 80H1675C1688.81 80 1700 91.1929 1700 105V1055Z',
+    tabs: [ {floor:'1F',  cx:611,  x:461},
+            {floor:'B1F', cx:911,  x:761},
+            {floor:'B2F', cx:1211, active:true} ],
+    rooms: [ {id:12, x:630, y:298, w:1300, h:550} ],
+    decor: [ {x:1640, y:948, w:390, h:150, html:svgBars(0,390)} ],
+  },
 };
-const VOID_RECT = {x:345, y:40, w:190, h:580};
 
 function getTank(id){ return TANKS.find(t=>t.id===id); }
 
-// ══════════════════════════════════════════
-//  지도 렌더링
-// ══════════════════════════════════════════
 let mapCurrentFloor = '1F';
-const svgNS = 'http://www.w3.org/2000/svg';
 
-function svgEl(tag, attrs){
-  const el = document.createElementNS(svgNS, tag);
-  Object.entries(attrs||{}).forEach(([k,v])=> el.setAttribute(k, v));
-  return el;
-}
-
-// tankId(TANKS의 id) 기준으로 MAP_ROOMS에서 층을 찾는다 (인덱스 아님)
+// tankId(TANKS의 id) 기준으로 어느 층 방인지 찾는다 (인덱스 아님). 대수조(0)는 어느 층에도 속하지 않는 특수 케이스.
 function tankFloorOf(tankId){
-  if(tankId===0) return null; // 대수조는 보이드로 별도 처리
-  for(const floor of Object.keys(MAP_ROOMS)){
-    if(MAP_ROOMS[floor].some(r=>r.id===tankId)) return floor;
+  if(tankId===0) return null;
+  for(const floor of Object.keys(MAP_FLOORS)){
+    if(MAP_FLOORS[floor].rooms.some(r=>r.id===tankId)) return floor;
   }
   return null;
 }
 
-function buildVoidPath(floor){
-  // 대수조 보이드: 1F·B1 양쪽에 그려서 건물을 관통하는 느낌을 줌
-  const g = svgEl('g', {});
-  const r = VOID_RECT;
-  const rect = svgEl('rect', {
-    x:r.x, y:r.y, width:r.w, height:r.h, rx:18,
-    fill:'rgba(40,150,220,0.10)',
-    stroke:'rgba(120,210,255,0.35)', 'stroke-width':1,
-    'stroke-dasharray': floor==='B2' ? '0' : '0',
-  });
-  g.appendChild(rect);
-
-  // 내부 표시: 위/아래로 뚫려있다는 느낌의 점선
-  const innerDash = svgEl('line', {
-    x1:r.x+r.w/2, y1:r.y+14, x2:r.x+r.w/2, y2:r.y+r.h-14,
-    stroke:'rgba(150,220,255,0.18)', 'stroke-width':1, 'stroke-dasharray':'2 6'
-  });
-  g.appendChild(innerDash);
-
-  const label = svgEl('text', {
-    x:r.x+r.w/2, y:r.y+r.h/2-10, 'text-anchor':'middle',
-    class:'room-label', fill:'rgba(190,230,255,0.55)', 'font-size':12,
-    'letter-spacing':'0.12em'
-  });
-  label.textContent = '대수조';
-  g.appendChild(label);
-  const labelEn = svgEl('text', {
-    x:r.x+r.w/2, y:r.y+r.h/2+8, 'text-anchor':'middle',
-    class:'room-label', fill:'rgba(140,200,255,0.4)', 'font-size':9,
-    'letter-spacing':'0.16em'
-  });
-  labelEn.textContent = 'GRAND OCEAN TANK';
-  g.appendChild(labelEn);
-
-  const sub = svgEl('text', {
-    x:r.x+r.w/2, y:r.y+r.h/2+26, 'text-anchor':'middle',
-    fill:'rgba(120,180,230,0.32)', 'font-size':8, 'letter-spacing':'0.1em'
-  });
-  sub.textContent = floor==='1F' ? '1F – B1F 관통' : 'B1F까지 이어짐';
-  g.appendChild(sub);
-
-  g.classList.add('map-room');
-  g.style.cursor = 'pointer';
-  g.addEventListener('click', ()=> selectTankFromMap(0));
-  g.addEventListener('mouseenter', (e)=> showMapTooltip(e, getTank(0), true, 0));
-  g.addEventListener('mousemove', (e)=> moveMapTooltip(e));
-  g.addEventListener('mouseleave', hideMapTooltip);
-
-  if(currentTankIdx===0) g.classList.add('current');
-  return g;
+function mk(tag, cls, styles, html){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(styles) Object.assign(e.style, styles);
+  if(html != null) e.innerHTML = html;
+  return e;
 }
-
-function buildStairIcon(x,y,toFloorLabel,small){
-  const g = svgEl('g', {});
-  const w = small?34:46, h = small?34:46;
-  const rect = svgEl('rect', {x, y, width:w, height:h, rx:8, fill:'rgba(255,255,255,0.03)', stroke:'rgba(150,210,255,0.25)', 'stroke-width':0.8});
-  g.appendChild(rect);
-  const steps = svgEl('path', {
-    d: small
-      ? `M${x+9} ${y+21} h4 v-4 h4 v-4 h4 v-4 h4`
-      : `M${x+12} ${y+30} h6 v-6 h6 v-6 h6 v-6 h6`,
-    fill:'none', stroke:'rgba(190,230,255,0.55)', 'stroke-width':1.6, 'stroke-linecap':'round', 'stroke-linejoin':'round'
-  });
-  g.appendChild(steps);
-  const txt = svgEl('text', {x:x+w/2, y:y+h+13, 'text-anchor':'middle', fill:'rgba(150,210,255,0.4)', 'font-size':8.5, 'letter-spacing':'0.08em'});
-  txt.textContent = toFloorLabel;
-  g.appendChild(txt);
-  return g;
-}
+const pxs = n => n + 'px';
 
 function renderMapFloor(floor){
   mapCurrentFloor = floor;
-  const svg = document.getElementById('map-svg');
-  svg.innerHTML = '';
+  const F = MAP_FLOORS[floor];
+  const stage = document.getElementById('map-stage');
+  if(!F || !stage) return;
+  stage.innerHTML = '';
+  const curId = TANKS[currentTankIdx].id;
 
-  document.querySelectorAll('.floor-tab').forEach(tab=>{
-    tab.classList.toggle('active', tab.dataset.floor===floor);
+  // 폴더 모양 패널 (활성 탭 위치에 따라 모양이 다름)
+  const clip = "path('" + F.panel + "')";
+  stage.appendChild(mk('div', '', {left:'430px', top:'118px', width:'1700px', height:'1080px', clipPath:clip, webkitClipPath:clip})).id = 'map-panel';
+
+  // 눌리지 않은 탭 모양
+  F.tabs.filter(t=>!t.active).forEach(t=>{
+    stage.appendChild(mk('div', 'map-tab-shape', {left:pxs(t.x), top:'118px', width:'300px', height:'80px'},
+      '<svg width="300" height="80" viewBox="0 0 300 80" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="'+MAP_TAB_D+'" fill="#343C3F"/></svg>'));
   });
 
-  const defs = svgEl('defs', {});
-  svg.appendChild(defs);
+  // 계단 그림
+  F.decor.forEach(d=> stage.appendChild(mk('div', 'map-decor', {left:pxs(d.x), top:pxs(d.y), width:pxs(d.w), height:pxs(d.h)}, d.html)));
 
-  // 대수조 보이드는 1F, B1에서 표시
-  if(floor==='1F' || floor==='B1'){
-    svg.appendChild(buildVoidPath(floor));
-  }
-
-  const rooms = MAP_ROOMS[floor] || [];
-  rooms.forEach(r=>{
+  // 방
+  F.rooms.forEach(r=>{
     const tank = getTank(r.id);
-    if(!tank) return;
     const unlocked = isTankUnlocked(tank);
-    const isCurrent = (TANKS[currentTankIdx].id === r.id);
-
-    const g = svgEl('g', {class:'map-room'+(unlocked?'':' locked')+(isCurrent?' current':'')});
-
-    const fillUnlocked = isCurrent ? 'rgba(255,205,110,0.16)' : 'rgba(70,170,235,0.14)';
-    const strokeUnlocked = isCurrent ? 'rgba(255,210,120,0.85)' : 'rgba(120,200,255,0.4)';
-    const fillLocked = 'rgba(140,150,165,0.06)';
-    const strokeLocked = 'rgba(140,150,165,0.18)';
-
-    const rect = svgEl('rect', {
-      x:r.x, y:r.y, width:r.w, height:r.h, rx:14,
-      class:'room-fill',
-      fill: unlocked ? fillUnlocked : fillLocked,
-      stroke: unlocked ? strokeUnlocked : strokeLocked,
-      'stroke-width': isCurrent ? 1.6 : 1,
-    });
-    g.appendChild(rect);
-
-    if(isCurrent){
-      const pulse = svgEl('rect', {
-        x:r.x, y:r.y, width:r.w, height:r.h, rx:14,
-        class:'room-pulse', fill:'none', stroke:'rgba(255,215,130,0.9)', 'stroke-width':2,
-      });
-      g.appendChild(pulse);
+    const current  = (r.id === curId);
+    const btn = mk('button', 'map-room' + (current ? ' current' : '') + (!unlocked ? ' locked' : ''),
+      {left:pxs(r.x), top:pxs(r.y), width:pxs(r.w), height:pxs(r.h)});
+    btn.type = 'button';
+    btn.setAttribute('aria-label', tank.name + (current ? ' (현재 위치)' : !unlocked ? ' (잠김)' : ''));
+    if(unlocked){
+      btn.textContent = tank.name;
+    } else {
+      // 잠긴 방은 이름 대신 자물쇠 (시안 B2F)
+      btn.innerHTML = '<svg width="60" height="66" viewBox="0 0 60 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" fill="#000" d="'+MAP_LOCK_D+'"/></svg>';
     }
-
-    const nameY = r.h > 90 ? r.y + r.h/2 - 8 : r.y + r.h/2 - 6;
-    const name = svgEl('text', {
-      x:r.x+r.w/2, y:nameY, 'text-anchor':'middle', class:'room-label',
-      fill: unlocked ? 'rgba(225,245,255,0.9)' : 'rgba(170,180,195,0.45)',
-      'font-size':14, 'font-weight':600, 'letter-spacing':'0.04em'
-    });
-    name.textContent = tank.name;
-    g.appendChild(name);
-
-    const enY = nameY + 17;
-    const en = svgEl('text', {
-      x:r.x+r.w/2, y:enY, 'text-anchor':'middle', class:'room-label',
-      fill: unlocked ? 'rgba(150,205,255,0.55)' : 'rgba(150,160,175,0.35)',
-      'font-size':9, 'letter-spacing':'0.14em'
-    });
-    en.textContent = tank.nameEn;
-    g.appendChild(en);
-
-    if(!unlocked){
-      const lockY = enY + 18;
-      const lockTxt = svgEl('text', {
-        x:r.x+r.w/2, y:lockY, 'text-anchor':'middle',
-        fill:'rgba(160,170,185,0.4)', 'font-size':9, 'letter-spacing':'0.06em'
-      });
-      lockTxt.textContent = '🔒 −'+Math.abs(tank.unlock)+'m';
-      g.appendChild(lockTxt);
-    }
-
-    g.addEventListener('click', ()=> selectTankFromMap(r.id));
-    g.addEventListener('mouseenter', (e)=> showMapTooltip(e, tank, unlocked, r.id));
-    g.addEventListener('mousemove', (e)=> moveMapTooltip(e));
-    g.addEventListener('mouseleave', hideMapTooltip);
-
-    svg.appendChild(g);
+    btn.addEventListener('click', ()=> selectTankFromMap(r.id));
+    stage.appendChild(btn);
   });
 
-  // 계단/이동 안내 아이콘 — 룸과 겹치지 않는 여백에 배치
-  if(floor==='1F'){
-    svg.appendChild(buildStairIcon(660, 420, 'B1F ↓'));
-  } else if(floor==='B1'){
-    svg.appendChild(buildStairIcon(660, 500, '1F ↑'));
-    svg.appendChild(buildStairIcon(135, 578, 'B2F ↓', true));
-  } else if(floor==='B2'){
-    svg.appendChild(buildStairIcon(420, 410, 'B1F ↑'));
-  }
-}
-
-function showMapTooltip(evt, tank, unlocked, tankId){
-  const tooltip = document.getElementById('map-tooltip');
-  const stage = document.getElementById('map-stage');
-  document.getElementById('tt-name').textContent = tank.name;
-  document.getElementById('tt-en').textContent = tank.nameEn;
-  const lockEl = document.getElementById('tt-lock');
-  if(!unlocked){
-    const needed = Math.abs(tank.unlock);
-    const current = getDepth();
-    lockEl.textContent = '수심 '+tank.unlock+'m 도달 시 해금 · 현재 −'+current+'m';
-    lockEl.style.display = 'block';
-  } else {
-    lockEl.style.display = 'none';
-  }
-  tooltip.classList.add('show');
-  moveMapTooltip(evt);
-}
-
-function moveMapTooltip(evt){
-  const tooltip = document.getElementById('map-tooltip');
-  const stage = document.getElementById('map-stage');
-  const rect = stage.getBoundingClientRect();
-  let x = evt.clientX - rect.left;
-  let y = evt.clientY - rect.top - 14;
-  tooltip.style.left = x+'px';
-  tooltip.style.top = y+'px';
-}
-
-function hideMapTooltip(){
-  document.getElementById('map-tooltip').classList.remove('show');
+  // 층 탭 (글자 + 클릭 영역)
+  F.tabs.forEach(t=>{
+    const b = mk('button', 'map-tab' + (t.active ? ' active' : ''), {left:pxs(t.cx-150), top:'118px'}, t.floor);
+    b.type = 'button';
+    b.setAttribute('aria-label', t.floor + ' 지도');
+    if(!t.active) b.addEventListener('click', ()=> renderMapFloor(t.floor));
+    stage.appendChild(b);
+  });
 }
 
 function selectTankFromMap(tankId){
@@ -1992,21 +1511,22 @@ function selectTankFromMap(tankId){
 }
 
 function openMap(){
+  closeDex();
   renderMapFloor(tankFloorOf(TANKS[currentTankIdx].id) || '1F');
   document.getElementById('map-overlay').classList.add('open');
+  document.getElementById('map-toggle')?.classList.add('active');   // 오른쪽 '지도' 탭이 하늘색으로
 }
 function closeMap(){
-  document.getElementById('map-overlay').classList.remove('open');
-  hideMapTooltip();
+  document.getElementById('map-overlay')?.classList.remove('open');
+  document.getElementById('map-toggle')?.classList.remove('active');
 }
 
-document.getElementById('map-toggle')?.addEventListener('click', openMap);
-document.getElementById('map-close')?.addEventListener('click', closeMap);
+// '지도' 탭은 열기/닫기 토글, 패널 바깥(빈 곳)을 눌러도 닫힘
+document.getElementById('map-toggle')?.addEventListener('click', ()=>{
+  document.getElementById('map-overlay').classList.contains('open') ? closeMap() : openMap();
+});
 document.getElementById('map-overlay')?.addEventListener('click', (e)=>{
   if(e.target.id === 'map-overlay') closeMap();
-});
-document.querySelectorAll('.floor-tab').forEach(tab=>{
-  tab.addEventListener('click', ()=> renderMapFloor(tab.dataset.floor));
 });
 
 // ══════════════════════════════════════════
@@ -2031,6 +1551,7 @@ function recordSighting(fishId){
   set.add(fishId);
   saveCollectedSet(set);
   if(!had){
+    window.AquiveSync?.push();   // 계정 기록 저장
     updateDexBadge();
     if(document.getElementById('dex-overlay')?.classList.contains('open')){
       renderDex();
@@ -2160,6 +1681,7 @@ function showDexDetail(fd, tank){
 }
 
 function openDex(){
+  closeMap();
   renderDex();
   document.getElementById('dex-overlay').classList.add('open');
 }
@@ -2181,15 +1703,12 @@ document.addEventListener('keydown', (e)=>{
 
 updateDexBadge();
 
-// 가로 패럴랙스 슬라이더는 모든 수조에서 항상 표시
-const _plxSliderInit = document.getElementById('grand-plx-slider');
-if(_plxSliderInit) _plxSliderInit.style.display = 'block';
-
 function getDepth(){
   try{ return JSON.parse(localStorage.getItem('aquive_depth')||'{"depth":0}').depth; }
   catch(e){ return 0; }
 }
 
+// [MASTER] 수심과 상관없이 모든 수조 접근 (수조 파일과 다른 부분은 여기뿐)
 function isTankUnlocked(tank){ return true; }
 
 function buildNavDots(){
@@ -2207,10 +1726,12 @@ function buildNavDots(){
 
 function updateNavUI(){
   const tank = TANKS[currentTankIdx];
-  const nameEl = document.getElementById('tank-nav-name');
-  if(nameEl) nameEl.textContent = tank.name+' · '+tank.nameEn;
-  const tankNameEl = document.getElementById('ui-tank-name');
-  if(tankNameEl) tankNameEl.textContent = tank.name+' · '+tank.nameEn;
+  const hudName = document.getElementById('hud-name');
+  if(hudName) hudName.textContent = tank.name;
+  const unlocked = TANKS.filter(t => isTankUnlocked(t)).length;   // 해금된 수조 a/b
+  const uc = document.getElementById('hud-unlock-cur'), ut = document.getElementById('hud-unlock-total');
+  if(uc) uc.textContent = unlocked;
+  if(ut) ut.textContent = TANKS.length;
   const prevBtn = document.getElementById('nav-prev');
   const nextBtn = document.getElementById('nav-next');
   if(prevBtn) prevBtn.disabled = currentTankIdx===0;
@@ -2262,9 +1783,19 @@ document.getElementById('nav-next')?.addEventListener('click', ()=>{
 
 // 초기 로드
 (async function(){
+  // card.html 의 "이어서" 탭: ?start=continue → 마지막으로 본 수조로 이동
+  let resumeId = null;
+  if(new URLSearchParams(location.search).get('start') === 'continue'){
+    try{ resumeId = (JSON.parse(localStorage.getItem('aquive_progress')||'{}')).lastTankId; }catch(e){}
+  }
   await loadTanksJson();
   await applyTankData(0);
+  updateNavUI();       // HUD: 수조 이름 / 해금된 수조 수
   updateDexBadge();
+  if(Number.isFinite(resumeId)){
+    const idx = TANKS.findIndex(t => t.id === resumeId);
+    if(idx > 0) tryNav(idx);   // 잠긴 수조면 기존처럼 잠금 안내가 뜸
+  }
 })();
 
 </script>
