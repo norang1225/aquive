@@ -241,13 +241,15 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 /* 하단 좌우 화살표 (반투명 유리 사각형) */
 .nav-arrow{
   position:fixed;bottom:calc(30 * var(--px));z-index:90;
-  width:calc(100 * var(--px));height:calc(100 * var(--px));padding:0;border:0;border-radius:25%;
+  width:calc(50 * var(--px));height:calc(50 * var(--px));padding:0;border:0;border-radius:50%;
   background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
   cursor:pointer;transition:background .2s,opacity .2s;-webkit-tap-highlight-color:transparent;
 }
 .nav-arrow svg{width:100%;height:100%;display:block}
-#nav-prev{left:calc(50% - 250 * var(--px))}
-#nav-next{left:calc(50% + 150 * var(--px))}
+#nav-prev{left:calc(50% - 257 * var(--px))}   /* 시안: x=1023 */
+#nav-next{left:calc(50% + 207 * var(--px))}   /* 시안: x=1487 */
+/* 버튼이 작아진 만큼 눈에 안 보이는 클릭 영역을 사방으로 넓힘 */
+.nav-arrow::before{content:'';position:absolute;inset:calc(-14 * var(--px))}
 .nav-arrow:hover{background:rgba(0,0,0,.58)}
 .nav-arrow:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .nav-arrow:disabled{opacity:.2;cursor:default;pointer-events:none}
@@ -1452,7 +1454,7 @@ function renderMapFloor(floor){
       btn.textContent = tank.name;
     } else {
       // 잠긴 방은 이름 대신 자물쇠 (시안 B2F)
-      btn.innerHTML = '<svg width="60" height="66" viewBox="0 0 60 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" fill="#000" d="'+MAP_LOCK_D+'"/></svg>';
+      btn.innerHTML = '<svg width="30" height="33" viewBox="0 0 60 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" fill="#000" d="'+MAP_LOCK_D+'"/></svg>';
     }
     btn.addEventListener('click', ()=> selectTankFromMap(r.id));
     stage.appendChild(btn);
