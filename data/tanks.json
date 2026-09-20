@@ -96,6 +96,24 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789939398443.png"
+        },
+        {
+          "id": 1789939474976,
+          "name": "돛새치",
+          "latin": "Istiophorus platypterus",
+          "desc": "돛새치과(Istiophoridae) 이스티오포루스속(Istiophorus)의 바닷물고기. 두 종이 있다. 하나는 대서양 돛새치(Istiophorus albicans), 다른 하나는 인도 · 태평양 돛새치(I. platypterus)이다. 몸길이는 최대 3미터, 몸무게는 최대 90킬로그램에 이른다. 등지느러미는 돛을 단 것 같으며 헤엄치는 속도는 시속 110킬로미터까지 보고되어 있다. 우리나라에 분포하는 돛새치는 인도 · 태평양 돛새치이다.",
+          "dep": "",
+          "tier": "md",
+          "layer": "far",
+          "layers": {
+            "mid": 2,
+            "far": 4
+          },
+          "count": 6,
+          "speed": 0.55,
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789939474976.png"
         }
       ],
       "bg": {
