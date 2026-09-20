@@ -58,6 +58,25 @@
           "imgW": 2400,
           "imgH": 960,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789914680250.png"
+        },
+        {
+          "id": 1789931067717,
+          "name": "자이언트 그루퍼",
+          "latin": "Epinephelus lanceolatus",
+          "desc": "몸길이가 2.5m~3m까지 성장하는 바리과의 어류 중 가장 대형으로 성장하는 물고기이다. 주로 작은 물고기, 갑각류, 연체류 등을 포식하며 3m 이상의 깊이에서도 닭새우, 바다거북 새끼 등 대형 먹이를 사냥할 수 있다. 소형 상어를 통째로 먹어 치우기도 하여 ‘바다의 진공청소기’라고도 불린다. \n무리생활을 하지 않고 단독 생활을 하며, 몸 색깔을 주변 환경에 따라 바꿀 수 있다. 치어일 때에는 노란색과 검은색의 무늬가 있지만, 성어가 되면 잿빛으로 변한다. 특히, 성장 과정 중 암컷에서 수컷으로 성전환을 하는 습성이 있다. \n자이언트 그루퍼는 손쉽게 잡을 수 있어 식용으로도 이용되는데, 시가테라 라는 독을 가지고 있으므로 유의해야 한다.",
+          "dep": "",
+          "tier": "lg",
+          "layer": "far",
+          "layers": {
+            "near": 2,
+            "mid": 1,
+            "far": 4
+          },
+          "count": 7,
+          "speed": 0.3,
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789931067717.png"
         }
       ],
       "bg": {
