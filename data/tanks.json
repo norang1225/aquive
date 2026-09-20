@@ -30,8 +30,8 @@
           "tier": "lg",
           "layer": "far",
           "layers": {
-            "near": 2,
-            "mid": 1,
+            "near": 1,
+            "mid": 2,
             "far": 4
           },
           "count": 7,
