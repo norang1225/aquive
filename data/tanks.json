@@ -20,6 +20,23 @@
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789756246093.png"
+        },
+        {
+          "id": 1789894158163,
+          "name": "이름 없음",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "xl",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.55,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789894158163.png"
         }
       ],
       "bg": {
