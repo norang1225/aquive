@@ -130,6 +130,16 @@ svg{display:block}
 </style>
 </head>
 <body>
+<!-- 진입화면에서 넘어온 경우: 하얀 빛에서 시작해 서서히 걷힘 (sessionStorage 표시가 있을 때만 보임) -->
+<div id="entry-flash" style="position:fixed;left:0;top:0;right:0;bottom:0;background:#fff;z-index:9999;pointer-events:none;display:none"></div>
+<script>
+try{
+  if(sessionStorage.getItem('aquive_entry_flash')){
+    sessionStorage.removeItem('aquive_entry_flash');                                   // 새로고침하면 다시 보이지 않게 한 번만
+    if(!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) document.getElementById('entry-flash').style.display = 'block';
+  }
+}catch(e){}
+</script>
 <div id="stage" data-scene="">
 
   <svg style="left:1957px;top:53px" width="122" height="96" viewBox="0 0 122 96"><path fill="#004F88" d="M67.9998 96.0047H122C120.33 78.8381 122 53.1817 104 22.0047C93.6074 4.00473 75.1696 -0.161929 71.4998 0.00474243H-8.39233e-05C13.4999 0.00479977 35.7498 0.00489426 51.4998 22.0047C70.3588 48.3474 69.9998 82.6714 67.9998 96.0047Z"/></svg>
@@ -542,6 +552,10 @@ function playEnter(){ stage.classList.remove('enter'); void stage.offsetWidth; s
   fit();
   stage.classList.add('ready');
   playEnter();
+  const ef = document.getElementById('entry-flash');
+  if(ef && ef.style.display === 'block'){                          // 하얀 빛이 걷히며 바인더가 쌓임
+    ef.animate([{opacity:1},{opacity:0}], {duration:900, easing:'ease-out', fill:'forwards'}).onfinish = () => ef.remove();
+  }
   drawFish();
   if(!profile) nick.focus({preventScroll:true});
 })();
