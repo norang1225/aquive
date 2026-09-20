@@ -257,7 +257,26 @@ setInterval(() => {
 //  · 눌러도 안 넘어갈 때를 대비해 시간이 지나면 자동으로 이동, 연출 도중 다시 누르면 바로 이동
 //  · 시스템 '동작 줄이기'를 켠 경우에는 연출 없이 바로 이동
 // ══════════════════════════════════════════
-const NEXT_URL = 'card.html';
+// 전시 모드(?mode=exhibit): 카드 화면도 전시 모드로 이어지고, 관람객이 화면을 망가뜨리지 못하게 잠금. 이전 관람객의 게스트·수집 기록은 지움
+const EXHIBIT = (function(){
+  try{
+    let m = new URLSearchParams(location.search).get('mode');
+    if(m) sessionStorage.setItem('aquive_mode', m); else m = sessionStorage.getItem('aquive_mode');
+    return m === 'exhibit';
+  }catch(e){ return false; }
+})();
+const NEXT_URL = EXHIBIT ? 'card.html?mode=exhibit' : 'card.html';
+if(EXHIBIT){
+  document.getElementById('connect').href = NEXT_URL;
+  ['aquive_collected_fish','aquive_depth','aquive_progress','aquive_owner_uid','aquive_local_session','aquive_local_guest','aquive_last_session'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
+  try{ sessionStorage.removeItem('aquive_exhibit_me'); }catch(e){}
+  const st = document.createElement('style');
+  st.textContent = 'html,body{-webkit-user-select:none;user-select:none}';
+  document.head.appendChild(st);
+  ['contextmenu','dragstart','selectstart','gesturestart','gesturechange'].forEach(ev => document.addEventListener(ev, e => e.preventDefault()));
+  document.addEventListener('keydown', e => { if((e.ctrlKey||e.metaKey) && ['+','-','=','0','_'].indexOf(e.key) >= 0) e.preventDefault(); });
+  window.addEventListener('wheel', e => { if(e.ctrlKey) e.preventDefault(); }, {passive:false});
+}
 const BURST_MS = 1250;                 // 연출 길이(ms)
 const EXTRA_PER_DIGIT = 2;             // 물고기 숫자 1개당 추가로 흩뿌릴 숫자 수 (화면을 더 채움)
 const burstCv = document.getElementById('burst'), bctx = burstCv.getContext('2d'), flashEl = document.getElementById('flash');

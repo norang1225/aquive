@@ -45,6 +45,23 @@
   const AVATAR_PLACEHOLDER_COUNT = 6;
   const PUSH_DELAY = 1200;                    // 기록 저장 지연(ms) — 잦은 저장 방지
 
+  // ── 전시 모드 설정 ─────────────────────────────────────────────
+  // 주소에 ?mode=exhibit 를 붙여 열면 전시 모드가 켜진다 (한 번 켜면 그 탭에서는 계속 유지, ?mode=normal 로 끔)
+  //   전시 모드: 로그인 없이 이름만으로 입장 · 무조작 시 처음으로 자동 복귀 · 전 수조 열림 · 조작 잠금 · 계정(Firebase) 미사용
+  const EXHIBIT_IDLE_MS   = 90000;                       // 이 시간 동안 조작이 없으면 안내를 띄우고
+  const EXHIBIT_WARN_MS   = 10000;                       //   이 시간(카운트다운) 뒤에 처음으로 돌아감. 확인용: 주소에 &idle=20 (초)
+  const EXHIBIT_LINK      = '';                          // 전시 끝 화면 아래에 글자로 적을 사이트 주소 (QR 대신). 예: 'norang1225.github.io/aquive'
+  const EXHIBIT_INDEX_URL = 'index.html?mode=exhibit';   // 처음 화면
+  const EXHIBIT_TANK_URL  = 'master.html?mode=exhibit';  // 입장 후 수조 화면 (전 수조가 열려 있는 마스터)
+  const EXHIBIT = (function () {
+    let m = null;
+    try {
+      m = new URLSearchParams(location.search).get('mode');
+      if (m) sessionStorage.setItem('aquive_mode', m); else m = sessionStorage.getItem('aquive_mode');
+    } catch (e) {}
+    return m === 'exhibit';
+  })();
+  const LOCAL_ONLY = !!window.AQUIVE_LOCAL_ONLY || EXHIBIT;   // 전시 모드/마스터는 Firebase를 쓰지 않고 이 컴퓨터에만 저장
   // 수조 페이지가 이미 쓰는 localStorage 키 + 계정용 키
   const K = {
     depth: 'aquive_depth',               // {visits, depth}
@@ -52,7 +69,10 @@
     prog:  'aquive_progress',            // {lastTankId, visitedTankIds, updatedAt}
     owner: 'aquive_owner_uid',           // 이 브라우저의 기록이 누구 것인지
     lAccounts: 'aquive_local_accounts',  // (테스트 모드) 계정 목록
-    lSession:  'aquive_local_session',   // (테스트 모드) 로그인 상태
+    lSession:  'aquive_local_session',   // (테스트 모드) 로그인 상태 ('__guest__' = 전시용 게스트)
+    lGuest:    'aquive_local_guest',     // (전시) 게스트 프로필
+    names:     'aquive_exhibit_names',   // (전시) 지금까지 입장한 이름 명단 [{n, t}]
+    me:        'aquive_exhibit_me',      // (전시) 이번 방문자의 명단 항목 번호(t)
   };
 
   // ══ 유틸 ══════════════════════════════════════════════════════════
@@ -142,6 +162,7 @@
     async init() {},
     async restore() {
       const s = localStorage.getItem(K.lSession); if (!s) return null;
+      if (s === '__guest__') { const g = jget(K.lGuest, null); return g ? g.uid : null; }
       const acc = jget(K.lAccounts, {})[s]; return acc ? acc.uid : null;
     },
     async enter(name, pw, avatarId) {
@@ -152,8 +173,12 @@
       localStorage.setItem(K.lSession, nk);
       return { isNew, uid: acc.uid, profile: acc.profile };
     },
-    async load(uid) { const a = Object.values(jget(K.lAccounts, {})).find(x => x.uid === uid); return a ? a.profile : null; },
+    async load(uid) {
+      if (uid === 'guest') { const g = jget(K.lGuest, null); return g ? g.profile : null; }
+      const a = Object.values(jget(K.lAccounts, {})).find(x => x.uid === uid); return a ? a.profile : null;
+    },
     async save(uid, patch) {
+      if (uid === 'guest') { const g = jget(K.lGuest, null); if (g) { g.profile = { ...g.profile, ...patch }; jset(K.lGuest, g); } return; }
       const all = jget(K.lAccounts, {}), k = Object.keys(all).find(x => all[x].uid === uid); if (!k) return;
       all[k].profile = { ...all[k].profile, ...patch }; jset(K.lAccounts, all);
     },
@@ -295,8 +320,63 @@
     back.appendChild(panel); stage.appendChild(back); avOpen = back;
   }
 
+  // ══ 전시 도우미 ═══════════════════════════════════════════════════
+  const exNames = () => { const a = jget(K.names, []); return Array.isArray(a) ? a : []; };
+  function exAddName(name) {                              // 입장한 이름을 명단에 추가. 이번 방문자 표시용으로 항목 번호(t)를 기억
+    const a = exNames(), e = { n: String(name).trim(), t: Date.now() };
+    a.push(e); if (a.length > 3000) a.splice(0, a.length - 3000);
+    jset(K.names, a); try { sessionStorage.setItem(K.me, String(e.t)); } catch (_) {}
+    return e;
+  }
+  const exMe = () => { try { return +sessionStorage.getItem(K.me) || 0; } catch (_) { return 0; } };
+  const exRemove = t => jset(K.names, exNames().filter(e => e.t !== t));
+  const exClear  = () => jset(K.names, []);
+  function exReset() {                                    // 관람객이 바뀔 때: 진행·게스트·수집 기록 초기화 (이름 명단은 유지)
+    clearProgress();
+    [K.lSession, K.lGuest, 'aquive_last_session'].forEach(k => localStorage.removeItem(k));
+    try { sessionStorage.removeItem(K.me); } catch (_) {}
+  }
+  function exLockdown() {                                 // 관람객이 화면을 망가뜨리지 못하게: 우클릭·선택·드래그·확대 차단
+    const st = document.createElement('style');
+    st.textContent = 'html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea{-webkit-user-select:text;user-select:text}img{-webkit-user-drag:none}';
+    document.head.appendChild(st);
+    ['contextmenu', 'dragstart'].forEach(ev => document.addEventListener(ev, e => e.preventDefault()));
+    document.addEventListener('selectstart', e => { if (!/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) e.preventDefault(); });
+    document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0', '_'].indexOf(e.key) >= 0) e.preventDefault(); });
+    window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+    ['gesturestart', 'gesturechange'].forEach(ev => document.addEventListener(ev, e => e.preventDefault()));
+  }
+  // 무조작 시간이 지나면 안내(카운트다운) → 처음 화면으로. 화면을 누르거나 마우스를 움직이면 계속 볼 수 있음
+  function exIdleReturn(opts) {
+    opts = opts || {};
+    const q = new URLSearchParams(location.search).get('idle');          // 확인용: &idle=20 → 20초
+    const idleMs = q ? Math.max(3, +q) * 1000 : (opts.idleMs || EXHIBIT_IDLE_MS), warnMs = q ? Math.min(EXHIBIT_WARN_MS, idleMs) : (opts.warnMs || EXHIBIT_WARN_MS);
+    let last = Date.now(), lx = -999, ly = -999, box = null;
+    const bump = () => { last = Date.now(); if (box) { box.remove(); box = null; } };
+    ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(ev => window.addEventListener(ev, bump, { passive: true, capture: true }));
+    window.addEventListener('pointermove', e => { if (Math.hypot(e.clientX - lx, e.clientY - ly) > 12) { lx = e.clientX; ly = e.clientY; bump(); } }, { passive: true, capture: true });
+    setInterval(() => {
+      const idle = Date.now() - last;
+      if (idle >= idleMs + warnMs) { exReset(); location.href = EXHIBIT_INDEX_URL; return; }
+      if (idle >= idleMs) {
+        if (!box) {
+          box = document.createElement('div');
+          box.style.cssText = 'position:fixed;left:50%;bottom:6%;transform:translateX(-50%);z-index:9999;padding:22px 40px;border-radius:25px;background:rgba(0,0,0,.72);color:#fff;font:400 26px/1.4 Inter,"Noto Sans KR",sans-serif;text-align:center;pointer-events:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)';
+          document.body.appendChild(box);
+        }
+        box.innerHTML = '조작이 없어 곧 처음 화면으로 돌아가요 · <b>' + Math.ceil((idleMs + warnMs - idle) / 1000) + '</b><br><span style="font-size:20px;opacity:.75">화면을 누르면 계속 볼 수 있어요</span>';
+      }
+    }, 500);
+  }
+  window.AquiveExhibit = {
+    active: EXHIBIT, LINK: EXHIBIT_LINK, INDEX_URL: EXHIBIT_INDEX_URL, TANK_URL: EXHIBIT_TANK_URL,
+    names: exNames, addName: exAddName, me: exMe, removeName: exRemove, clearNames: exClear,
+    resetSession: exReset, lockdown: exLockdown, startIdleReturn: exIdleReturn,
+  };
+  if (EXHIBIT) { exLockdown(); document.documentElement.classList.add('exhibit'); }
+
   // ══ 공개 API ═══════════════════════════════════════════════════════
-  const backend = FIREBASE_CONFIG ? fbBackend : localBackend;
+  const backend = (FIREBASE_CONFIG && !LOCAL_ONLY) ? fbBackend : localBackend;
   const ready = backend.init().then(() => true).catch(e => { console.warn('[AQUIVE] 저장소 초기화 실패', e); return false; });
 
   const AquiveStore = {
@@ -321,6 +401,15 @@
       const progress = adopt(r.uid, r.profile.progress, r.isNew);
       try { await backend.save(r.uid, { progress: { ...progress, updatedAt: Date.now() } }); } catch (e) { throw mapFbError(e); }
       return { isNew: r.isNew, profile: { ...r.profile, progress } };
+    },
+    // (전시) 비밀번호 없이 이름만으로 입장. 이 컴퓨터에 게스트 1명분만 잠시 저장되고, 세션 초기화 때 사라진다 (같은 이름이 여러 명이어도 됨)
+    async enterGuest(name, opts) {
+      if (!NAME_RE.test(String(name || '').trim())) throw new AquiveError('invalid-name');
+      clearProgress();                                   // 앞사람의 기록이 남지 않도록
+      jset(K.lGuest, { uid: 'guest', profile: newProfile(name, opts && opts.avatarId) });
+      localStorage.setItem(K.lSession, '__guest__');
+      adopt('guest', null, true);
+      return jget(K.lGuest, null).profile;
     },
     // 로그인한 계정의 프로필 아이콘 번호를 바꾼다 (null이면 선택 해제)
     async setAvatar(id) {

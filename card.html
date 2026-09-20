@@ -126,6 +126,13 @@ svg{display:block}
 .hit-dark:hover{background:rgba(255,255,255,.08)}
 .hit:focus-visible{outline:3px solid var(--aquive);outline-offset:-3px}
 
+
+/* ── 전시 모드: 이름만 입력 (비밀번호 없음). 이름 줄은 원래 시안(2001:4)의 위치로 ── */
+html.exhibit #lbl-pw, html.exhibit #pw{display:none}
+html.exhibit #lbl-name{top:714px}
+html.exhibit #nick{top:704px}
+html.exhibit #mode-note{display:none !important}
+
 /* 테스트 모드 안내 (Firebase 설정 전에만 표시) */
 #mode-note{left:0;top:1370px;width:2560px;text-align:center;font-size:18px;color:rgba(123,136,152,.8);display:none}
 </style>
@@ -283,6 +290,7 @@ const NICK_MAX = 7, PW_MIN = 6;
 const GH_RAW = 'https://raw.githubusercontent.com/norang1225/aquive/main/data/tanks.json';   // 수조 파일과 같은 물고기 데이터
 
 const $ = id => document.getElementById(id);
+const EX = !!(window.AquiveExhibit && window.AquiveExhibit.active);     // 전시 모드 (?mode=exhibit)
 const stage = $('stage');
 let SCALE = 1;
 
@@ -332,7 +340,7 @@ nick.addEventListener('paste', e => {
   nick.value = clean(nick.value.slice(0, s) + text + nick.value.slice(en));
   clearErr();
 });
-nick.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); pw.focus(); } });
+nick.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); if(EX) accept(); else pw.focus(); } });
 pw.addEventListener('input', clearErr);
 pw.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); accept(); } });
 
@@ -349,6 +357,15 @@ async function accept(){
   if(btn.disabled) return;
   const name = clean(nick.value).trim();
   if(!name){ showErr('이름을 입력해주세요', nick); return; }
+  if(EX){                                                       // 전시 모드: 이름만으로 입장 (비밀번호 없음)
+    btn.disabled = true;
+    try{
+      AquiveExhibit.addName(name);                              // 방문 명단에 추가 (멸종보관소 끝 화면에 표시됨)
+      await AquiveStore.enterGuest(name, { avatarId: pendingAvatar });
+      location.href = AquiveExhibit.TANK_URL;                   // 전 수조가 열려 있는 수조 화면으로
+    }catch(e){ console.warn('[AQUIVE] 입장 실패', e); showErr('입장하지 못했어요. 다시 시도해주세요', nick); btn.disabled = false; }
+    return;
+  }
   if(pw.value.length < PW_MIN){ showErr(ERR['weak-password'][0], pw); return; }
   btn.disabled = true;
   try{
@@ -537,7 +554,8 @@ function playEnter(){ stage.classList.remove('enter'); void stage.offsetWidth; s
 // ══════════════════════════════════════════
 (async function start(){
   const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
-  if(AquiveStore.mode === 'local') $('mode-note').style.display = 'block';
+  if(EX){ AquiveExhibit.resetSession(); AquiveExhibit.startIdleReturn(); }      // 전시: 이전 관람객 기록 지우고, 무조작이면 처음으로 복귀
+  else if(AquiveStore.mode === 'local') $('mode-note').style.display = 'block';
   try{
     if(new URLSearchParams(location.search).has('logout')){            // card.html?logout=1 → 로그아웃 (공용 PC/테스트용)
       await withTimeout(AquiveStore.signOut(), 6000);

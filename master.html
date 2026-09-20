@@ -183,6 +183,28 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 .me-thumb{background:#d9d9d9;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .me-thumb img{max-width:92%;max-height:92%;object-fit:contain}
 
+/* ── 전시: 멸종보관소 끝 화면(방문 명단 + 처음으로) ── */
+#end-overlay{position:fixed;left:0;top:0;right:0;bottom:0;z-index:95;visibility:hidden;background:rgba(0,10,30,.45)}
+#end-overlay.open{visibility:visible}
+#end-stage{position:absolute;left:50%;top:0;width:2560px;height:1440px;margin-left:-1280px;transform-origin:50% 0;transform:scale(var(--u));pointer-events:none}
+#end-stage > *{position:absolute}
+.end-panel{background:rgba(255,255,255,.93);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:25px;pointer-events:auto}
+.end-panel > *{position:absolute}
+.end-t{font-family:'Inter','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',sans-serif;font-weight:400;line-height:normal;white-space:nowrap}
+.end-x{width:60px;height:60px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,.08);color:#343C3F;font-family:Arial,sans-serif;font-size:38px;line-height:60px;text-align:center;cursor:pointer;transition:background .2s}
+.end-x:hover{background:rgba(0,0,0,.16)}
+.end-list{display:flex;flex-wrap:wrap;align-content:flex-start;gap:16px 14px;overflow-y:auto;scrollbar-width:none}
+.end-list::-webkit-scrollbar{display:none}
+.end-pill{display:inline-block;padding:10px 26px;border-radius:25px;background:#ededed;color:#000;font-family:'Inter','Noto Sans KR',sans-serif;font-size:32px;line-height:normal}
+.end-pill.me{background:#4BB4FF;color:#fff}
+.end-sb{width:10px;border-radius:5px;background:rgba(0,0,0,.08);display:none;touch-action:none;cursor:pointer}
+.end-sb.show{display:block}
+.end-sb > div{position:absolute;left:0;top:0;width:10px;height:36px;border-radius:5px;background:rgba(0,0,0,.35);cursor:grab;touch-action:none}
+.end-btn{width:300px;height:100px;border:0;border-radius:25px;background:#4bb4ff;color:#fff;font-family:'Inter','Noto Sans KR',sans-serif;font-size:32px;font-weight:400;cursor:pointer;transition:filter .2s,transform .1s}
+.end-btn:hover{filter:brightness(1.1)}
+.end-btn:active{transform:scale(.98)}
+.end-btn:focus-visible,.end-x:focus-visible{outline:3px solid #4BB4FF;outline-offset:4px}
+
 /* ── 물고기 정보창 (Figma 물고기 정보, 900×300 · 2560×1440 기준) ──
    --u 배율로 축소/확대. 눌러서 열고, 바깥을 누르거나 Esc로 닫는다. 설명이 길면 안에서 스크롤(휠·바 모두 가능) */
 #popup{
@@ -531,13 +553,16 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   <div id="dex-overlay"><div id="dex-stage"></div></div>
   <!-- 인물 (JS가 renderMe에서 그림) -->
   <div id="me-overlay"><div id="me-stage"></div></div>
+  <!-- 전시: 멸종보관소 끝 화면 (JS가 openEnding에서 그림) -->
+  <div id="end-overlay"><div id="end-stage"></div></div>
 
   <!-- 건물 지도 (JS가 renderMapFloor에서 그림) -->
   <div id="map-overlay"><div id="map-stage"></div></div>
 
 </div>
 
-<!-- [MASTER] 계정 기록 저장 스크립트(aquive-store.js)를 넣지 않음 -->
+<script>window.AQUIVE_LOCAL_ONLY = true;   // [MASTER] Firebase(계정)를 쓰지 않고 이 컴퓨터에만 저장 — 전시 게스트/개발 확인용</script>
+<script src="aquive-store.js"></script>
 <script>
 // HUD 배율: 디자인(2560×1440) 대비 현재 창 크기 (CSS의 --u)
 (function(){
@@ -549,6 +574,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 // ══════════════════════════════════════════
 //  티어 배율
 // ══════════════════════════════════════════
+const EX = !!(window.AquiveExhibit && window.AquiveExhibit.active);   // 전시 모드 (?mode=exhibit)
 const TIER_SCALE = {xl:4.0, lg:2.2, sl:1.5, md:0.58, sm:0.32};
 
 // ══════════════════════════════════════════
@@ -677,6 +703,7 @@ function recordVisit() {
 }
 
 function renderDepth() {
+  if(EX) return;                              // 전시 모드: 수조별 수심을 씀 (updateNavUI → setHudDepth)
   const data = getDepthData();
   const depthEl = document.getElementById('ui-depth');
   const visitEl = document.getElementById('ui-visit');
@@ -1886,7 +1913,7 @@ function renderMe(profile){
   all.forEach(g=> g.fish.forEach(f=> byId.set(f.id, f)));
   const valid = AquiveStore.readProgress().collected.filter(id=>byId.has(id));     // 삭제된 물고기는 제외
   const recent = valid.slice(-3).reverse();                                        // 최근 발견 3종
-  const depth = getDepth();
+  const depth = EX ? Math.abs(TANKS[currentTankIdx].unlock) : getDepth();          // 전시: 지금 있는 수조의 수심
   const svg = (w,h,inner) => '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+inner+'</svg>';
   const add = (el)=>{ stage.appendChild(el); return el; };
 
@@ -1907,7 +1934,7 @@ function renderMe(profile){
   add(mk('div','me-font',{left:'519px',top:'256px',width:'243px',textAlign:'center',fontSize:'64px',color:'#fff'},'AQUIVE'));
   add(mk('div','me-font',{left:'519px',top:'318px',fontSize:'32px',color:'rgba(123,136,152,.9)'},'Aqua Archive-Aquive'));
   const back = add(mk('button','me-cover',{left:'493px',top:'226px',width:'642px',height:'504px'}));
-  back.type='button'; back.setAttribute('aria-label','처음 화면으로 돌아가기'); back.addEventListener('click', ()=>{ location.href='index.html'; });
+  back.type='button'; back.setAttribute('aria-label','처음 화면으로 돌아가기'); back.addEventListener('click', ()=>{ if(EX) goStart(); else location.href='index.html'; });
 
   // 오른쪽 아래 하늘색 판 + 지도 그림
   add(mk('div','me-glass',{left:'1356px',top:'803px',width:'794px',height:'473px',background:'rgba(79,218,246,.95)',borderTopLeftRadius:'244px'}));
@@ -1992,10 +2019,126 @@ document.getElementById('me-overlay')?.addEventListener('click', (e)=>{
   if(e.target.id === 'me-overlay') closeMe();  // 바인더 바깥(빈 곳)을 누르면 닫힘
 });
 
+// ══════════════════════════════════════════
+//  전시 모드 (?mode=exhibit)
+//  · 수심 표시는 수조를 옮길 때마다 그 수조의 수심으로 바뀜 (대수조 0m, 연안수조 50m …)
+//  · 멸종보관소에 닿으면 지금까지 입장한 이름 명단을 보여주고, 맨 아래 '처음으로' 버튼
+//  · 왼쪽 위 모서리를 2.5초 길게 누르면 운영자 메뉴 (새로고침 · 초기화 · 명단 내보내기/삭제)
+// ══════════════════════════════════════════
+const END_TANK_ID = 12;                                   // 마지막 수조(멸종보관소)
+let hudDepthShown = 0, hudDepthRaf = 0;
+function setHudDepth(n){                                  // 수심 숫자가 이전 값에서 새 값으로 부드럽게 바뀜
+  const el = document.getElementById('ui-depth'); if(!el) return;
+  cancelAnimationFrame(hudDepthRaf);
+  const from = hudDepthShown, t0 = performance.now(), dur = 700;
+  const step = now => {
+    const k = Math.min(1, (now-t0)/dur), e = 1 - Math.pow(1-k, 3);
+    hudDepthShown = Math.round(from + (n-from)*e);
+    el.textContent = hudDepthShown.toLocaleString();
+    if(k < 1) hudDepthRaf = requestAnimationFrame(step);
+  };
+  hudDepthRaf = requestAnimationFrame(step);
+}
+
+const endIsOpen = () => !!document.getElementById('end-overlay')?.classList.contains('open');
+function closeEnding(){ document.getElementById('end-overlay')?.classList.remove('open'); }
+function goStart(){ AquiveExhibit.resetSession(); location.href = AquiveExhibit.INDEX_URL; }   // 관람 끝: 기록을 지우고 처음 화면으로
+
+function openEnding(){
+  if(!EX || endIsOpen()) return;
+  hidePopup(); closeMap(); closeDex(); closeMe();
+  const stage = document.getElementById('end-stage'); stage.innerHTML = '';
+  const names = AquiveExhibit.names(), meT = AquiveExhibit.me();
+  const panel = mk('div','end-panel',{left:'580px',top:'200px',width:'1400px',height:'1040px'});
+  stage.appendChild(panel);
+  panel.appendChild(mk('div','end-t',{left:'0',top:'52px',width:'1400px',fontSize:'56px',color:'#343C3F',textAlign:'center'},'함께한 연구원들'));
+  panel.appendChild(mkText('end-t',{left:'0',top:'132px',width:'1400px',fontSize:'30px',color:'rgba(123,136,152,.95)',textAlign:'center'},
+    names.length ? '지금까지 ' + names.length + '명이 이 전시를 탐사했어요' : '아직 기록된 연구원이 없어요'));
+  const x = mk('button','end-x',{left:'1310px',top:'30px'},'×'); x.type='button'; x.setAttribute('aria-label','닫고 계속 보기'); x.addEventListener('click', closeEnding); panel.appendChild(x);
+
+  const LIST_H = 620, wrap = mk('div','end-list',{left:'80px',top:'200px',width:'1240px',height:LIST_H+'px'});
+  names.forEach(e=>{
+    const pill = document.createElement('span'); pill.className = 'end-pill' + (e.t === meT ? ' me' : ''); pill.textContent = e.n; wrap.appendChild(pill);
+  });
+  panel.appendChild(wrap);
+  const sb = mk('div','end-sb',{left:'1330px',top:'200px',height:LIST_H+'px'}), thumb = document.createElement('div'); sb.appendChild(thumb); panel.appendChild(sb);
+  const sync = ()=>{
+    const max = wrap.scrollHeight - wrap.clientHeight;
+    if(max <= 1){ sb.classList.remove('show'); return; }
+    sb.classList.add('show');
+    const th = Math.max(36, Math.min(LIST_H, LIST_H*wrap.clientHeight/wrap.scrollHeight));
+    thumb.style.height = th+'px'; thumb.style.top = (wrap.scrollTop/max)*(LIST_H-th)+'px';
+  };
+  wrap.addEventListener('scroll', sync);
+  const scrollToFrac = f => { wrap.scrollTop = Math.max(0, Math.min(1, f)) * (wrap.scrollHeight - wrap.clientHeight); };
+  let grab = 0, drag = false;
+  thumb.addEventListener('pointerdown', e=>{ drag = true; thumb.setPointerCapture(e.pointerId); grab = e.clientY - thumb.getBoundingClientRect().top; e.stopPropagation(); });
+  thumb.addEventListener('pointermove', e=>{ if(!drag) return; const tr = sb.getBoundingClientRect(), hr = thumb.getBoundingClientRect(); scrollToFrac((e.clientY-grab-tr.top)/(tr.height-hr.height)); });
+  thumb.addEventListener('pointerup', ()=>{ drag = false; }); thumb.addEventListener('pointercancel', ()=>{ drag = false; });
+  sb.addEventListener('pointerdown', e=>{ const tr = sb.getBoundingClientRect(), hr = thumb.getBoundingClientRect(); scrollToFrac((e.clientY-tr.top-hr.height/2)/(tr.height-hr.height)); });
+  // 마우스 휠/트랙패드: 창 어디에 있어도 명단이 스크롤됨 (뒤의 수조는 움직이지 않음)
+  panel.addEventListener('wheel', e=>{
+    if(e.ctrlKey) return;
+    e.preventDefault(); e.stopPropagation();
+    const u = popScale(), px = e.deltaMode === 1 ? e.deltaY*40 : e.deltaMode === 2 ? e.deltaY*wrap.clientHeight*u : e.deltaY;
+    if(wrap.scrollHeight > wrap.clientHeight + 1) wrap.scrollTop += px / u;
+  }, {passive:false});
+
+  const btn = mk('button','end-btn',{left:'550px',top:'850px'},'처음으로'); btn.type='button'; btn.addEventListener('click', goStart); panel.appendChild(btn);
+  if(AquiveExhibit.LINK) panel.appendChild(mkText('end-t',{left:'0',top:'975px',width:'1400px',fontSize:'26px',color:'rgba(123,136,152,.95)',textAlign:'center'}, '다시 보려면  ' + AquiveExhibit.LINK));
+
+  document.getElementById('end-overlay').classList.add('open');
+  requestAnimationFrame(()=>{                                 // 내 이름이 보이는 위치로
+    const me = wrap.querySelector('.me'); if(me) wrap.scrollTop = Math.max(0, me.offsetTop - wrap.clientHeight/2);
+    sync(); btn.focus({preventScroll:true});
+  });
+}
+document.getElementById('end-overlay')?.addEventListener('click', e=>{ if(e.target.id === 'end-overlay') closeEnding(); });   // 바깥을 누르면 닫고 계속 보기
+
+// ── 운영자 메뉴: 왼쪽 위 모서리를 2.5초 길게 누르면 열림 (관람객은 모름) ──
+function openOperator(){
+  if(document.getElementById('op-panel')) return;
+  const box = document.createElement('div'); box.id = 'op-panel';
+  box.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:500;width:min(680px,92vw);max-height:84vh;overflow:auto;background:#fff;color:#111;border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.5);font:16px/1.5 Inter,"Noto Sans KR",sans-serif';
+  const mkBtn = (t, fn)=>{ const b = document.createElement('button'); b.textContent = t; b.style.cssText = 'padding:10px 16px;margin:0 8px 8px 0;border:0;border-radius:10px;background:#e6eef7;cursor:pointer;font:inherit'; b.addEventListener('click', fn); return b; };
+  const render = ()=>{
+    box.innerHTML = ''; const names = AquiveExhibit.names();
+    const h = document.createElement('div'); h.style.cssText = 'font-size:20px;font-weight:600;margin-bottom:12px'; h.textContent = '운영자 메뉴 · 방문 명단 ' + names.length + '명'; box.appendChild(h);
+    const row = document.createElement('div');
+    row.appendChild(mkBtn('새로고침', ()=> location.reload()));
+    row.appendChild(mkBtn('처음으로 (초기화)', goStart));
+    row.appendChild(mkBtn('명단 내보내기', ()=>{
+      const txt = names.map((e,i)=> (i+1) + '\t' + e.n + '\t' + new Date(e.t).toLocaleString()).join('\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain;charset=utf-8'})); a.download = 'aquive_names.txt'; a.click();
+    }));
+    row.appendChild(mkBtn('명단 전체 삭제', ()=>{ if(confirm('방문 명단을 모두 지울까요?')){ AquiveExhibit.clearNames(); render(); } }));
+    row.appendChild(mkBtn('닫기', ()=> box.remove())); box.appendChild(row);
+    const list = document.createElement('div'); list.style.cssText = 'border-top:1px solid #ddd;padding-top:10px;max-height:46vh;overflow:auto';
+    names.slice().reverse().forEach(e=>{
+      const r = document.createElement('div'); r.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:4px 0';
+      const s = document.createElement('span'); s.textContent = e.n + '   ' + new Date(e.t).toLocaleString(); r.appendChild(s);
+      const d = document.createElement('button'); d.textContent = '삭제'; d.style.cssText = 'padding:4px 12px;border:0;border-radius:8px;background:#f3d6d6;cursor:pointer;font:inherit';
+      d.addEventListener('click', ()=>{ AquiveExhibit.removeName(e.t); render(); }); r.appendChild(d); list.appendChild(r);
+    });
+    box.appendChild(list);
+  };
+  render(); document.body.appendChild(box);
+}
+function initOperator(){
+  const corner = document.createElement('div');
+  corner.style.cssText = 'position:fixed;left:0;top:0;width:120px;height:120px;z-index:400;background:transparent';
+  let timer = 0;
+  corner.addEventListener('pointerdown', ()=>{ clearTimeout(timer); timer = setTimeout(openOperator, 2500); });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev => corner.addEventListener(ev, ()=> clearTimeout(timer)));
+  document.body.appendChild(corner);
+}
+if(EX){ initOperator(); AquiveExhibit.startIdleReturn(); }      // 전시 모드: 운영자 모서리 + 무조작 자동 복귀
+
 function openDex(){
   hidePopup();
   closeMap();
   closeMe();
+  closeEnding();
   // 지금 있는 수조의 표지부터 펼친다
   dexTank = currentTankIdx;
   dexSpread = 0;
@@ -2020,6 +2163,7 @@ document.addEventListener('keydown', (e)=>{
   if(e.key !== 'Escape') return;
   if(popup.classList.contains('on')){ hidePopup(); return; }   // 정보창이 열려 있으면 정보창부터 닫기
   if(window.AquiveAvatars?.isOpen()){ AquiveAvatars.closeChooser(); return; }           // 프로필 선택 창부터
+  if(endIsOpen()){ closeEnding(); return; }                                              // 전시 끝 화면
   if(meIsOpen()) closeMe();
   else if(document.getElementById('dex-overlay')?.classList.contains('open')) closeDex();
   else if(document.getElementById('map-overlay')?.classList.contains('open')) closeMap();
@@ -2032,7 +2176,7 @@ function getDepth(){
   catch(e){ return 0; }
 }
 
-// [MASTER] 수심과 상관없이 모든 수조 접근 (수조 파일과 다른 부분은 여기뿐)
+// [MASTER] 수심과 상관없이 모든 수조 접근 (수조 파일과 다른 부분은 여기와 저장소 설정뿐)
 function isTankUnlocked(tank){ return true; }
 
 function buildNavDots(){
@@ -2052,6 +2196,7 @@ function updateNavUI(){
   const tank = TANKS[currentTankIdx];
   const hudName = document.getElementById('hud-name');
   if(hudName) hudName.textContent = tank.name;
+  if(EX) setHudDepth(Math.abs(tank.unlock));   // 전시: 대수조 0m, 연안수조 50m …
   const unlocked = TANKS.filter(t => isTankUnlocked(t)).length;   // 해금된 수조 a/b
   const uc = document.getElementById('hud-unlock-cur'), ut = document.getElementById('hud-unlock-total');
   if(uc) uc.textContent = unlocked;
@@ -2094,6 +2239,7 @@ async function switchTankWithData(idx){
   updateNavUI();
   await applyTankData(TANKS[idx].id); // 데이터 키는 인덱스가 아니라 tank id
   if(overlay) overlay.classList.remove('fade-in');
+  if(EX && TANKS[idx].id === END_TANK_ID) setTimeout(()=>{ if(currentTankIdx === idx) openEnding(); }, 1600);   // 전시: 멸종보관소에 닿으면 명단 창
 }
 
 // 화살표 이벤트
