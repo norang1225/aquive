@@ -63,8 +63,9 @@ svg{display:block}
 /* ── 장면 b: 집게, ID card 내용 ── */
 #clip-tab{left:1159px;top:149px;width:160px;height:88px;background:#1ab9e4}
 #id-avatar{left:1811px;top:237px;width:250px;height:250px;background:#d9d9d9}
-.lbl,.val{font-size:32px;color:#000}
-#id-collect{font-size:30px}
+.idrow{display:flex;align-items:baseline;font-size:32px;color:#000}   /* 라벨과 값이 같은 기준선에 놓임 (한글 '종'이 다른 글꼴이어도 안 어긋남) */
+.idrow .k{display:inline-block;width:112px}
+.idrow > span:last-child{line-height:0}   /* 값 칸의 높이는 0: 한글 글꼴이 줄을 높이지 않아 세 줄의 간격이 항상 같음 (글자는 그대로 보임) */      /* 값은 라벨 시작점에서 112px 오른쪽 (시안: x 1811 → 1923) */
 
 /* ── 오른쪽 탭 (처음부터 / 이어서) ── */
 .tab{width:74px;border:0;background:transparent;color:#fff;font-family:inherit;font-size:30px;font-weight:400;line-height:45px;text-align:center;cursor:default;transition:opacity .2s,text-shadow .2s}
@@ -208,12 +209,10 @@ try{
 
   <!-- b: ID card 내용 -->
   <button id="id-avatar" class="b-only" type="button"></button>
-  <p class="t lbl b-only" style="left:1811px;top:512px">name</p>
-  <p id="id-name"    class="t val b-only" style="left:1923px;top:512px"></p>
-  <p class="t lbl b-only" style="left:1811px;top:555px">depth</p>
-  <p id="id-depth"   class="t val b-only" style="left:1923px;top:555px"></p>
-  <p class="t lbl b-only" style="left:1811px;top:598px">collect</p>
-  <p id="id-collect" class="t val b-only" style="left:1923px;top:598px"></p>
+  <!-- 이름/수심/수집: 줄마다 라벨과 값을 한 줄에 묶어 글자 기준선(베이스라인)을 맞춤 -->
+  <div class="t idrow b-only" style="left:1811px;top:512px"><span class="k">name</span><span id="id-name"></span></div>
+  <div class="t idrow b-only" style="left:1811px;top:555px"><span class="k">depth</span><span id="id-depth"></span></div>
+  <div class="t idrow b-only" style="left:1811px;top:598px"><span class="k">collect</span><span id="id-collect"></span></div>
 
   <!-- 탭: a에서는 장식, b에서는 버튼 -->
   <button id="tab1" class="tab" type="button" disabled tabindex="-1"><span>처<br>음<br>부<br>터</span></button>
@@ -527,7 +526,7 @@ const RISE = [
   ['#quarter', 'svg[aria-label="지도"]'],                                          // 하늘색 판 + 지도 그림
   ['#clip-tab', 'svg[style*="left:1197.66px"]'],                                   // 집게
   ['#tab1', '#tab2'],                                                              // 오른쪽 탭
-  ['svg[style*="left:1957px"]', 'svg[style*="left:1754px"]', 'svg[style*="left:1906px"]', '#t-profile', '#id-avatar', '#stage .lbl', '#stage .val'],   // ID 카드
+  ['svg[style*="left:1957px"]', 'svg[style*="left:1754px"]', 'svg[style*="left:1906px"]', '#t-profile', '#id-avatar', '#stage .idrow'],   // ID 카드
   ['#modal', '#m-title', '#avatar', '#lbl-name', '#nick', '#lbl-pw', '#pw', '#hint', '#contract', '#sb-track', '#accept'],   // 로그인 창 (장면 a)
 ];
 RISE.forEach((sels, i) => sels.forEach(sel => document.querySelectorAll(sel).forEach(el => { el.classList.add('rise'); el.style.setProperty('--i', i); })));

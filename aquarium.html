@@ -177,6 +177,9 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 .me-hit-light:hover{background:rgba(0,0,0,.05)}
 .me-hit-dark:hover{background:rgba(255,255,255,.08)}
 .me-hit:focus-visible{outline:3px solid #4BB4FF;outline-offset:-3px}
+.me-idrow{display:flex;align-items:baseline;font-size:32px;color:#000}
+.me-idrow .me-k{display:inline-block;width:112px}
+.me-idrow > span:last-child{line-height:0}   /* 값 칸의 높이는 0: 한글 글꼴이 줄을 높이지 않아 세 줄의 간격이 항상 같음 */      /* 값은 라벨에서 112px 오른쪽 (시안: x 1207 → 1319) */
 .me-thumb{background:#d9d9d9;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .me-thumb img{max-width:92%;max-height:92%;object-fit:contain}
 
@@ -1953,9 +1956,11 @@ function renderMe(profile){
     try{ await AquiveStore.setAvatar(id); profile.avatarId = id; AquiveAvatars.paint(av, id); }
     catch(e){ console.warn('[AQUIVE] 프로필 이미지 저장 실패', e); }
   }));
-  [['name',765,profile.nickname,32],['depth',808,depth.toLocaleString()+'m',32],['collect',851,valid.length+' 종',30]].forEach(([k,y,v,fs])=>{
-    add(mk('div','me-font',{left:'1207px',top:pxs(y),fontSize:'32px',color:'#000'},k));
-    add(mkText('me-font',{left:'1319px',top:pxs(y),fontSize:pxs(fs),color:'#000'},v));
+  [['name',765,profile.nickname],['depth',808,depth.toLocaleString()+'m'],['collect',851,valid.length+' 종']].forEach(([k,y,v])=>{
+    const row = add(mk('div','me-font me-idrow',{left:'1207px',top:pxs(y)}));      // 라벨+값을 한 줄로 묶어 기준선을 맞춤
+    const kk = document.createElement('span'); kk.className = 'me-k'; kk.textContent = k;
+    const vv = document.createElement('span'); vv.textContent = v;
+    row.appendChild(kk); row.appendChild(vv);
   });
 
   meFishStart(cv);
