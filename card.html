@@ -43,19 +43,19 @@ svg{display:block}
 
 /* ── 공통 텍스트 (장면별 위치/색만 다름) ── */
 #t-cover-title{left:535px;top:237px;width:243px;text-align:center;font-size:64px;color:#fff}
-#t-cover-sub  {left:535px;top:299px;font-size:32px;color:#fff}
+#t-cover-sub  {left:535px;top:299px;font-size:30px;color:#fff}
 #stage[data-scene="b"] #t-cover-title{top:250px}
 #stage[data-scene="b"] #t-cover-sub  {top:312px;color:rgba(123,136,152,.9)}
 #t-map{left:1395px;top:237px;width:243px;text-align:center;font-size:64px;color:#fff}
 #stage[data-scene="b"] #t-map{left:1402px;width:auto;text-align:left}
-#t-profile{left:1811px;top:174px;width:243px;text-align:center;font-size:32px;color:#000}
+#t-profile{left:1811px;top:174px;width:243px;text-align:center;font-size:30px;color:#000}
 
 /* ── 장면 b: Collect 카드 ── */
 #collect-card{left:606px;top:789px;width:674px;height:422px;background:rgba(255,255,255,.8)}
 #collect-bar {left:606px;top:754px;width:674px;height:59px;background:#1ab9e4}
 #t-collect{left:636px;top:819px;width:243px;text-align:center;font-size:64px;color:#343c3f}
-#t-species{left:657px;top:918px;font-size:32px;color:rgba(123,136,152,.9)}
-#t-recent {left:657px;top:992px;font-size:32px;color:rgba(123,136,152,.9)}
+#t-species{left:657px;top:918px;font-size:30px;color:rgba(123,136,152,.9)}
+#t-recent {left:657px;top:992px;font-size:30px;color:rgba(123,136,152,.9)}
 .thumb{top:1066px;height:119px;background:#d9d9d9;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .thumb img{max-width:92%;max-height:92%;object-fit:contain}
 #th1{left:636px;width:182px} #th2{left:848px;width:190px} #th3{left:1068px;width:182px}
@@ -63,7 +63,7 @@ svg{display:block}
 /* ── 장면 b: 집게, ID card 내용 ── */
 #clip-tab{left:1159px;top:149px;width:160px;height:88px;background:#1ab9e4}
 #id-avatar{left:1811px;top:237px;width:250px;height:250px;background:#d9d9d9}
-.idrow{display:flex;align-items:baseline;font-size:32px;color:#000}   /* 라벨과 값이 같은 기준선에 놓임 (한글 '종'이 다른 글꼴이어도 안 어긋남) */
+.idrow{display:flex;align-items:baseline;font-size:30px;color:#000}   /* 라벨과 값이 같은 기준선에 놓임 (한글 '종'이 다른 글꼴이어도 안 어긋남) */
 .idrow .k{display:inline-block;width:112px}
 .idrow > span:last-child{line-height:0}   /* 값 칸의 높이는 0: 한글 글꼴이 줄을 높이지 않아 세 줄의 간격이 항상 같음 (글자는 그대로 보임) */      /* 값은 라벨 시작점에서 112px 오른쪽 (시안: x 1811 → 1923) */
 
@@ -83,10 +83,10 @@ svg{display:block}
 #strip{left:594px;top:1151px;width:674px;height:60px;background:#1ab9e4}
 #m-title{left:767px;top:398px;width:243px;text-align:center;font-size:64px;color:#000}
 #avatar{left:768px;top:502px;width:250px;height:250px;background:#d9d9d9}
-#lbl-name{left:1048px;top:640px;font-size:32px;color:#000}
-#lbl-pw  {left:1048px;top:714px;font-size:32px;color:#000}
+#lbl-name{left:1048px;top:640px;font-size:30px;color:#000}
+#lbl-pw  {left:1048px;top:714px;font-size:30px;color:#000}
 .field{width:614px;height:52px;border:0;border-bottom:2px solid rgba(0,0,0,.35);background:transparent;
-  font-family:inherit;font-size:32px;font-weight:400;color:#000;outline:none;padding:0 4px 4px 0;transition:border-color .2s}
+  font-family:inherit;font-size:30px;font-weight:400;color:#000;outline:none;padding:0 4px 4px 0;transition:border-color .2s}
 .field::placeholder{color:rgba(0,0,0,.3)}
 .field:focus{border-bottom-color:var(--aquive)}
 .field.err{border-bottom-color:#d64545;animation:shake .35s !important}   /* 입장 모션보다 항상 우선 */
@@ -102,7 +102,7 @@ svg{display:block}
 
 /* 계약서 스크롤 영역 (기본 스크롤바는 숨기고 디자인의 커스텀 스크롤바 사용) */
 #contract{left:767px;top:782px;width:965px;height:352px;overflow-y:auto;scrollbar-width:none;outline:none;
-  font-size:30px;line-height:normal;color:#000;white-space:pre-line;
+  font-size:20px;line-height:normal;color:#000;white-space:pre-line;     /* 계약서 본문: 시안 '설명' 스타일 20px */
   -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 110px),transparent 100%);
           mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 110px),transparent 100%)}
 #contract::-webkit-scrollbar{display:none}
@@ -444,7 +444,7 @@ async function renderReturning(profile){
   const valid = idx.size ? prog.collected.filter(id => idx.has(id)) : prog.collected;   // 삭제된 물고기는 제외
   $('id-name').textContent    = profile.nickname;
   $('id-depth').textContent   = (prog.depth | 0) + 'm';
-  $('id-collect').textContent = valid.length + ' 종';
+  $('id-collect').textContent = String(valid.length);      // 숫자만 (단위 '종'은 표시하지 않음)
   $('t-species').textContent  = String(valid.length).padStart(4, '0') + ' species';
   const recent = valid.slice(-3).reverse();                                              // 최근 발견한 3종 (가장 최근이 왼쪽)
   ['th1','th2','th3'].forEach((id, i) => {

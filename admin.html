@@ -240,6 +240,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oxaniu
   transition:color .2s;
 }
 .fish-del:hover{color:var(--red)}
+/* ── 물고기 정보 붙여넣기 / 복사 / 수정 ── */
+.paste-box{background:var(--bg3);border:1px dashed var(--border2);border-radius:8px;padding:12px 14px;margin-bottom:14px}
+.paste-title{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--accent);margin-bottom:8px}
+.paste-hint{font-weight:400;color:var(--text-muted);letter-spacing:.02em;margin-left:8px}
+.paste-box textarea{width:100%;min-height:64px;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);color:var(--text);font-family:inherit;font-size:12px;resize:vertical}
+.paste-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.edit-banner{display:none;align-items:center;justify-content:space-between;gap:10px;background:rgba(20,90,200,.08);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:var(--text)}
+.fish-actions{display:flex;gap:6px;flex-shrink:0}
+.fish-act{padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--bg2);color:var(--accent);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s}
+.fish-act:hover{background:rgba(60,120,255,.12)}
+.fish-card.editing{border-color:var(--accent);box-shadow:0 0 0 2px rgba(20,90,200,.12)}
 .empty-state{
   text-align:center;padding:32px;
   font-size:11px;color:var(--text-muted);letter-spacing:.12em;
@@ -356,7 +367,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oxaniu
         <!-- 물고기 등록 -->
         <div class="section">
           <div class="section-title">물고기 등록</div>
+          <!-- 복사해 둔 물고기 정보를 붙여넣으면 아래 입력칸이 자동으로 채워짐 (관리자 목록의 '복사' 또는 수조 사이트 정보창에서 복사한 글) -->
+          <div class="paste-box">
+            <div class="paste-title">📋 정보 붙여넣기<span class="paste-hint">복사해 둔 물고기 정보를 붙여넣으면 아래 칸이 자동으로 채워져요 (수조 사이트 정보창의 글자를 복사한 것도 돼요)</span></div>
+            <textarea id="f-paste" rows="3" placeholder="여기를 눌러 Ctrl+V (Mac은 Cmd+V) — 이름 / 학명 / 설명 …"></textarea>
+            <div class="paste-actions">
+              <button class="btn-sm" id="f-paste-btn">채우기</button>
+              <button class="btn-sm" id="f-paste-clip">클립보드에서 바로 채우기</button>
+            </div>
+          </div>
           <div class="fish-form">
+            <div class="edit-banner" id="edit-banner">
+              <span>✏️ 수정 중: <b id="edit-name"></b> <span style="color:var(--text-muted)">(이미지는 그대로, 글과 설정만 바뀌어요)</span></span>
+              <button class="btn-sm" id="edit-cancel">취소</button>
+            </div>
             <div class="form-row full" style="margin-bottom:12px">
               <div class="form-group">
                 <label>이미지 (PNG 투명 배경)</label>
@@ -514,12 +538,13 @@ const GH_REPO_KEY   = 'aquive_gh_repo';
 const DATA_KEY      = 'aquive_tank_data';
 
 const DEFAULT_PW    = 'aquive2024';
+const DIRTY_KEY     = 'aquive_admin_dirty';   // 이 브라우저에서 고친 내용이 아직 GitHub에 저장되지 못했을 때 '1' (동기화가 덮어쓰지 않도록)
 
 const TANKS = [
   {id:0,  name:'대수조',     nameEn:'GRAND OCEAN TANK',   unlock:0},
-  {id:1,  name:'연안 수조',  nameEn:'COASTAL TANK',       unlock:-50},
-  {id:2,  name:'산호초관',   nameEn:'CORAL REEF',         unlock:-100},
-  {id:3,  name:'열대어관',   nameEn:'TROPICAL FISH',      unlock:-250},
+  {id:1,  name:'연안수조',  nameEn:'COASTAL TANK',       unlock:-50},
+  {id:2,  name:'산호수조',   nameEn:'CORAL REEF',         unlock:-100},
+  {id:3,  name:'열대수조',   nameEn:'TROPICAL FISH',      unlock:-250},
   {id:4,  name:'대형어관',   nameEn:'OCEAN GIANTS',       unlock:-500},
   {id:5,  name:'가오리관',   nameEn:'STINGRAY BAY',       unlock:-700},
   {id:6,  name:'극지어관',   nameEn:'POLAR ZONE',         unlock:-1000},
@@ -527,7 +552,7 @@ const TANKS = [
   {id:9,  name:'해파리관',   nameEn:'JELLYFISH HALL',     unlock:-2000},
   {id:10, name:'발광생물관', nameEn:'BIOLUMINESCENCE',    unlock:-3000},
   {id:11, name:'해구관',     nameEn:'HADAL ZONE',         unlock:-4000},
-  {id:12, name:'멸종 보관소',nameEn:'EXTINCTION ARCHIVE', unlock:-4000},
+  {id:12, name:'멸종보관소',nameEn:'EXTINCTION ARCHIVE', unlock:-4000},
 ];
 
 const BG_SLOTS = [
@@ -631,6 +656,17 @@ async function syncFromGithub(){
       if(ghOnly.length > 0){
         local.fish = [...local.fish, ...ghOnly];
         merged = true;
+      }
+
+      // 양쪽에 있는 물고기: GitHub의 글·설정이 다르면 GitHub 것으로 갱신 (다른 컴퓨터에서 고친 내용이 반영되도록).
+      // 단, 이 브라우저에서 고친 내용이 GitHub에 저장되지 못한 상태(dirty)면 덮어쓰지 않음
+      if(localStorage.getItem(DIRTY_KEY) !== '1'){
+        (ghData.fish||[]).forEach(gf => {
+          const lf = local.fish.find(f => f.id === gf.id); if(!lf) return;
+          ['name','latin','desc','dep','tier','speed','layer','count','layers'].forEach(k => {
+            if(gf[k] !== undefined && JSON.stringify(lf[k]) !== JSON.stringify(gf[k])){ lf[k] = gf[k]; merged = true; }
+          });
+        });
       }
 
       // bg: GitHub에 있는 키가 local에 없으면 추가
@@ -821,7 +857,7 @@ function updateLayerTotal(){
 }
 LAYER_KEYS.forEach(k=> document.getElementById('f-cnt-'+k).addEventListener('input', updateLayerTotal));
 
-document.getElementById('fish-add-btn').addEventListener('click', addFish);
+document.getElementById('fish-add-btn').addEventListener('click', () => { editingFishId != null ? saveEditFish() : addFish(); });
 
 function addFish(){
   if(!pendingFishImg){ showToast('이미지를 먼저 업로드해주세요.','error'); return; }
@@ -860,6 +896,7 @@ function addFish(){
 }
 
 function resetFishForm(){
+  if(editingFishId != null) setEditMode(null);
   pendingFishImg = null;
   fishImgInput.value = '';
   fishImgPrev.src = ''; fishImgPrev.classList.remove('show');
@@ -870,6 +907,152 @@ function resetFishForm(){
   LAYER_KEYS.forEach(k=> document.getElementById('f-cnt-'+k).value = (k==='mid' ? '1' : '0'));
   updateLayerTotal();
   document.getElementById('f-speed').value = '0.55';
+}
+
+// ══════════════════════════════════════════
+//  물고기 정보 복사 / 붙여넣기 / 수정
+//  · 목록의 '복사' → 이름·학명·수심·크기·속도·마릿수·설명을 글자로 복사
+//  · '정보 붙여넣기' 칸에 붙여넣으면 아래 입력칸이 자동으로 채워짐 (수조 사이트 정보창에서 복사한 글도 가능)
+//  · 목록의 '수정' → 등록된 물고기의 글·설정을 고쳐서 저장 (삭제 후 다시 등록할 필요 없음)
+// ══════════════════════════════════════════
+let editingFishId = null;
+const SPEED_WORD = {'0.12':'매우 느림','0.3':'느림','0.55':'보통','0.8':'빠름','1.2':'매우 빠름'};
+const SPEED_FROM_WORD = {'매우느림':0.12,'느림':0.3,'보통':0.55,'빠름':0.8,'매우빠름':1.2};
+
+function fishToText(f){
+  const m = fishLayerMap(f);
+  return [
+    '이름: ' + (f.name || ''),
+    '학명: ' + (f.latin || ''),
+    '수심: ' + (f.dep || ''),
+    '크기: ' + String(f.tier || 'md').toUpperCase(),
+    '속도: ' + (SPEED_WORD[String(f.speed)] || f.speed || ''),
+    '마릿수: ' + LAYER_KEYS.map(k => `${k.toUpperCase()} ${m[k] || 0}`).join(' · '),
+    '설명:',
+    (f.desc || '')
+  ].join('\n');
+}
+
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }
+  catch(e){                                                  // 클립보드 권한이 없으면 예전 방식으로
+    const ta = document.createElement('textarea'); ta.value = t; ta.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try{ ok = document.execCommand('copy'); }catch(_){}
+    ta.remove(); return ok;
+  }
+}
+
+// 붙여넣은 글을 항목별로 나눔. 라벨('이름:' 등)이 있으면 그대로, 없으면 (첫 줄=이름, 학명처럼 생긴 둘째 줄=학명, 나머지=설명)
+function parseFishText(raw){
+  const t = String(raw || '').replace(/\r\n?/g, '\n').replace(/^\s+|\s+$/g, '');
+  if(!t) return null;
+  const LABEL = /^\s*(이름|학명|수심|크기|속도|마릿수|설명)\s*[:：]\s*(.*)$/;
+  const lines = t.split('\n'), out = {};
+  if(lines.some(l => LABEL.test(l))){
+    let inDesc = false; const desc = [];
+    for(const l of lines){
+      if(inDesc){ desc.push(l); continue; }               // '설명:' 이후는 전부 설명
+      const m = l.match(LABEL); if(!m) continue;
+      const key = m[1], val = m[2].trim();
+      if(key === '설명'){ inDesc = true; if(val) desc.push(val); }
+      else if(key === '이름') out.name = val;
+      else if(key === '학명') out.latin = val;
+      else if(key === '수심') out.dep = val;
+      else if(key === '크기'){ const mm = val.toLowerCase().match(/xl|lg|sl|md|sm/); if(mm) out.tier = mm[0]; }
+      else if(key === '속도'){
+        const w = SPEED_FROM_WORD[val.replace(/\(.*\)/, '').replace(/\s+/g, '')]; const num = parseFloat(val);
+        if(w !== undefined) out.speed = w; else if(isFinite(num)) out.speed = num;
+      }
+      else if(key === '마릿수'){
+        const layers = {}; val.replace(/(NEAR|MID|FAR|BOT)\s*(\d+)/gi, (_, k, n) => { layers[k.toLowerCase()] = parseInt(n) || 0; return ''; });
+        if(Object.keys(layers).length) out.layers = layers;
+      }
+    }
+    if(inDesc) out.desc = desc.join('\n').replace(/^\n+|\n+$/g, '');
+    return out;
+  }
+  const ls = lines.map(l => l.trim()); while(ls.length && !ls[0]) ls.shift();
+  out.name = ls.shift() || '';
+  while(ls.length && !ls[0]) ls.shift();
+  if(ls.length && /^[A-Za-z][A-Za-z .\-'×()]{2,}$/.test(ls[0])) out.latin = ls.shift();
+  const rest = ls.join('\n').replace(/^\n+|\n+$/g, ''); if(rest) out.desc = rest;
+  return out;
+}
+
+// 등록 폼 입력칸을 채움. 채운 항목 이름 목록을 돌려줌
+function fillFishForm(p){
+  const filled = [];
+  const set = (id, label, v) => { if(v === undefined || v === null) return; document.getElementById(id).value = v; filled.push(label); };
+  set('f-name', '이름', p.name); set('f-latin', '학명', p.latin); set('f-dep', '수심', p.dep); set('f-desc', '설명', p.desc);
+  if(p.tier){ const sel = document.getElementById('f-tier'); if(Array.from(sel.options).some(o => o.value === p.tier)){ sel.value = p.tier; filled.push('크기'); } }
+  if(p.speed !== undefined && isFinite(p.speed)){                // 가장 가까운 속도 선택지로
+    const sel = document.getElementById('f-speed'); let best = null;
+    Array.from(sel.options).forEach(o => { if(best === null || Math.abs(parseFloat(o.value) - p.speed) < Math.abs(parseFloat(best.value) - p.speed)) best = o; });
+    if(best){ sel.value = best.value; filled.push('속도'); }
+  }
+  if(p.layers){ LAYER_KEYS.forEach(k => { document.getElementById('f-cnt-' + k).value = String(p.layers[k] || 0); }); updateLayerTotal(); filled.push('마릿수'); }
+  return filled;
+}
+
+const pasteBox = document.getElementById('f-paste');
+function applyPaste(){
+  const p = parseFishText(pasteBox.value);
+  if(!p){ showToast('붙여넣을 내용이 없어요.', 'error'); return; }
+  const filled = fillFishForm(p);
+  pasteBox.value = '';
+  showToast(filled.length ? `채웠어요: ${filled.join(', ')}` : '채울 항목을 찾지 못했어요.', filled.length ? 'success' : 'error');
+}
+pasteBox.addEventListener('paste', () => setTimeout(applyPaste, 0));
+document.getElementById('f-paste-btn').addEventListener('click', applyPaste);
+document.getElementById('f-paste-clip').addEventListener('click', async () => {
+  try{ pasteBox.value = await navigator.clipboard.readText(); applyPaste(); }
+  catch(e){ pasteBox.focus(); showToast('브라우저가 클립보드 읽기를 막았어요. 위 칸을 눌러 Ctrl+V(Cmd+V)로 붙여넣어 주세요.', 'error'); }
+});
+
+// 수정 모드: 등록된 물고기의 글·설정을 폼에 불러와 고친 뒤 저장 (이미지는 그대로)
+function setEditMode(id){
+  editingFishId = id;
+  const btn = document.getElementById('fish-add-btn'), ban = document.getElementById('edit-banner');
+  if(id == null){ btn.textContent = '+ 이 수조에 물고기 추가'; ban.style.display = 'none'; }
+  else {
+    const f = getTankData(currentTankId).fish.find(x => x.id === id);
+    btn.textContent = '수정 저장'; ban.style.display = 'flex';
+    document.getElementById('edit-name').textContent = f ? f.name : '';
+  }
+  renderFishList();                                                  // 수정 중인 카드를 강조
+}
+function startEditFish(id){
+  const f = getTankData(currentTankId).fish.find(x => x.id === id); if(!f) return;
+  resetFishForm();
+  fillFishForm({ name: f.name, latin: f.latin, dep: f.dep, desc: f.desc, tier: f.tier, speed: parseFloat(f.speed), layers: fishLayerMap(f) });
+  fishImgPrev.src = f.src; fishImgPrev.classList.add('show'); fishImgZone.classList.add('has-img');
+  fishImgZone.querySelector('.img-upload-text').textContent = '기존 이미지 유지 (이미지를 바꾸려면 삭제 후 다시 등록)';
+  setEditMode(id);
+  document.getElementById('edit-banner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+document.getElementById('edit-cancel').addEventListener('click', () => { resetFishForm(); showToast('수정을 취소했어요.', ''); });
+async function saveEditFish(){
+  const d = getTankData(currentTankId), f = d.fish.find(x => x.id === editingFishId);
+  if(!f){ resetFishForm(); return; }
+  const layers = readLayerCounts(), count = Object.values(layers).reduce((a, b) => a + b, 0);
+  if(!count){ showToast('거리별 마릿수를 1마리 이상 입력해주세요.', 'error'); return; }
+  f.name  = document.getElementById('f-name').value.trim() || '이름 없음';
+  f.latin = document.getElementById('f-latin').value.trim();
+  f.desc  = document.getElementById('f-desc').value.trim();
+  f.dep   = document.getElementById('f-dep').value.trim();
+  f.tier  = document.getElementById('f-tier').value;
+  f.speed = parseFloat(document.getElementById('f-speed').value) || 0.55;
+  f.layers = layers; f.count = count;
+  f.layer = LAYER_KEYS.filter(k => layers[k]).sort((x, y) => layers[y] - layers[x])[0];
+  saveData();
+  showProgress('수정 내용 저장 중...', 40);
+  const ok = await updateTanksJson();                                // GitHub의 tanks.json 갱신
+  if(!ok) localStorage.setItem(DIRTY_KEY, '1');                      // 저장 실패: 다음 동기화가 이 수정을 덮어쓰지 않게 보호
+  setProgress(100); hideProgress();
+  const name = f.name;
+  resetFishForm(); buildSidebar();
+  showToast(ok ? `${name} 수정 완료 ✓` : `${name}: 이 브라우저에는 저장됐지만 GitHub 저장에 실패했어요 (토큰 확인)`, ok ? 'success' : 'error');
 }
 
 // ══════════════════════════════════════════
@@ -886,15 +1069,31 @@ function renderFishList(){
     return;
   }
   list.innerHTML = d.fish.map(f => `
-    <div class="fish-card">
+    <div class="fish-card${f.id === editingFishId ? ' editing' : ''}">
       <img class="fish-thumb" src="${f.src}" alt="${f.name}">
       <div class="fish-info">
         <div class="fish-name">${f.name}</div>
         <div class="fish-meta">${f.tier.toUpperCase()} · ${fishLayerText(f)} · ${f.latin||'—'}</div>
       </div>
+      <div class="fish-actions">
+        <button class="fish-act fish-copy" data-id="${f.id}" title="이 물고기의 정보를 복사">복사</button>
+        <button class="fish-act fish-edit" data-id="${f.id}" title="이 물고기의 정보를 수정">수정</button>
+      </div>
       <button class="fish-del" data-id="${f.id}">×</button>
     </div>
   `).join('');
+
+  list.querySelectorAll('.fish-copy').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const f = getTankData(currentTankId).fish.find(x => x.id === parseInt(btn.dataset.id));
+      if(!f) return;
+      const ok = await copyText(fishToText(f));
+      showToast(ok ? `${f.name} 정보를 복사했어요 — 붙여넣기(Ctrl+V)로 쓰세요` : '복사하지 못했어요. 브라우저 설정을 확인해주세요.', ok ? 'success' : 'error');
+    });
+  });
+  list.querySelectorAll('.fish-edit').forEach(btn => {
+    btn.addEventListener('click', () => startEditFish(parseInt(btn.dataset.id)));
+  });
 
   list.querySelectorAll('.fish-del').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -1064,7 +1263,9 @@ async function updateTanksJson(){
 
   const json = JSON.stringify({tanks: clean}, null, 2);
   const b64  = btoa(unescape(encodeURIComponent(json)));
-  await uploadToGithub('data/tanks.json', b64, 'Update tanks.json');
+  const okPush = await uploadToGithub('data/tanks.json', b64, 'Update tanks.json');
+  if(okPush) localStorage.removeItem(DIRTY_KEY);        // GitHub와 같아졌으니 보호 해제
+  return okPush;
 }
 
 // ══════════════════════════════════════════

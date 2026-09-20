@@ -177,7 +177,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 .me-hit-light:hover{background:rgba(0,0,0,.05)}
 .me-hit-dark:hover{background:rgba(255,255,255,.08)}
 .me-hit:focus-visible{outline:3px solid #4BB4FF;outline-offset:-3px}
-.me-idrow{display:flex;align-items:baseline;font-size:32px;color:#000}
+.me-idrow{display:flex;align-items:baseline;font-size:30px;color:#000}
 .me-idrow .me-k{display:inline-block;width:112px}
 .me-idrow > span:last-child{line-height:0}   /* 값 칸의 높이는 0: 한글 글꼴이 줄을 높이지 않아 세 줄의 간격이 항상 같음 */      /* 값은 라벨에서 112px 오른쪽 (시안: x 1207 → 1319) */
 .me-thumb{background:#d9d9d9;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -216,10 +216,13 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   transition:opacity .2s,visibility 0s linear .2s;
 }
 #popup.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .2s,visibility 0s}
+/* 글자 선택·복사 가능 (드래그, 더블클릭, Ctrl/Cmd+C). 전시 모드에서는 별도 차단 */
+#popup{-webkit-user-select:text;user-select:text}          /* 카드 전체가 선택 영역: 카드 안 여백까지 끌어도 선택이 이어짐 */
+#p-name,#p-lat,#p-desc{cursor:text}
 #p-img{position:absolute;left:30px;top:32px;width:392px;height:235px;display:flex;align-items:center;justify-content:center;pointer-events:none}
 #p-img img{max-width:100%;max-height:100%;object-fit:contain}
 #p-name{position:absolute;left:452px;top:32px;width:380px;font-size:30px;line-height:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#p-lat {position:absolute;left:452px;top:75px;width:380px;font-size:32px;line-height:normal;color:rgba(0,0,0,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#p-lat {position:absolute;left:452px;top:75px;width:380px;font-size:30px;line-height:normal;color:rgba(0,0,0,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #p-desc-wrap{position:absolute;left:452px;top:118px;width:418px;height:149px;overflow-y:auto;scrollbar-width:none}
 #p-desc-wrap::-webkit-scrollbar{display:none}
 #p-desc{font-size:20px;line-height:normal;white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere}
@@ -437,7 +440,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 .dex-thumb{max-width:calc(100% - 40px);max-height:calc(100% - 30px);object-fit:contain}
 .dex-card.unfound .dex-thumb{filter:brightness(0) saturate(100%) opacity(.62)}
 .dex-name{position:absolute;left:0;top:205px;width:380px;font-size:30px;color:#000;overflow:hidden;text-overflow:ellipsis}
-.dex-latin{position:absolute;left:0;top:248px;width:380px;font-size:32px;color:#d9d9d9;overflow:hidden;text-overflow:ellipsis}
+.dex-latin{position:absolute;left:0;top:248px;width:380px;font-size:20px;color:#d9d9d9;overflow:hidden;text-overflow:ellipsis}
 .dex-card.unfound .dex-name{color:rgba(0,0,0,.35);letter-spacing:.1em}
 .dex-pgnum{width:100px;text-align:center;font-size:30px;color:#000;pointer-events:none}
 .dex-pgbtn{width:60px;height:60px;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
@@ -446,7 +449,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 .dex-pgbtn:focus-visible{outline:2px solid #4BB4FF;border-radius:12px}
 .dex-empty{font-size:30px;color:#d9d9d9;text-align:center;width:760px}
 .dex-cover-title{font-size:64px;color:#343C3F;text-align:center;width:243px}
-.dex-cover-sub{font-size:32px;color:rgba(123,136,152,.9)}
+.dex-cover-sub{font-size:30px;color:rgba(123,136,152,.9)}
 
 </style>
 </head>
@@ -826,8 +829,36 @@ pThumb.addEventListener('pointercancel', ()=>{ pDrag = false; });
 pSb.addEventListener('pointerdown', e=>{ const tr = pSb.getBoundingClientRect(), hr = pThumb.getBoundingClientRect(); popScrollTo((e.clientY - tr.top - hr.height/2) / (tr.height - hr.height)); });
 popup.addEventListener('pointermove', popupIdle);
 
+// 정보창 글자 복사: 이름 / 학명 / 설명이 서로 붙지 않고 줄로 나뉘어 복사됨 (관리자 페이지의 '정보 붙여넣기'가 이 모양을 알아봄)
+//  · 드래그·더블클릭·세 번 클릭으로 고른 부분만 복사, Ctrl/Cmd+A 는 정보창의 글 전체 선택. 전시 모드에서는 동작하지 않음
+document.addEventListener('copy', e=>{
+  if(EX || !popup.classList.contains('on')) return;
+  const sel = window.getSelection();
+  if(!sel || sel.isCollapsed || !sel.rangeCount || !popup.contains(sel.anchorNode)) return;
+  const r = sel.getRangeAt(0);
+  const part = el => {
+    const tn = el.firstChild; if(!tn || tn.nodeType !== 3 || !r.intersectsNode(tn)) return '';
+    const a = (r.startContainer === tn) ? r.startOffset : 0, b = (r.endContainer === tn) ? r.endOffset : tn.length;
+    return tn.data.slice(a, b);
+  };
+  const text = [document.getElementById('p-name'), document.getElementById('p-lat'), document.getElementById('p-desc')].map(part).filter(Boolean).join('\n');
+  if(!text) return;
+  e.clipboardData.setData('text/plain', text); e.preventDefault();
+});
+document.addEventListener('keydown', e=>{
+  if(EX || !popup.classList.contains('on') || !(e.ctrlKey || e.metaKey) || (e.key !== 'a' && e.key !== 'A')) return;
+  if(/^(INPUT|TEXTAREA)$/.test((document.activeElement||{}).tagName)) return;
+  e.preventDefault();
+  const rg = document.createRange(); rg.selectNodeContents(popup);
+  const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(rg);
+});
+
 // 정보창 바깥을 누르면 닫힘. 도감/지도의 빈 곳을 누른 경우에는 정보창만 닫고 도감/지도는 그대로 둔다
+// (정보창 안에서 글자를 드래그해 선택하다가 바깥에서 손을 떼도 닫히지 않게: 누르기 시작한 곳을 기억)
+let popDownInside = false;
+document.addEventListener('pointerdown', e=>{ popDownInside = popup.contains(e.target); }, true);
 document.addEventListener('click', e=>{
+  if(popDownInside){ popDownInside = false; return; }
   if(!popup.classList.contains('on') || popup.contains(e.target)) return;
   hidePopup();
   if(e.target.id === 'dex-overlay' || e.target.id === 'map-overlay'){ e.stopPropagation(); e.preventDefault(); }
@@ -1932,7 +1963,7 @@ function renderMe(profile){
   const cover = add(mk('div','',{left:'493px',top:'226px',width:'642px',height:'504px',background:'#000',overflow:'hidden'}));
   const cv = document.createElement('canvas'); cv.style.cssText='position:absolute;left:0;top:0;width:642px;height:504px;opacity:.2'; cover.appendChild(cv);
   add(mk('div','me-font',{left:'519px',top:'256px',width:'243px',textAlign:'center',fontSize:'64px',color:'#fff'},'AQUIVE'));
-  add(mk('div','me-font',{left:'519px',top:'318px',fontSize:'32px',color:'rgba(123,136,152,.9)'},'Aqua Archive-Aquive'));
+  add(mk('div','me-font',{left:'519px',top:'318px',fontSize:'30px',color:'rgba(123,136,152,.9)'},'Aqua Archive-Aquive'));
   const back = add(mk('button','me-cover',{left:'493px',top:'226px',width:'642px',height:'504px'}));
   back.type='button'; back.setAttribute('aria-label','처음 화면으로 돌아가기'); back.addEventListener('click', ()=>{ if(EX) goStart(); else location.href='index.html'; });
 
@@ -1943,8 +1974,8 @@ function renderMe(profile){
   // Collect (도감 요약)
   add(mk('div','me-glass',{left:'590px',top:'795px',width:'674px',height:'422px',background:'rgba(255,255,255,.8)'}));
   add(mk('div','me-font',{left:'620px',top:'825px',width:'243px',textAlign:'center',fontSize:'64px',color:'#343C3F'},'Collect'));
-  add(mkText('me-font',{left:'641px',top:'924px',fontSize:'32px',color:'rgba(123,136,152,.9)'}, String(valid.length).padStart(4,'0')+' species'));
-  add(mk('div','me-font',{left:'641px',top:'998px',fontSize:'32px',color:'rgba(123,136,152,.9)'},'recent'));
+  add(mkText('me-font',{left:'641px',top:'924px',fontSize:'30px',color:'rgba(123,136,152,.9)'}, String(valid.length).padStart(4,'0')+' species'));
+  add(mk('div','me-font',{left:'641px',top:'998px',fontSize:'30px',color:'rgba(123,136,152,.9)'},'recent'));
   [[620,182],[832,190],[1052,182]].forEach(([x,w],i)=>{
     const t = add(mk('div','me-thumb',{left:pxs(x),top:'1072px',width:pxs(w),height:'119px'}));
     const f = byId.get(recent[i]);
@@ -1975,7 +2006,7 @@ function renderMe(profile){
 
   // ID card (가운데로 꺼내 놓은 모양)
   add(mk('div','',{left:'1150px',top:'373px',width:'358px',height:'560px'}, svg(358,560,'<path fill="#fff" fill-rule="evenodd" d="'+ME_CARD+'"/>')));
-  add(mk('div','me-font',{left:'1207px',top:'427px',width:'243px',textAlign:'center',fontSize:'32px',color:'#000'},'ID card'));
+  add(mk('div','me-font',{left:'1207px',top:'427px',width:'243px',textAlign:'center',fontSize:'30px',color:'#000'},'ID card'));
   const av = add(mk('button','',{left:'1207px',top:'490px',width:'250px',height:'250px'}));
   av.type = 'button';
   AquiveAvatars.paint(av, profile.avatarId);
@@ -1983,7 +2014,7 @@ function renderMe(profile){
     try{ await AquiveStore.setAvatar(id); profile.avatarId = id; AquiveAvatars.paint(av, id); }
     catch(e){ console.warn('[AQUIVE] 프로필 이미지 저장 실패', e); }
   }));
-  [['name',765,profile.nickname],['depth',808,depth.toLocaleString()+'m'],['collect',851,valid.length+' 종']].forEach(([k,y,v])=>{
+  [['name',765,profile.nickname],['depth',808,depth.toLocaleString()+'m'],['collect',851,String(valid.length)]].forEach(([k,y,v])=>{
     const row = add(mk('div','me-font me-idrow',{left:'1207px',top:pxs(y)}));      // 라벨+값을 한 줄로 묶어 기준선을 맞춤
     const kk = document.createElement('span'); kk.className = 'me-k'; kk.textContent = k;
     const vv = document.createElement('span'); vv.textContent = v;
