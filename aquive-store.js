@@ -46,11 +46,12 @@
   const PUSH_DELAY = 1200;                    // 기록 저장 지연(ms) — 잦은 저장 방지
 
   // ── 전시 모드 설정 ─────────────────────────────────────────────
-  // 주소에 ?mode=exhibit 를 붙여 열면 전시 모드가 켜진다 (한 번 켜면 그 탭에서는 계속 유지, ?mode=normal 로 끔)
+  // 주소에 ?mode=exhibit 를 붙여 열면 전시 모드가 켜지고, 그 탭에서는 주소를 바꿔 입력해도 전시 모드가 유지된다 (전시용 컴퓨터에서 주소를 잘못 입력해도 전시 화면으로 이어지도록)
+  //   전시 모드를 끄려면 주소 끝에 ?mode=normal 을 붙여 열면 된다 (개발·확인용). 새 탭/새 창/시크릿 창은 기억이 없어 일반 사이트로 열린다
   //   전시 모드: 로그인 없이 이름만으로 입장 · 무조작 시 처음으로 자동 복귀 · 전 수조 열림 · 조작 잠금 · 계정(Firebase) 미사용
   const EXHIBIT_IDLE_MS   = 90000;                       // 이 시간 동안 조작이 없으면 안내를 띄우고
   const EXHIBIT_WARN_MS   = 10000;                       //   이 시간(카운트다운) 뒤에 처음으로 돌아감. 확인용: 주소에 &idle=20 (초)
-  const EXHIBIT_LINK      = '';                          // 전시 끝 화면 아래에 글자로 적을 사이트 주소 (QR 대신). 예: 'norang1225.github.io/aquive'
+  const EXHIBIT_LINK      = 'https://aquive.pages.dev/'; // 전시 끝 화면에 글자로 적을 사이트 주소 (QR 대신). 비워 두면 안내 문구와 링크 줄이 함께 사라짐
   const EXHIBIT_INDEX_URL = 'index.html?mode=exhibit';   // 처음 화면
   const EXHIBIT_TANK_URL  = 'master.html?mode=exhibit';  // 입장 후 수조 화면 (전 수조가 열려 있는 마스터)
   const EXHIBIT = (function () {
@@ -61,6 +62,8 @@
     } catch (e) {}
     return m === 'exhibit';
   })();
+  // 일반 모드로 열렸는데 전시 때 남은 게스트가 있으면 지운다 (게스트는 전시 모드에서만 의미가 있음)
+  try { if (!EXHIBIT && localStorage.getItem('aquive_local_session') === '__guest__') { localStorage.removeItem('aquive_local_session'); localStorage.removeItem('aquive_local_guest'); } } catch (e) {}
   const LOCAL_ONLY = !!window.AQUIVE_LOCAL_ONLY || EXHIBIT;   // 전시 모드/마스터는 Firebase를 쓰지 않고 이 컴퓨터에만 저장
   // 수조 페이지가 이미 쓰는 localStorage 키 + 계정용 키
   const K = {
@@ -347,12 +350,14 @@
     ['gesturestart', 'gesturechange'].forEach(ev => document.addEventListener(ev, e => e.preventDefault()));
   }
   // 무조작 시간이 지나면 안내(카운트다운) → 처음 화면으로. 화면을 누르거나 마우스를 움직이면 계속 볼 수 있음
+  let exBump = null;                                      // 자동 복귀 타이머를 '조작이 있었다'로 되돌리는 함수 (엔딩 크레딧이 자동으로 흐르는 동안 호출)
   function exIdleReturn(opts) {
     opts = opts || {};
     const q = new URLSearchParams(location.search).get('idle');          // 확인용: &idle=20 → 20초
     const idleMs = q ? Math.max(3, +q) * 1000 : (opts.idleMs || EXHIBIT_IDLE_MS), warnMs = q ? Math.min(EXHIBIT_WARN_MS, idleMs) : (opts.warnMs || EXHIBIT_WARN_MS);
     let last = Date.now(), lx = -999, ly = -999, box = null;
     const bump = () => { last = Date.now(); if (box) { box.remove(); box = null; } };
+    exBump = bump;
     ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(ev => window.addEventListener(ev, bump, { passive: true, capture: true }));
     window.addEventListener('pointermove', e => { if (Math.hypot(e.clientX - lx, e.clientY - ly) > 12) { lx = e.clientX; ly = e.clientY; bump(); } }, { passive: true, capture: true });
     setInterval(() => {
@@ -371,7 +376,7 @@
   window.AquiveExhibit = {
     active: EXHIBIT, LINK: EXHIBIT_LINK, INDEX_URL: EXHIBIT_INDEX_URL, TANK_URL: EXHIBIT_TANK_URL,
     names: exNames, addName: exAddName, me: exMe, removeName: exRemove, clearNames: exClear,
-    resetSession: exReset, lockdown: exLockdown, startIdleReturn: exIdleReturn,
+    resetSession: exReset, lockdown: exLockdown, startIdleReturn: exIdleReturn, touch: () => { if (exBump) exBump(); },
   };
   if (EXHIBIT) { exLockdown(); document.documentElement.classList.add('exhibit'); }
 
