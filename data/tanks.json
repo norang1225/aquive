@@ -3,20 +3,6 @@
     "0": {
       "fish": [
         {
-          "id": 1789360974483,
-          "name": "고래상어",
-          "latin": "Whale shark",
-          "desc": "‘바다의 온화한 거인’으로 불리는 고래상어는 지구상에서 가장 큰 물고기이다. 이름에 ‘고래’가 들어가 크기가 매우 큰 고래로 오해하기 쉽지만, 포유류인 고래가 아니라 아가미로 호흡하는 물고기이다. 고래상어라는 이름은 고래처럼 거대한 몸집을 지니고, 수염고래처럼 여과섭식을 하기 때문으로 볼 수 있다. 그러나 아가미로 호흡하고 연골로 이루어진 골격을 가지며, 방패비늘과 상어 특유의 지느러미 구조를 지닌 점에서 상어의 특징도 뚜렷하다.고래상어는 연골어류에 속하며, 온몸의 뼈가 부드러운 연골로 이루어져 있어 헤엄칠 때의 움직임이 매우 유연하다. 보통 무리를 짓지 않고 단독으로 생활하며, 시속 5km 정도의 속도로 느리게 유영한다. 다만 동남아시아의 바다처럼 먹이가 풍부하고 서식 개체 수가 많은 곳에서는 여러 마리가 함께 무리를 이루는 모습도 관찰된다. 성격이 온순하고 사람에게 공격성이 거의 없어, 일부 지역에서는 고래상어를 관찰하거나 함께 다이빙할 수 있는 프로그램도 운영한다. 그러나 현재 개체 수가 급감하고 있어 워싱턴 협약(CITES)에 등록되어 포획과 거래가 금지되어 있으며, IUCN 적색 목록의 위기종으로 지정되어 보호받고 있다.",
-          "dep": "",
-          "tier": "xl",
-          "layer": "mid",
-          "count": 1,
-          "speed": 0.3,
-          "imgW": 2400,
-          "imgH": 960,
-          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789360974483.png"
-        },
-        {
           "id": 1789914680250,
           "name": "개복치",
           "latin": "Mola mola",
@@ -61,13 +47,13 @@
           "desc": "청어과의 바닷물고기. 몸의 길이는 20~25cm이며, 등은 어두운 파란색이고, 옆구리와 배는 은빛을 띤 백색이다. 가슴지느러미 아래에 일곱 개의 검은 점이 한 줄로 있고 떨어지기 쉬운 둥근비늘이 있다. 산란기는 12~7월이고 한국의 동해와 일본의 태평양 연해에 분포한다.",
           "dep": "",
           "tier": "sm",
-          "layer": "mid",
+          "layer": "far",
           "layers": {
-            "near": 7,
-            "mid": 14,
-            "far": 5
+            "near": 2,
+            "mid": 3,
+            "far": 15
           },
-          "count": 26,
+          "count": 20,
           "speed": 0.55,
           "imgW": 240,
           "imgH": 140,
@@ -147,17 +133,31 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789939557559.png"
+        },
+        {
+          "id": 1789360974483,
+          "name": "고래상어",
+          "latin": "Whale shark",
+          "desc": "‘바다의 온화한 거인’으로 불리는 고래상어는 지구상에서 가장 큰 물고기이다. 이름에 ‘고래’가 들어가 크기가 매우 큰 고래로 오해하기 쉽지만, 포유류인 고래가 아니라 아가미로 호흡하는 물고기이다. 고래상어라는 이름은 고래처럼 거대한 몸집을 지니고, 수염고래처럼 여과섭식을 하기 때문으로 볼 수 있다. 그러나 아가미로 호흡하고 연골로 이루어진 골격을 가지며, 방패비늘과 상어 특유의 지느러미 구조를 지닌 점에서 상어의 특징도 뚜렷하다.고래상어는 연골어류에 속하며, 온몸의 뼈가 부드러운 연골로 이루어져 있어 헤엄칠 때의 움직임이 매우 유연하다. 보통 무리를 짓지 않고 단독으로 생활하며, 시속 5km 정도의 속도로 느리게 유영한다. 다만 동남아시아의 바다처럼 먹이가 풍부하고 서식 개체 수가 많은 곳에서는 여러 마리가 함께 무리를 이루는 모습도 관찰된다. 성격이 온순하고 사람에게 공격성이 거의 없어, 일부 지역에서는 고래상어를 관찰하거나 함께 다이빙할 수 있는 프로그램도 운영한다. 그러나 현재 개체 수가 급감하고 있어 워싱턴 협약(CITES)에 등록되어 포획과 거래가 금지되어 있으며, IUCN 적색 목록의 위기종으로 지정되어 보호받고 있다.",
+          "dep": "",
+          "tier": "xl",
+          "layer": "mid",
+          "count": 1,
+          "speed": 0.3,
+          "imgW": 2400,
+          "imgH": 960,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789360974483.png"
         }
       ],
       "bg": {
-        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_caustic.png",
+        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.png",
         "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_volume.png",
-        "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_farobj.png",
+        "frame": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_frame.png",
+        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_caustic.png",
+        "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_midobj.png",
         "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_floor.png",
         "floorobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_floorobj.png",
-        "frame": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_frame.png",
-        "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_base.png",
-        "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_midobj.png"
+        "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank0_farobj.png"
       }
     },
     "1": {
@@ -242,24 +242,24 @@
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_base.png",
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_caustic.png",
-        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_volume.png",
-        "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_farobj.png",
         "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_floor.png",
-        "floorobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_floorobj.png",
+        "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_shimmer.png",
+        "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_farobj.png",
         "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_midobj.png",
-        "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_shimmer.png"
+        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_volume.png",
+        "floorobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_floorobj.png"
       }
     },
     "2": {
       "fish": [],
       "bg": {
+        "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_floor.png",
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_base.png",
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_caustic.png",
-        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_volume.png",
-        "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_floor.png",
         "floorobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_floorobj.png",
         "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_midobj.png",
-        "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_shimmer.png"
+        "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_shimmer.png",
+        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_volume.png"
       }
     },
     "3": {
