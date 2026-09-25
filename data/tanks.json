@@ -144,6 +144,24 @@
           "imgW": 2400,
           "imgH": 960,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1790068278727.png"
+        },
+        {
+          "id": 1790351732432,
+          "name": "청줄청소놀래기",
+          "latin": "Labroides dimidiatus",
+          "desc": "다른 물고기의 피부, 입 속의 찌꺼기나 기생충을 먹고 살며 자신보다 작은 물고기의 몸도 청소해 준다. 긴 원통형이며 어릴 때는 검은색 몸에 푸른색 띠가 있으며 자라면 노란색과 검은색 띠를 갖는다. 7~10㎝로 자라며 난류의 영향이 강한 남해 도서 연안, 제주 연안에서 볼 수 있다.",
+          "dep": "",
+          "tier": "sm",
+          "layer": "far",
+          "layers": {
+            "mid": 1,
+            "far": 2
+          },
+          "count": 3,
+          "speed": 0.3,
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1790351732432.png"
         }
       ],
       "bg": {
