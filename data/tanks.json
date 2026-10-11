@@ -319,6 +319,24 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745971490.png"
+        },
+        {
+          "id": 1791745992723,
+          "name": "참돔",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sl",
+          "layer": "far",
+          "layers": {
+            "mid": 1,
+            "far": 2
+          },
+          "count": 3,
+          "speed": 0.55,
+          "imgW": 900,
+          "imgH": 450,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745992723.png"
         }
       ],
       "bg": {
