@@ -301,6 +301,24 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745925404.png"
+        },
+        {
+          "id": 1791745971490,
+          "name": "우럭",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sl",
+          "layer": "mid",
+          "layers": {
+            "mid": 1,
+            "far": 1
+          },
+          "count": 2,
+          "speed": 0.55,
+          "imgW": 900,
+          "imgH": 450,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745971490.png"
         }
       ],
       "bg": {
