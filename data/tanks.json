@@ -247,6 +247,24 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745833286.png"
+        },
+        {
+          "id": 1791745865419,
+          "name": "전갱이",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "mid": 4,
+            "far": 3
+          },
+          "count": 7,
+          "speed": 0.8,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745865419.png"
         }
       ],
       "bg": {
