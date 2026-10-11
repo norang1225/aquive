@@ -162,6 +162,23 @@
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1790351732432.png"
+        },
+        {
+          "id": 1791745695548,
+          "name": "자이언트 트레발리",
+          "latin": "Caranx ignobilis",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "layers": {
+            "mid": 2
+          },
+          "count": 2,
+          "speed": 0.55,
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1791745695548.png"
         }
       ],
       "bg": {
