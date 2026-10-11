@@ -211,6 +211,24 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745759700.png"
+        },
+        {
+          "id": 1791745799917,
+          "name": "방어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "mid": 2,
+            "far": 1
+          },
+          "count": 3,
+          "speed": 0.55,
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745799917.png"
         }
       ],
       "bg": {
