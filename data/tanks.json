@@ -337,6 +337,24 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745992723.png"
+        },
+        {
+          "id": 1791746018575,
+          "name": "멸치",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "far",
+          "layers": {
+            "mid": 3,
+            "far": 15
+          },
+          "count": 18,
+          "speed": 0.8,
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791746018575.png"
         }
       ],
       "bg": {
