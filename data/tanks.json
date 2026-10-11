@@ -229,6 +229,24 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745799917.png"
+        },
+        {
+          "id": 1791745833286,
+          "name": "고등어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "mid": 3,
+            "far": 3
+          },
+          "count": 6,
+          "speed": 0.8,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745833286.png"
         }
       ],
       "bg": {
