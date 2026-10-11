@@ -283,6 +283,24 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745888421.png"
+        },
+        {
+          "id": 1791745925404,
+          "name": "넙치",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sl",
+          "layer": "bot",
+          "layers": {
+            "mid": 1,
+            "bot": 2
+          },
+          "count": 3,
+          "speed": 0.12,
+          "imgW": 900,
+          "imgH": 450,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745925404.png"
         }
       ],
       "bg": {
