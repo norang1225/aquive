@@ -193,7 +193,26 @@
       }
     },
     "1": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1791745759700,
+          "name": "농어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "near",
+          "layers": {
+            "near": 1,
+            "mid": 1
+          },
+          "count": 2,
+          "speed": 0.55,
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745759700.png"
+        }
+      ],
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_base.png",
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank1_caustic.png",
