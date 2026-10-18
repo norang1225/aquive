@@ -441,6 +441,23 @@
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340671598.png"
+        },
+        {
+          "id": 1792340702231,
+          "name": "클라운피시",
+          "latin": "Amphiprion ocellaris",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "near",
+          "layers": {
+            "near": 2
+          },
+          "count": 2,
+          "speed": 0.3,
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340702231.png"
         }
       ],
       "bg": {
