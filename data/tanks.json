@@ -405,6 +405,24 @@
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340592715.png"
+        },
+        {
+          "id": 1792340629548,
+          "name": "스리스트라이프 담셀",
+          "latin": "Dascyllus aruanus",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "mid",
+          "layers": {
+            "near": 2,
+            "mid": 7
+          },
+          "count": 9,
+          "speed": 0.55,
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340629548.png"
         }
       ],
       "bg": {
