@@ -369,7 +369,26 @@
       }
     },
     "2": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1792340554332,
+          "name": "그린크로미스",
+          "latin": "Chromis viridis",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "far",
+          "layers": {
+            "mid": 3,
+            "far": 17
+          },
+          "count": 20,
+          "speed": 0.8,
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340554332.png"
+        }
+      ],
       "bg": {
         "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_floor.png",
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank2_base.png",
