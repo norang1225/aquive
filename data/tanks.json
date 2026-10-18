@@ -739,6 +739,23 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341232915.png"
+        },
+        {
+          "id": 1792341267698,
+          "name": "와후",
+          "latin": "Acanthocybium solandri",
+          "desc": "",
+          "dep": "",
+          "tier": "sl",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.8,
+          "imgW": 900,
+          "imgH": 450,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341267698.png"
         }
       ],
       "bg": {
