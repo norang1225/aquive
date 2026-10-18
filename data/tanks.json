@@ -667,6 +667,24 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341110482.png"
+        },
+        {
+          "id": 1792341140832,
+          "name": "가다랑어",
+          "latin": "Katsuwonus pelamis",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "far",
+          "layers": {
+            "mid": 2,
+            "far": 3
+          },
+          "count": 5,
+          "speed": 0.8,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341140832.png"
         }
       ],
       "bg": {
