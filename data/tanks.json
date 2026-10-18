@@ -423,6 +423,24 @@
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340629548.png"
+        },
+        {
+          "id": 1792340671598,
+          "name": "블랙테일 험버그 담셀",
+          "latin": "Dascyllus melanurus",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "near": 1,
+            "mid": 8
+          },
+          "count": 9,
+          "speed": 0.55,
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340671598.png"
         }
       ],
       "bg": {
