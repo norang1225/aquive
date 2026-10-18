@@ -494,6 +494,24 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340777248.png"
+        },
+        {
+          "id": 1792340810716,
+          "name": "노랑나비고기",
+          "latin": "Chaetodon auriga",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "near",
+          "layers": {
+            "near": 2,
+            "mid": 2
+          },
+          "count": 4,
+          "speed": 0.55,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340810716.png"
         }
       ],
       "bg": {
