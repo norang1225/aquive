@@ -476,6 +476,24 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340740064.png"
+        },
+        {
+          "id": 1792340777248,
+          "name": "노랑탱",
+          "latin": "Zebrasoma flavescens",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "near": 1,
+            "mid": 4
+          },
+          "count": 5,
+          "speed": 0.55,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340777248.png"
         }
       ],
       "bg": {
