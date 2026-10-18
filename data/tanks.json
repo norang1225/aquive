@@ -756,6 +756,23 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341267698.png"
+        },
+        {
+          "id": 1792341295732,
+          "name": "청새치",
+          "latin": "Makaira nigricans",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 1.2,
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341295732.png"
         }
       ],
       "bg": {
