@@ -458,6 +458,24 @@
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340702231.png"
+        },
+        {
+          "id": 1792340740064,
+          "name": "블루탱",
+          "latin": "Paracanthurus hepatus",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "mid": 3,
+            "far": 2
+          },
+          "count": 5,
+          "speed": 0.55,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340740064.png"
         }
       ],
       "bg": {
