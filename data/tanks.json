@@ -685,6 +685,24 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341140832.png"
+        },
+        {
+          "id": 1792341166882,
+          "name": "오션 트리거피시",
+          "latin": "Canthidermis maculata",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "near": 1,
+            "mid": 2
+          },
+          "count": 3,
+          "speed": 0.55,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341166882.png"
         }
       ],
       "bg": {
