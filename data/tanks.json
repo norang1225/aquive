@@ -703,6 +703,24 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341166882.png"
+        },
+        {
+          "id": 1792341193115,
+          "name": "황다랑어",
+          "latin": "Thunnus albacares",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "near",
+          "layers": {
+            "near": 1,
+            "mid": 1
+          },
+          "count": 2,
+          "speed": 0.55,
+          "imgW": 900,
+          "imgH": 450,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341193115.png"
         }
       ],
       "bg": {
