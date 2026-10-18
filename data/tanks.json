@@ -175,6 +175,24 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1792339134914.png"
+        },
+        {
+          "id": 1792339842465,
+          "name": "파일럿피시",
+          "latin": "",
+          "desc": "상어와 공생관계에 있어 딱 붙어다니는 물고기",
+          "dep": "",
+          "tier": "sm",
+          "layer": "mid",
+          "layers": {
+            "near": 1,
+            "mid": 2
+          },
+          "count": 3,
+          "speed": 0.55,
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1792339842465.png"
         }
       ],
       "bg": {
