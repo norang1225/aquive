@@ -649,6 +649,24 @@
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341078315.png"
+        },
+        {
+          "id": 1792341110482,
+          "name": "엘라가티스",
+          "latin": "Elagatis bipunctulata",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "far",
+          "layers": {
+            "mid": 3,
+            "far": 4
+          },
+          "count": 7,
+          "speed": 0.8,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341110482.png"
         }
       ],
       "bg": {
