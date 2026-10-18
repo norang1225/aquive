@@ -828,25 +828,7 @@
       }
     },
     "9": {
-      "fish": [
-        {
-          "id": 1791781879710,
-          "name": "g",
-          "latin": "",
-          "desc": "",
-          "dep": "",
-          "tier": "md",
-          "layer": "mid",
-          "layers": {
-            "mid": 1
-          },
-          "count": 1,
-          "speed": 0.55,
-          "imgW": 400,
-          "imgH": 240,
-          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1791781879710.png"
-        }
-      ],
+      "fish": [],
       "bg": {
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank9_caustic.png",
         "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank9_midobj.png",
