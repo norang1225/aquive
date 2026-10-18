@@ -387,6 +387,24 @@
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340554332.png"
+        },
+        {
+          "id": 1792340592715,
+          "name": "파랑돔",
+          "latin": "Pomacentrus coelestis",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "far",
+          "layers": {
+            "mid": 3,
+            "far": 11
+          },
+          "count": 14,
+          "speed": 0.8,
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340592715.png"
         }
       ],
       "bg": {
