@@ -565,6 +565,23 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340918798.png"
+        },
+        {
+          "id": 1792340952098,
+          "name": "곰치",
+          "latin": "Gymnothorax javanicus",
+          "desc": "",
+          "dep": "",
+          "tier": "sl",
+          "layer": "bot",
+          "layers": {
+            "bot": 1
+          },
+          "count": 1,
+          "speed": 0.12,
+          "imgW": 900,
+          "imgH": 450,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340952098.png"
         }
       ],
       "bg": {
