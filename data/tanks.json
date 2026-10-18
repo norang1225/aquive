@@ -512,6 +512,24 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340810716.png"
+        },
+        {
+          "id": 1792340841182,
+          "name": "무어리시 아이돌",
+          "latin": "Zanclus cornutus",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "near",
+          "layers": {
+            "near": 1,
+            "mid": 1
+          },
+          "count": 2,
+          "speed": 0.55,
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340841182.png"
         }
       ],
       "bg": {
