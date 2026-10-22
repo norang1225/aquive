@@ -887,6 +887,25 @@
           "imgW": 240,
           "imgH": 297,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792662870749.png"
+        },
+        {
+          "id": 1792663035652,
+          "name": "해파리",
+          "latin": "ㄷ",
+          "desc": "ㄷ",
+          "dep": "",
+          "tier": "sl",
+          "layer": "near",
+          "layers": {
+            "near": 2,
+            "mid": 1
+          },
+          "count": 3,
+          "speed": 0.3,
+          "moveType": "",
+          "imgW": 240,
+          "imgH": 297,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792663035652.png"
         }
       ],
       "bg": {
