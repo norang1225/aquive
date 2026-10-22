@@ -432,6 +432,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oxaniu
             </div>
             <div class="form-row full">
               <div class="form-group">
+                <label>움직임 <span style="color:var(--text-muted);font-weight:400">· 자동 = 수조 기본 (해파리관·두족류관은 각각 해파리·두족류 움직임)</span></label>
+                <select id="f-move">
+                  <option value="" selected>자동 (수조 기본)</option>
+                  <option value="fish">물고기 — 좌우로 헤엄</option>
+                  <option value="jelly">해파리 — 위아래 맥동·표류</option>
+                  <option value="octo">두족류 — 느리게 떠다님</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
                 <label>거리별 마릿수 <span id="f-layer-total" style="color:var(--text-muted);font-weight:400">· 합계 1마리</span></label>
                 <div class="layer-counts">
                   <div class="layer-count"><span>NEAR · 근경</span><input type="number" id="f-cnt-near" value="0" min="0" max="30"></div>
@@ -663,7 +674,7 @@ async function syncFromGithub(){
       if(localStorage.getItem(DIRTY_KEY) !== '1'){
         (ghData.fish||[]).forEach(gf => {
           const lf = local.fish.find(f => f.id === gf.id); if(!lf) return;
-          ['name','latin','desc','dep','tier','speed','layer','count','layers'].forEach(k => {
+          ['name','latin','desc','dep','tier','speed','layer','count','layers','moveType'].forEach(k => {
             if(gf[k] !== undefined && JSON.stringify(lf[k]) !== JSON.stringify(gf[k])){ lf[k] = gf[k]; merged = true; }
           });
         });
@@ -872,12 +883,13 @@ function addFish(){
   // 구버전 호환용 대표 거리(마릿수 가장 많은 거리)
   const layer  = LAYER_KEYS.filter(k=>layers[k]).sort((x,y)=>layers[y]-layers[x])[0];
   const speed = parseFloat(document.getElementById('f-speed').value) || 0.55;
+  const moveType = document.getElementById('f-move').value;   // '' = 수조 기본
 
   const img = new Image();
   img.onload = () => {
     const fish = {
       id: Date.now(),
-      name, latin, desc, dep, tier, layers, layer, count, speed,
+      name, latin, desc, dep, tier, layers, layer, count, speed, moveType,
       src: pendingFishImg.src,
       imgW: img.naturalWidth,
       imgH: img.naturalHeight,
@@ -907,6 +919,7 @@ function resetFishForm(){
   LAYER_KEYS.forEach(k=> document.getElementById('f-cnt-'+k).value = (k==='mid' ? '1' : '0'));
   updateLayerTotal();
   document.getElementById('f-speed').value = '0.55';
+  document.getElementById('f-move').value = '';
 }
 
 // ══════════════════════════════════════════
@@ -917,6 +930,8 @@ function resetFishForm(){
 // ══════════════════════════════════════════
 let editingFishId = null;
 const SPEED_WORD = {'0.12':'매우 느림','0.3':'느림','0.55':'보통','0.8':'빠름','1.2':'매우 빠름'};
+const MOVE_WORD = {'':'자동','fish':'물고기','jelly':'해파리','octo':'두족류'};
+const MOVE_FROM_WORD = {'자동':'','물고기':'fish','해파리':'jelly','두족류':'octo','문어':'octo'};
 const SPEED_FROM_WORD = {'매우느림':0.12,'느림':0.3,'보통':0.55,'빠름':0.8,'매우빠름':1.2};
 
 function fishToText(f){
@@ -927,6 +942,7 @@ function fishToText(f){
     '수심: ' + (f.dep || ''),
     '크기: ' + String(f.tier || 'md').toUpperCase(),
     '속도: ' + (SPEED_WORD[String(f.speed)] || f.speed || ''),
+    '움직임: ' + (MOVE_WORD[f.moveType || ''] || '자동'),
     '마릿수: ' + LAYER_KEYS.map(k => `${k.toUpperCase()} ${m[k] || 0}`).join(' · '),
     '설명:',
     (f.desc || '')
@@ -947,7 +963,7 @@ async function copyText(t){
 function parseFishText(raw){
   const t = String(raw || '').replace(/\r\n?/g, '\n').replace(/^\s+|\s+$/g, '');
   if(!t) return null;
-  const LABEL = /^\s*(이름|학명|수심|크기|속도|마릿수|설명)\s*[:：]\s*(.*)$/;
+  const LABEL = /^\s*(이름|학명|수심|크기|속도|움직임|마릿수|설명)\s*[:：]\s*(.*)$/;
   const lines = t.split('\n'), out = {};
   if(lines.some(l => LABEL.test(l))){
     let inDesc = false; const desc = [];
@@ -964,6 +980,7 @@ function parseFishText(raw){
         const w = SPEED_FROM_WORD[val.replace(/\(.*\)/, '').replace(/\s+/g, '')]; const num = parseFloat(val);
         if(w !== undefined) out.speed = w; else if(isFinite(num)) out.speed = num;
       }
+      else if(key === '움직임'){ const w = MOVE_FROM_WORD[val.replace(/\s+/g, '').replace(/[—\-·(].*$/, '')]; if(w !== undefined) out.move = w; }
       else if(key === '마릿수'){
         const layers = {}; val.replace(/(NEAR|MID|FAR|BOT)\s*(\d+)/gi, (_, k, n) => { layers[k.toLowerCase()] = parseInt(n) || 0; return ''; });
         if(Object.keys(layers).length) out.layers = layers;
@@ -991,6 +1008,7 @@ function fillFishForm(p){
     Array.from(sel.options).forEach(o => { if(best === null || Math.abs(parseFloat(o.value) - p.speed) < Math.abs(parseFloat(best.value) - p.speed)) best = o; });
     if(best){ sel.value = best.value; filled.push('속도'); }
   }
+  if(p.move !== undefined){ document.getElementById('f-move').value = p.move; filled.push('움직임'); }
   if(p.layers){ LAYER_KEYS.forEach(k => { document.getElementById('f-cnt-' + k).value = String(p.layers[k] || 0); }); updateLayerTotal(); filled.push('마릿수'); }
   return filled;
 }
@@ -1025,7 +1043,7 @@ function setEditMode(id){
 function startEditFish(id){
   const f = getTankData(currentTankId).fish.find(x => x.id === id); if(!f) return;
   resetFishForm();
-  fillFishForm({ name: f.name, latin: f.latin, dep: f.dep, desc: f.desc, tier: f.tier, speed: parseFloat(f.speed), layers: fishLayerMap(f) });
+  fillFishForm({ name: f.name, latin: f.latin, dep: f.dep, desc: f.desc, tier: f.tier, speed: parseFloat(f.speed), move: f.moveType || '', layers: fishLayerMap(f) });
   fishImgPrev.src = f.src; fishImgPrev.classList.add('show'); fishImgZone.classList.add('has-img');
   fishImgZone.querySelector('.img-upload-text').textContent = '기존 이미지 유지 (이미지를 바꾸려면 삭제 후 다시 등록)';
   setEditMode(id);
@@ -1043,6 +1061,7 @@ async function saveEditFish(){
   f.dep   = document.getElementById('f-dep').value.trim();
   f.tier  = document.getElementById('f-tier').value;
   f.speed = parseFloat(document.getElementById('f-speed').value) || 0.55;
+  f.moveType = document.getElementById('f-move').value;
   f.layers = layers; f.count = count;
   f.layer = LAYER_KEYS.filter(k => layers[k]).sort((x, y) => layers[y] - layers[x])[0];
   saveData();
@@ -1244,7 +1263,7 @@ async function updateTanksJson(){
         return {
           id:f.id, name:f.name, latin:f.latin, desc:f.desc,
           dep:f.dep, tier:f.tier, layer:f.layer, layers:f.layers,
-          count:f.count, speed:f.speed, imgW:f.imgW, imgH:f.imgH,
+          count:f.count, speed:f.speed, moveType:f.moveType || '', imgW:f.imgW, imgH:f.imgH,
           src:`https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/${fileName}`
         };
       }),

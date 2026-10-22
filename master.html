@@ -563,7 +563,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 
 </div>
 
-<script>window.AQUIVE_LOCAL_ONLY = true;   // [MASTER] Firebase(계정)를 쓰지 않고 이 컴퓨터에만 저장 — 전시 게스트/개발 확인용</script>
+<script>window.AQUIVE_LOCAL_ONLY = true;</script>
 <script src="aquive-store.js"></script>
 <script>
 // HUD 배율: 디자인(2560×1440) 대비 현재 창 크기 (CSS의 --u)
@@ -632,11 +632,23 @@ function fishLayerMap(fd){
   return { [fd.layer || 'mid']: parseInt(fd.count) || 1 };
 }
 
+// 수조별 움직임 종류: 두족류관(8)·해파리관(9)은 물고기처럼 좌우로 헤엄치지 않고
+// 둥둥 떠다니며 맥동하는 느낌이라 별도 움직임을 쓴다. (loop() 안에서 분기)
+function moveTypeNow(){
+  const tk = (typeof TANKS !== 'undefined') ? TANKS[currentTankIdx] : null;
+  if(!tk) return 'fish';
+  if(tk.id === 9) return 'jelly';   // 해파리관: 느리게 위아래로 맥동
+  if(tk.id === 8) return 'octo';    // 두족류관: 느리게 둥둥 떠다님
+  return 'fish';
+}
+
 function buildInstance(fd){
   // fd: {id, name, latin, desc, dep, tier, layers | (layer,count), speed, src}
   const vw = logicalW();
   const vh = logicalH();
   const tierScl = TIER_SCALE[fd.tier]||1;   // 크기(티어)는 등록 1건당 고정
+  // 물고기별 '움직임' 설정이 있으면 그것을, 없으면(자동) 수조 기본을 씀
+  const moveType = (fd.moveType === 'fish' || fd.moveType === 'jelly' || fd.moveType === 'octo') ? fd.moveType : moveTypeNow();
   // 기준 크기: 이미지 원본 비율 유지, 너비 200px 기준
   const baseW = 200;
   const baseH = fd.imgH && fd.imgW ? baseW * (fd.imgH/fd.imgW) : 80;
@@ -658,6 +670,7 @@ function buildInstance(fd){
     for(let i=0;i<cnt;i++){
       instances.push({
         fd, layer, img, w, h, da,      // layer: 인스턴스별 거리
+        moveType,                      // 'fish' | 'jelly' | 'octo'
         x: Math.random()*(vw+w*2)-w,
         y: yMin+Math.random()*(yMax-yMin),
         yMin, yMax,
@@ -1227,8 +1240,18 @@ function loop(){
 
   FISH.forEach(f=>{
     f.t+=0.016;
-    f.x += f.dir*f.fd.speed*f.sm*60*0.016;
-    f.y += Math.sin(f.t*.42+f.phase)*.55;
+
+    // ── 움직임 종류별 계수: 물고기는 기존 그대로, 해파리/문어는 느리고 둥둥 뜨는 느낌 ──
+    const mt = f.moveType || 'fish';
+    let xMul=1, yAmp=.55, yFreq=.42, snakeAmp=.028, snakeFreq=2.8, pulseAmp=0, pulseFreq=0;
+    if(mt==='jelly'){        // 해파리관: 거의 제자리에서 천천히 위아래로 맥동, 좌우 이동은 느릿하게 표류
+      xMul=0.4; yAmp=0.95; yFreq=0.22; snakeAmp=0.01; snakeFreq=0.6; pulseAmp=0.07; pulseFreq=1.4;
+    } else if(mt==='octo'){  // 두족류관: 헤엄치지 않고 느리게 떠다님, 몸은 거의 안 꺾임
+      xMul=0.55; yAmp=0.7; yFreq=0.3; snakeAmp=0.045; snakeFreq=0.9; pulseAmp=0.035; pulseFreq=0.8;
+    }
+
+    f.x += f.dir*f.fd.speed*f.sm*60*0.016*xMul;
+    f.y += Math.sin(f.t*yFreq+f.phase)*yAmp;
     if(f.y<f.yMin) f.y=f.yMin;
     if(f.y>f.yMax) f.y=f.yMax;
     if(f.x> vw+f.w*2){f.dir=-1; f.x=vw+f.w;}
@@ -1236,7 +1259,9 @@ function loop(){
 
     if(!f.img.complete||!f.img.naturalWidth) return;
 
-    const snake=Math.sin(f.t*2.8+f.phase)*.028;
+    const snake=Math.sin(f.t*snakeFreq+f.phase)*snakeAmp;
+    // 해파리/문어: 종(bell)·몸통이 부풀었다 줄어드는 맥동 효과 (세로로 커질 때 가로는 살짝 줄어듦)
+    const pulse = pulseAmp ? 1+Math.sin(f.t*pulseFreq+f.phase)*pulseAmp : 1;
     let tc;
     switch(f.layer){
       case 'far':  tc=farCtx; break;
@@ -1266,6 +1291,7 @@ function loop(){
     if(f.dir===1){tc.translate(f.w,0);tc.scale(-1,1);}
     tc.translate(f.w/2,f.h/2);
     tc.rotate(snake);
+    if(pulseAmp) tc.scale(2-pulse, pulse);
     tc.translate(-f.w/2,-f.h/2);
     tc.drawImage(f.img,0,0,f.w,f.h);
     tc.restore();
@@ -2216,8 +2242,12 @@ function getDepth(){
   catch(e){ return 0; }
 }
 
-// [MASTER] 수심과 상관없이 모든 수조 접근 (수조 파일과 다른 부분은 여기와 저장소 설정뿐)
-function isTankUnlocked(tank){ return true; }
+function isTankUnlocked(tank){
+  return true; // [master] 모든 수조 해금                       // 전시 모드: 모든 수조가 열려 있음
+  const depth = getDepth();
+  if(tank.autoUnlock) return depth >= 4000;
+  return depth >= Math.abs(tank.unlock);
+}
 
 function buildNavDots(){
   const wrap = document.getElementById('tank-nav-dots');
