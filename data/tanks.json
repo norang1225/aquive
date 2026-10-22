@@ -16,6 +16,7 @@
           },
           "count": 2,
           "speed": 0.12,
+          "moveType": "",
           "imgW": 2400,
           "imgH": 960,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789914680250.png"
@@ -34,6 +35,7 @@
           },
           "count": 2,
           "speed": 0.12,
+          "moveType": "",
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789931067717.png"
@@ -53,6 +55,7 @@
           },
           "count": 20,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789939269077.png"
@@ -71,6 +74,7 @@
           },
           "count": 5,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789939298859.png"
@@ -89,6 +93,7 @@
           },
           "count": 2,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1789939398443.png"
@@ -106,6 +111,7 @@
           },
           "count": 1,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 2400,
           "imgH": 960,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1790068278727.png"
@@ -124,6 +130,7 @@
           },
           "count": 3,
           "speed": 0.3,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1790351732432.png"
@@ -141,6 +148,7 @@
           },
           "count": 2,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1791745695548.png"
@@ -158,6 +166,7 @@
           },
           "count": 1,
           "speed": 1.2,
+          "moveType": "",
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1792339134914.png"
@@ -176,6 +185,7 @@
           },
           "count": 3,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank0_1792339842465.png"
@@ -208,6 +218,7 @@
           },
           "count": 2,
           "speed": 0.3,
+          "moveType": "",
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745759700.png"
@@ -226,6 +237,7 @@
           },
           "count": 3,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745799917.png"
@@ -244,6 +256,7 @@
           },
           "count": 6,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745833286.png"
@@ -262,6 +275,7 @@
           },
           "count": 7,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745865419.png"
@@ -280,6 +294,7 @@
           },
           "count": 3,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745888421.png"
@@ -298,6 +313,7 @@
           },
           "count": 3,
           "speed": 0.12,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745925404.png"
@@ -316,6 +332,7 @@
           },
           "count": 2,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745971490.png"
@@ -334,6 +351,7 @@
           },
           "count": 3,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791745992723.png"
@@ -352,6 +370,7 @@
           },
           "count": 18,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank1_1791746018575.png"
@@ -384,6 +403,7 @@
           },
           "count": 20,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340554332.png"
@@ -402,6 +422,7 @@
           },
           "count": 14,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340592715.png"
@@ -420,6 +441,7 @@
           },
           "count": 9,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340629548.png"
@@ -438,6 +460,7 @@
           },
           "count": 9,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340671598.png"
@@ -455,6 +478,7 @@
           },
           "count": 2,
           "speed": 0.3,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340702231.png"
@@ -473,6 +497,7 @@
           },
           "count": 5,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340740064.png"
@@ -491,6 +516,7 @@
           },
           "count": 5,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340777248.png"
@@ -509,6 +535,7 @@
           },
           "count": 4,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340810716.png"
@@ -527,6 +554,7 @@
           },
           "count": 2,
           "speed": 0.3,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340841182.png"
@@ -545,6 +573,7 @@
           },
           "count": 2,
           "speed": 0.3,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340889548.png"
@@ -562,6 +591,7 @@
           },
           "count": 1,
           "speed": 0.12,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340918798.png"
@@ -579,6 +609,7 @@
           },
           "count": 1,
           "speed": 0.12,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank2_1792340952098.png"
@@ -610,6 +641,7 @@
           },
           "count": 10,
           "speed": 1.2,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792340999882.png"
@@ -628,6 +660,7 @@
           },
           "count": 10,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341052732.png"
@@ -646,6 +679,7 @@
           },
           "count": 2,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341078315.png"
@@ -664,6 +698,7 @@
           },
           "count": 7,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341110482.png"
@@ -682,6 +717,7 @@
           },
           "count": 5,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341140832.png"
@@ -700,6 +736,7 @@
           },
           "count": 3,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341166882.png"
@@ -718,6 +755,7 @@
           },
           "count": 2,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341193115.png"
@@ -736,6 +774,7 @@
           },
           "count": 2,
           "speed": 0.55,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341232915.png"
@@ -753,6 +792,7 @@
           },
           "count": 1,
           "speed": 0.8,
+          "moveType": "",
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341267698.png"
@@ -770,6 +810,7 @@
           },
           "count": 1,
           "speed": 1.2,
+          "moveType": "",
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank3_1792341295732.png"
@@ -828,7 +869,26 @@
       }
     },
     "9": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1792662870749,
+          "name": "이름 없음",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.55,
+          "moveType": "jelly",
+          "imgW": 240,
+          "imgH": 297,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792662870749.png"
+        }
+      ],
       "bg": {
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank9_caustic.png",
         "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank9_midobj.png",
