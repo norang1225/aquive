@@ -871,24 +871,6 @@
     "9": {
       "fish": [
         {
-          "id": 1792662870749,
-          "name": "이름 없음",
-          "latin": "",
-          "desc": "",
-          "dep": "",
-          "tier": "md",
-          "layer": "mid",
-          "layers": {
-            "mid": 1
-          },
-          "count": 1,
-          "speed": 0.55,
-          "moveType": "jelly",
-          "imgW": 240,
-          "imgH": 297,
-          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792662870749.png"
-        },
-        {
           "id": 1792663035652,
           "name": "해파리",
           "latin": "ㄷ",
