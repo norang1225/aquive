@@ -869,7 +869,27 @@
       }
     },
     "9": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1792746508643,
+          "name": "보름달물해파리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "far",
+          "layers": {
+            "mid": 3,
+            "far": 8
+          },
+          "count": 11,
+          "speed": 0.12,
+          "moveType": "jelly",
+          "imgW": 240,
+          "imgH": 282,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792746508643.png"
+        }
+      ],
       "bg": {
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank9_caustic.png",
         "midobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank9_midobj.png",
