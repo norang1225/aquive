@@ -504,7 +504,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   <!-- HUD (Figma 대수조 85:146) -->
   <div id="hud-depth" class="hud-text">수심 <span id="ui-depth">0</span>m</div>
   <div id="hud-name" class="hud-text">대수조</div>
-  <div id="hud-unlock" class="hud-text">해금된 수조 <span id="hud-unlock-cur">1</span>/<span id="hud-unlock-total">12</span></div>
+  <div id="hud-unlock" class="hud-text">해금된 수조 <span id="hud-unlock-cur">1</span>/<span id="hud-unlock-total">10</span></div>
   <div id="ui-tr"></div>
 
   <!-- 오른쪽 탭: 지도 -->
@@ -1414,6 +1414,22 @@ function applyFishFromData(fishArr){
   if(uiTr) uiTr.textContent = FISH.length + ' specimens';
 }
 
+// 나의 수조에 들어갈 물고기: 지금까지 도감에 등록(발견)한 물고기를 종마다 1마리씩.
+// 원래 있던 수조의 거리(near/mid/far/bot)·움직임(해파리/두족류)을 그대로 가져옴
+function userTankFish(){
+  const collected = getCollectedSet(), out = [];
+  getAllFishAcrossTanks().forEach(g=>{
+    if(g.tank.userTank) return;
+    const home = g.tank.id === 9 ? 'jelly' : g.tank.id === 8 ? 'octo' : '';
+    g.fish.forEach(f=>{
+      if(!collected.has(f.id)) return;
+      const lay = Object.keys(fishLayerMap(f))[0] || 'mid';
+      out.push({...f, layers:{[lay]:1}, layer:lay, count:1, moveType: f.moveType || home});
+    });
+  });
+  return out;
+}
+
 async function applyTankData(tankId){
   const localKey = 'aquive_tank_data';
   let local = {};
@@ -1421,7 +1437,8 @@ async function applyTankData(tankId){
   const localTank  = local[tankId];
   const remoteTank = remoteData ? remoteData[tankId] : null;
   const bg   = localTank?.bg   || remoteTank?.bg   || {};
-  const fish = (localTank?.fish?.length) ? localTank.fish : (remoteTank?.fish || []);
+  let fish = (localTank?.fish?.length) ? localTank.fish : (remoteTank?.fish || []);
+  if(getTank(tankId)?.userTank) fish = userTankFish();     // 나의 수조: 발견한 물고기를 1종씩
   applyBgFromData(bg);
   applyFishFromData(fish);
   onTankChanged(tankId);
@@ -1440,9 +1457,11 @@ const TANKS = [
   {id:8,  name:'두족류관',   nameEn:'CEPHALOPOD ZONE',    unlock:-1500},
   {id:9,  name:'해파리관',   nameEn:'JELLYFISH HALL',     unlock:-2000},
   {id:10, name:'발광생물관', nameEn:'BIOLUMINESCENCE',    unlock:-3000},
-  {id:11, name:'해구관',     nameEn:'HADAL ZONE',         unlock:-4000},
   {id:12, name:'멸종보관소',nameEn:'EXTINCTION ARCHIVE', unlock:-4000, autoUnlock:true},
+  {id:13, name:'나의 수조', nameEn:'MY AQUARIUM',        unlock:-4000, autoUnlock:true, userTank:true},   // 유저만의 수조: 지금까지 발견한 물고기가 1종씩 들어옴 (멸종보관소 다음)
 ];
+// 해금 카운트(a/10)에 세는 수조: 멸종보관소·나의 수조는 제외
+const COUNTED_TANKS = TANKS.filter(t => !t.autoUnlock);
 
 // ══════════════════════════════════════════
 //  건물 지도 (Figma 지도1F / 지도B1F / 지도B2F)
@@ -1481,7 +1500,7 @@ const MAP_FLOORS = {
              {id:8,  x:1673, y:548, w:150, h:130},
              {id:10, x:1880, y:548, w:150, h:130},
              {id:9,  x:1673, y:716, w:150, h:130},
-             {id:11, x:1880, y:716, w:150, h:130} ],
+             {id:13, x:1880, y:716, w:150, h:130} ],
     decor: [ {x:530,  y:298, w:351, h:797, html:svgStairs(88,797,88,159)},
              {x:1640, y:945, w:390, h:150, html:svgBars(390,0)} ],
   },
@@ -2261,15 +2280,35 @@ function buildNavDots(){
   });
 }
 
+// 10/10 이 되면 'complete!' 로 바뀌었다가 사라짐. 한 번 보여준 뒤에는(이 기기에서) 다시 나타나지 않음
+//  · 전시 모드는 처음부터 전부 열려 있으므로 옛날처럼 숫자를 그대로 둠
+let unlockHudDone = false;
+function updateUnlockHud(unlocked){
+  const el = document.getElementById('hud-unlock'); if(!el || EX || unlockHudDone) return;
+  const KEY = 'aquive_complete_seen', persist = !window.AQUIVE_LOCAL_ONLY;      // 마스터(전체 해금본)는 기록을 남기지 않음
+  const seen = persist && (()=>{ try{ return localStorage.getItem(KEY) === '1'; }catch(e){ return false; } })();
+  if(unlocked < COUNTED_TANKS.length){ el.style.display = ''; return; }
+  unlockHudDone = true;
+  if(seen){ el.style.display = 'none'; return; }
+  el.textContent = 'complete!';
+  el.animate([{opacity:0},{opacity:1}], {duration:500, fill:'both'});
+  setTimeout(()=>{
+    const a = el.animate([{opacity:1},{opacity:0}], {duration:900, fill:'forwards'});
+    a.onfinish = ()=>{ el.style.display = 'none'; };
+    if(persist) try{ localStorage.setItem(KEY, '1'); }catch(e){}
+  }, 3000);
+}
+
 function updateNavUI(){
   const tank = TANKS[currentTankIdx];
   const hudName = document.getElementById('hud-name');
   if(hudName) hudName.textContent = tank.name;
   if(EX) setHudDepth(Math.abs(tank.unlock));   // 전시: 대수조 0m, 연안수조 50m …
-  const unlocked = TANKS.filter(t => isTankUnlocked(t)).length;   // 해금된 수조 a/b
+  const unlocked = COUNTED_TANKS.filter(t => isTankUnlocked(t)).length;   // 해금된 수조 a/10
   const uc = document.getElementById('hud-unlock-cur'), ut = document.getElementById('hud-unlock-total');
   if(uc) uc.textContent = unlocked;
-  if(ut) ut.textContent = TANKS.length;
+  if(ut) ut.textContent = COUNTED_TANKS.length;
+  updateUnlockHud(unlocked);
   const prevBtn = document.getElementById('nav-prev');
   const nextBtn = document.getElementById('nav-next');
   if(prevBtn) prevBtn.disabled = currentTankIdx===0;
