@@ -859,7 +859,26 @@
       }
     },
     "8": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1792746552894,
+          "name": "문어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "layers": {
+            "mid": 4
+          },
+          "count": 4,
+          "speed": 0.55,
+          "moveType": "octo",
+          "imgW": 1400,
+          "imgH": 948,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank8_1792746552894.png"
+        }
+      ],
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank8_base.png",
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank8_caustic.png",
