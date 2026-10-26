@@ -1361,6 +1361,24 @@
           "imgW": 240,
           "imgH": 480,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank10_1792992028302.png"
+        },
+        {
+          "id": 1792992054604,
+          "name": "발광상어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "mid": 2
+          },
+          "count": 2,
+          "speed": 0.3,
+          "moveType": "",
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank10_1792992054604.png"
         }
       ],
       "bg": {
