@@ -1483,6 +1483,24 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank12_1792992206839.png"
+        },
+        {
+          "id": 1792992234015,
+          "name": "익티오사우르스",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.8,
+          "moveType": "",
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank12_1792992234015.png"
         }
       ],
       "bg": {
