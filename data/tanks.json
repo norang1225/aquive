@@ -984,6 +984,24 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792990104570.png"
+        },
+        {
+          "id": 1792990202955,
+          "name": "전기가오리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "bot",
+          "layers": {
+            "bot": 1
+          },
+          "count": 1,
+          "speed": 0.12,
+          "moveType": "",
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792990202955.png"
         }
       ],
       "bg": {
