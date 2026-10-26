@@ -1398,6 +1398,25 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank10_1792992080871.png"
+        },
+        {
+          "id": 1792992112022,
+          "name": "도끼고기",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "far",
+          "layers": {
+            "mid": 1,
+            "far": 4
+          },
+          "count": 5,
+          "speed": 0.3,
+          "moveType": "",
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank10_1792992112022.png"
         }
       ],
       "bg": {
