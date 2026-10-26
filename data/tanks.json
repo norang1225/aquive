@@ -1069,6 +1069,24 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank6_1792991097183.png"
+        },
+        {
+          "id": 1792991125525,
+          "name": "흰돌고래",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank6_1792991125525.png"
         }
       ],
       "bg": {
