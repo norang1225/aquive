@@ -1144,6 +1144,25 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank6_1792991646544.png"
+        },
+        {
+          "id": 1792991702897,
+          "name": "빙어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "far",
+          "layers": {
+            "mid": 2,
+            "far": 10
+          },
+          "count": 12,
+          "speed": 0.8,
+          "moveType": "",
+          "imgW": 240,
+          "imgH": 140,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank6_1792991702897.png"
         }
       ],
       "bg": {
