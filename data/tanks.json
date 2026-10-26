@@ -1051,7 +1051,26 @@
       }
     },
     "6": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1792991097183,
+          "name": "그린란드상어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.12,
+          "moveType": "",
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank6_1792991097183.png"
+        }
+      ],
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_base.png",
         "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank6_volume.png",
