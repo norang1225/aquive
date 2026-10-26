@@ -994,6 +994,24 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank4_1792989220371.png"
+        },
+        {
+          "id": 1792989270822,
+          "name": "흑기흉상어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sl",
+          "layer": "mid",
+          "layers": {
+            "mid": 3
+          },
+          "count": 3,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 900,
+          "imgH": 450,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank4_1792989270822.png"
         }
       ],
       "bg": {
