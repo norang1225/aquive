@@ -1030,6 +1030,24 @@
           "imgW": 2400,
           "imgH": 960,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank4_1792989565933.png"
+        },
+        {
+          "id": 1792989672414,
+          "name": "백상아리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "xl",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 2400,
+          "imgH": 960,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank4_1792989672414.png"
         }
       ],
       "bg": {
