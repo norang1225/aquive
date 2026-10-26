@@ -1125,6 +1125,25 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank6_1792991213103.png"
+        },
+        {
+          "id": 1792991646544,
+          "name": "아이스피시",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sl",
+          "layer": "mid",
+          "layers": {
+            "mid": 3,
+            "far": 2
+          },
+          "count": 5,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 900,
+          "imgH": 450,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank6_1792991646544.png"
         }
       ],
       "bg": {
