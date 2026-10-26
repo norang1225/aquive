@@ -1436,6 +1436,24 @@
           "imgW": 240,
           "imgH": 140,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank10_1792992142221.png"
+        },
+        {
+          "id": 1792992169589,
+          "name": "빗해파리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "mid",
+          "layers": {
+            "mid": 2
+          },
+          "count": 2,
+          "speed": 0.12,
+          "moveType": "",
+          "imgW": 240,
+          "imgH": 480,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank10_1792992169589.png"
         }
       ],
       "bg": {
