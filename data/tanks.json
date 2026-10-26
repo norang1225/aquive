@@ -1192,6 +1192,24 @@
           "imgW": 240,
           "imgH": 480,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank8_1792991753448.png"
+        },
+        {
+          "id": 1792991770831,
+          "name": "살오징어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "mid": 3
+          },
+          "count": 3,
+          "speed": 0.8,
+          "moveType": "",
+          "imgW": 400,
+          "imgH": 880,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank8_1792991770831.png"
         }
       ],
       "bg": {
