@@ -1501,6 +1501,24 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank12_1792992234015.png"
+        },
+        {
+          "id": 1792992257988,
+          "name": "메갈로돈",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "xl",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 2400,
+          "imgH": 960,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank12_1792992257988.png"
         }
       ],
       "bg": {
