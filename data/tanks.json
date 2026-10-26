@@ -1002,6 +1002,25 @@
           "imgW": 400,
           "imgH": 240,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792990202955.png"
+        },
+        {
+          "id": 1792990926997,
+          "name": "노랑가오리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sl",
+          "layer": "near",
+          "layers": {
+            "near": 2,
+            "bot": 1
+          },
+          "count": 3,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 900,
+          "imgH": 450,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792990926997.png"
         }
       ],
       "bg": {
