@@ -1277,6 +1277,24 @@
           "imgW": 240,
           "imgH": 282,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792746508643.png"
+        },
+        {
+          "id": 1792991888872,
+          "name": "노무라입깃해파리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "layers": {
+            "mid": 2
+          },
+          "count": 2,
+          "speed": 0.12,
+          "moveType": "",
+          "imgW": 1400,
+          "imgH": 1492,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792991888872.png"
         }
       ],
       "bg": {
