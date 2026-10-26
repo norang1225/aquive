@@ -1313,6 +1313,25 @@
           "imgW": 400,
           "imgH": 880,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792991919901.png"
+        },
+        {
+          "id": 1792991949434,
+          "name": "상자해파리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "near",
+          "layers": {
+            "near": 4,
+            "mid": 3
+          },
+          "count": 7,
+          "speed": 0.3,
+          "moveType": "",
+          "imgW": 400,
+          "imgH": 880,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792991949434.png"
         }
       ],
       "bg": {
