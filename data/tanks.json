@@ -1012,6 +1012,24 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank4_1792989270822.png"
+        },
+        {
+          "id": 1792989565933,
+          "name": "고래상어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "xl",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.12,
+          "moveType": "",
+          "imgW": 2400,
+          "imgH": 960,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank4_1792989565933.png"
         }
       ],
       "bg": {
