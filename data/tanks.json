@@ -1087,6 +1087,25 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank6_1792991125525.png"
+        },
+        {
+          "id": 1792991161985,
+          "name": "대구",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "far",
+          "layers": {
+            "mid": 2,
+            "far": 3
+          },
+          "count": 5,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank6_1792991161985.png"
         }
       ],
       "bg": {
