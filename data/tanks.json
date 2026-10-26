@@ -1210,6 +1210,25 @@
           "imgW": 400,
           "imgH": 880,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank8_1792991770831.png"
+        },
+        {
+          "id": 1792991800782,
+          "name": "참문어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sl",
+          "layer": "far",
+          "layers": {
+            "far": 1,
+            "bot": 1
+          },
+          "count": 2,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 900,
+          "imgH": 1800,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank8_1792991800782.png"
         }
       ],
       "bg": {
