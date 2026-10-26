@@ -1295,6 +1295,24 @@
           "imgW": 1400,
           "imgH": 1492,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792991888872.png"
+        },
+        {
+          "id": 1792991919901,
+          "name": "작은부레관해파리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "mid": 3
+          },
+          "count": 3,
+          "speed": 0.3,
+          "moveType": "",
+          "imgW": 400,
+          "imgH": 880,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank9_1792991919901.png"
         }
       ],
       "bg": {
