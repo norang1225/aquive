@@ -1229,6 +1229,24 @@
           "imgW": 900,
           "imgH": 1800,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank8_1792991800782.png"
+        },
+        {
+          "id": 1792991830802,
+          "name": "이름 없음",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "bot",
+          "layers": {
+            "bot": 1
+          },
+          "count": 1,
+          "speed": 0.12,
+          "moveType": "",
+          "imgW": 1400,
+          "imgH": 948,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank8_1792991830802.png"
         }
       ],
       "bg": {
