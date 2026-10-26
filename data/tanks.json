@@ -1342,7 +1342,27 @@
       }
     },
     "10": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1792992028302,
+          "name": "반딧불오징어",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "sm",
+          "layer": "far",
+          "layers": {
+            "mid": 1,
+            "far": 6
+          },
+          "count": 7,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 240,
+          "imgH": 480,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank10_1792992028302.png"
+        }
+      ],
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank10_base.png",
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank10_caustic.png",
