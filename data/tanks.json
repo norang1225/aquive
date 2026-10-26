@@ -1218,9 +1218,9 @@
           "desc": "",
           "dep": "",
           "tier": "sl",
-          "layer": "far",
+          "layer": "near",
           "layers": {
-            "far": 1,
+            "near": 1,
             "bot": 1
           },
           "count": 2,
