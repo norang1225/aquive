@@ -1465,7 +1465,26 @@
       }
     },
     "12": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1792992206839,
+          "name": "둔클레오스테우스",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.3,
+          "moveType": "",
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank12_1792992206839.png"
+        }
+      ],
       "bg": {
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank12_base.png",
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank12_caustic.png",
