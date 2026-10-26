@@ -1021,6 +1021,24 @@
           "imgW": 900,
           "imgH": 450,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792990926997.png"
+        },
+        {
+          "id": 1792991038902,
+          "name": "쥐가오리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "xl",
+          "layer": "mid",
+          "layers": {
+            "mid": 1
+          },
+          "count": 1,
+          "speed": 0.3,
+          "moveType": "",
+          "imgW": 2400,
+          "imgH": 960,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792991038902.png"
         }
       ],
       "bg": {
