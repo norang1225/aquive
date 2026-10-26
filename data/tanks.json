@@ -966,6 +966,24 @@
           "imgW": 1400,
           "imgH": 620,
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792990075153.png"
+        },
+        {
+          "id": 1792990104570,
+          "name": "메가오리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "md",
+          "layer": "mid",
+          "layers": {
+            "mid": 3
+          },
+          "count": 3,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 400,
+          "imgH": 240,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792990104570.png"
         }
       ],
       "bg": {
