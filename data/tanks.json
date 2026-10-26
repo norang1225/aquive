@@ -948,7 +948,26 @@
       }
     },
     "5": {
-      "fish": [],
+      "fish": [
+        {
+          "id": 1792990075153,
+          "name": "표범가오리",
+          "latin": "",
+          "desc": "",
+          "dep": "",
+          "tier": "lg",
+          "layer": "mid",
+          "layers": {
+            "mid": 2
+          },
+          "count": 2,
+          "speed": 0.55,
+          "moveType": "",
+          "imgW": 1400,
+          "imgH": 620,
+          "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792990075153.png"
+        }
+      ],
       "bg": {
         "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank5_caustic.png",
         "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank5_farobj.png",
