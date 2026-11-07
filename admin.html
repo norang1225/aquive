@@ -362,6 +362,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oxaniu
         <div class="section">
           <div class="section-title">배경 레이어</div>
           <div class="bg-grid" id="bg-grid"></div>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="bg-default-light" checked>
+            <span>기본 빛 사용 <span style="color:var(--text-muted)">· CAUSTIC 이미지가 없을 때 위쪽에 퍼지는 연한 빛 (끄면 나오지 않음)</span></span>
+          </label>
         </div>
 
         <!-- 물고기 등록 -->
@@ -566,11 +570,12 @@ const TANKS = [
   {id:13, name:'나의 수조', nameEn:'MY AQUARIUM',        unlock:-4000},   // 물고기는 유저가 발견한 것이 자동으로 들어옴 (배경만 등록)
 ];
 
+// ※ key 는 저장 데이터(tanks.json)·GitHub 파일 이름(tank{id}_{key}.png)에 쓰이므로 옛 값(base, midobj)을 유지. 화면에 보이는 이름(label)만 새 이름.
 const BG_SLOTS = [
-  {key:'base',    label:'BASE',       sub:'배경 기본색',      emoji:'🎨'},
+  {key:'base',    label:'BACKGROUND', sub:'배경 기본색',      emoji:'🎨'},
   {key:'caustic', label:'CAUSTIC',    sub:'수면 빛 줄기',     emoji:'✨'},
   {key:'volume',  label:'VOLUMETRIC', sub:'수중 빛 산란',     emoji:'🌫'},
-  {key:'midobj',  label:'MID OBJ',    sub:'중경 바위·산호',   emoji:'🪸'},
+  {key:'midobj',  label:'NEAR OBJ',   sub:'근경 바위·산호',   emoji:'🪸'},
   {key:'floor',   label:'FLOOR BASE', sub:'바닥 모래',        emoji:'🏖'},
   {key:'floorobj',label:'FLOOR OBJ',  sub:'바닥 산호·해초',   emoji:'🌿'},
   {key:'shimmer', label:'SHIMMER',    sub:'유리 반사광',      emoji:'💧'},
@@ -680,6 +685,12 @@ async function syncFromGithub(){
         });
       }
 
+      // 기본 빛 설정(defaultLight): 이 브라우저에 저장 못한 수정이 없으면 GitHub 값을 따름
+      if(localStorage.getItem(DIRTY_KEY) !== '1'){
+        const want = ghData.defaultLight === false ? false : undefined;
+        if(local.defaultLight !== want){ if(want === false) local.defaultLight = false; else delete local.defaultLight; merged = true; }
+      }
+
       // bg: GitHub에 있는 키가 local에 없으면 추가
       Object.entries(ghData.bg||{}).forEach(([k,v])=>{
         if(v && !local.bg[k]){
@@ -756,10 +767,20 @@ function openSettings(){
 // ══════════════════════════════════════════
 //  배경 슬롯
 // ══════════════════════════════════════════
+document.getElementById('bg-default-light')?.addEventListener('change', async e => {
+  const d = getTankData(currentTankId);
+  if(e.target.checked) delete d.defaultLight; else d.defaultLight = false;      // 기본값(true)은 저장하지 않음 = 지금과 동일
+  saveData();
+  const ok = await updateTanksJson();
+  if(!ok) localStorage.setItem(DIRTY_KEY, '1');
+  showToast(ok ? (e.target.checked ? '기본 빛을 켰어요' : '기본 빛을 껐어요') : 'GitHub 저장에 실패했어요 (이 브라우저에는 저장됨)', ok ? 'success' : 'error');
+});
+
 function renderBgSlots(){
   const grid = document.getElementById('bg-grid');
   grid.innerHTML = '';
   const d = getTankData(currentTankId);
+  const dl = document.getElementById('bg-default-light'); if(dl) dl.checked = d.defaultLight !== false;
 
   BG_SLOTS.forEach(slot => {
     const src = d.bg[slot.key] || null;
@@ -1267,6 +1288,7 @@ async function updateTanksJson(){
           src:`https://raw.githubusercontent.com/${user}/${repo}/main/images/fish/${fileName}`
         };
       }),
+      ...(d.defaultLight === false ? {defaultLight:false} : {}),
       bg: Object.fromEntries(
         Object.entries(d.bg)
           .filter(([k, v]) => v && !v.startsWith('data:') && !v.startsWith('blob:'))

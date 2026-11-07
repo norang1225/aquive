@@ -13,7 +13,7 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 
 /* ── 배경 레이어 ── */
 /* 이미지 자체에 패럴랙스 여유분 포함 (4880px 기준) */
-#layer-bg-base {
+#layer-background {
   position:absolute;
   top:0;
   left:-120px;
@@ -42,8 +42,8 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 }
 #layer-bg-volume {z-index:2;mix-blend-mode:screen;pointer-events:none;opacity:0.7}
 
-/* mid-obj: 중경 오브젝트 - 바닥 위, 물고기 near 아래 */
-#layer-mid-obj {
+/* near-obj: 근경 오브젝트 - 바닥 위, 물고기 near 아래 (옛 이름 mid-obj) */
+#layer-near-obj {
   position:absolute;
   bottom:0;
   left:-120px;
@@ -83,9 +83,9 @@ body{font-family:'Raleway',sans-serif;user-select:none}
 #layer-floor-base { z-index:15; }
 #layer-floor-obj  { z-index:17; }
 
-/* 대수조: base만 세로로 늘어남 (JS recalcGrandWorld()가 px로 설정)
-   volume/caustic/mid-obj는 화면 높이 유지 — 스크롤 시 반복 표시되는 효과용 */
-.grand-mode #layer-bg-base {
+/* 대수조: background만 세로로 늘어남 (JS recalcGrandWorld()가 px로 설정)
+   volume/caustic/near-obj는 화면 높이 유지 — 스크롤 시 반복 표시되는 효과용 */
+.grand-mode #layer-background {
   height:300%;  /* fallback, JS 로드 후 px로 덮어씌워짐 */
 }
 
@@ -460,13 +460,13 @@ body{font-family:'Raleway',sans-serif;user-select:none}
   <div id="default-caustic"></div>
 
   <!-- 배경 이미지 레이어 -->
-  <img id="layer-bg-base"    src="" alt="" style="display:none">
+  <img id="layer-background" src="" alt="" style="display:none">
   <img id="layer-bg-volume"  src="" alt="" style="display:none">
   <img id="layer-bg-caustic" src="" alt="" style="display:none">
   <img id="layer-far-obj"   src="" alt="" style="display:none">
-  <img id="layer-mid-obj"   src="" alt="" style="display:none">
+  <img id="layer-near-obj"  src="" alt="" style="display:none">
 
-  <!-- 기포 1 (mid-obj 위, 물고기 아래) -->
+  <!-- 기포 1 (near-obj 위, 물고기 아래) -->
   <div id="bubbles1"></div>
 
   <!-- 물고기 캔버스 -->
@@ -917,19 +917,19 @@ const GRAND_WORLD_MULT_DEFAULT = 3;
 let   grandWorldMult = GRAND_WORLD_MULT_DEFAULT;
 
 // 이미지 실제 비율로 월드 높이 재계산
-// base 이미지가 로드되면 호출됨
+// background 이미지가 로드되면 호출됨
 function recalcGrandWorld(){
-  const img = document.getElementById('layer-bg-base');
+  const img = document.getElementById('layer-background');
   if(!img || !img.naturalWidth || !img.naturalHeight) return;
 
   const containerW = window.innerWidth + 160;
   const containerH = window.innerHeight;
 
-  // base 이미지 전체가 보이도록 필요한 높이
+  // background 이미지 전체가 보이도록 필요한 높이
   const neededH = containerW * (img.naturalHeight / img.naturalWidth);
   grandWorldMult = neededH / containerH;
 
-  // base/frame 레이어 전체 높이로 설정
+  // background/frame 레이어 전체 높이로 설정
   img.style.height = neededH + 'px';
   const frameEl = document.getElementById('layer-frame-img');
   if(frameEl) frameEl.style.height = neededH + 'px';
@@ -947,17 +947,17 @@ function recalcGrandWorld(){
 
 // 패럴랙스 레이어별 배율 (마우스 중앙 편차 × 이 값 = 이동 픽셀)
 const PLX = {
-  base:     0.04,
+  background: 0.04,
   volume:   0.08,
   caustic:  0.12,
   farobj:   0.18,  // 원경 오브젝트
-  midobj:   0.45,  // 중경 오브젝트 (바닥보다 앞이라 더 많이)
-  floor:    0.55,
-  floorobj: 0.70,
+  nearobj:  0.70,  // 근경 오브젝트 (바닥보다 앞이라 더 많이)  (옛 이름 midobj)
+  floor:    0.45,
+  floorobj: 0.55,
   shimmer:  0.10,
   frame:    0.00,
   fishFar:  0.35,
-  fishMid:  0.55,
+  fishMid:  0.60,
   fishNear: 0.85,
 };
 
@@ -1054,13 +1054,13 @@ window.addEventListener('mousemove', e => {
 
 // 패럴랙스 배경 레이어 업데이트 (CSS transform)
 const PLX_BG_MAP = [
-  { id: 'layer-bg-base',    key: 'base',     baseLeft: -120 },
+  { id: 'layer-background', key: 'background', baseLeft: -120 },
   { id: 'layer-bg-volume',  key: 'volume',   baseLeft: -120 },
   { id: 'layer-bg-caustic', key: 'caustic',  baseLeft: -120 },
   { id: 'layer-far-obj',    key: 'farobj',   baseLeft: -120 },
   { id: 'layer-floor-base', key: 'floor',    baseLeft: -120 },
   { id: 'layer-floor-obj',  key: 'floorobj', baseLeft: -120 },
-  { id: 'layer-mid-obj',    key: 'midobj',   baseLeft: -120 },
+  { id: 'layer-near-obj',   key: 'nearobj',  baseLeft: -120 },
   { id: 'layer-shimmer-img',key: 'shimmer',  baseLeft: -120 },
   // frame은 별도 처리
 ];
@@ -1085,7 +1085,7 @@ function updateParallaxBg(isGrand){
       el.style.marginLeft = offsetX + 'px';
       el.style.marginTop  = isGrand ? (-cam.current + 'px') : '0px';
 
-    } else if(key === 'floor' || key === 'floorobj' || key === 'midobj' || key === 'farobj'){
+    } else if(key === 'floor' || key === 'floorobj' || key === 'nearobj' || key === 'farobj'){
       // 바닥/중경: X 패럴랙스 + 대수조에서 하단 기준 카메라 오프셋
       if(isGrand){
         const worldH  = window.innerHeight * grandWorldMult;
@@ -1105,7 +1105,7 @@ function updateParallaxBg(isGrand){
       el.style.transform = `translateX(${offsetX}px)`;
 
     } else {
-      // base/volume 등: X + 대수조에서 카메라 오프셋
+      // background/volume 등: X + 대수조에서 카메라 오프셋
       const offsetY = isGrand ? -cam.current : 0;
       el.style.transform = `translateX(${offsetX}px) translateY(${offsetY}px)`;
     }
@@ -1163,8 +1163,8 @@ function onTankChanged(tankId){
     // 다른 수조: grand-mode 해제, 세로 스크롤바 숨김
     wrap.classList.remove('grand-mode');
     if(scrollbar) scrollbar.style.display = 'none';
-    // base 높이 초기화
-    const base = document.getElementById('layer-bg-base');
+    // background 높이 초기화
+    const base = document.getElementById('layer-background');
     if(base) base.style.height = '';
     // volume/caustic: 일반 수조에서 height:100% (화면 꽉 채움)
     ['layer-bg-volume','layer-bg-caustic'].forEach(id => {
@@ -1178,7 +1178,7 @@ function onTankChanged(tankId){
       el.style.transform  = 'none';
       el.style.marginLeft = '';
       el.style.marginTop  = '';
-      if(key === 'floor' || key === 'floorobj' || key === 'midobj' || key === 'farobj'){
+      if(key === 'floor' || key === 'floorobj' || key === 'nearobj' || key === 'farobj'){
         el.style.top = 'auto'; el.style.bottom = '0px';
       }
     });
@@ -1222,7 +1222,7 @@ function loop(){
   // ── 배경 패럴랙스 업데이트 ──
   updateParallaxBg(grand);
 
-  // ── frame: base와 동일하게 카메라 따라감, X만 패럴랙스 ──
+  // ── frame: background와 동일하게 카메라 따라감, X만 패럴랙스 ──
   const frameEl = document.getElementById('layer-frame-img');
   if(frameEl && frameEl.style.display !== 'none'){
     const offsetX = -(plx.curX * PLX_BG_MAX_X) * PLX['frame'];
@@ -1308,7 +1308,7 @@ loop();
   s.textContent=`@keyframes bup{0%{transform:translateY(0) translateX(0);opacity:.7}35%{transform:translateY(-30vh) translateX(5px);opacity:.4}100%{transform:translateY(-102vh) translateX(-3px);opacity:0}}`;
   document.head.appendChild(s);
 
-  // 기포1 — mid-obj 위, 작고 적게
+  // 기포1 — near-obj 위, 작고 적게
   const bl1=document.getElementById('bubbles1');
   for(let i=0;i<8;i++){
     const b=document.createElement('div');b.className='bub1';
@@ -1368,14 +1368,19 @@ function fixImageUrl(url){
 
 // ══════════════════════════════════════════
 
-function applyBgFromData(bg){
-  console.log('[AQUIVE] applyBgFromData:', JSON.stringify(bg));
+// 저장 데이터(tanks.json / 관리자)의 옛 키 → 새 레이어 이름. 저장된 키는 그대로 두고(base, midobj) 새 이름(background, nearobj)도 읽을 수 있음
+const BG_KEY_ALIAS = { base:'background', midobj:'nearobj' };
+function applyBgFromData(bgRaw, opts){
+  console.log('[AQUIVE] applyBgFromData:', JSON.stringify(bgRaw));
+  const defaultLight = !(opts && opts.defaultLight === false);   // 수조 데이터 defaultLight:false 이면 caustic 이미지가 없어도 기본 빛을 켜지 않음
+  const bg = {};
+  Object.entries(bgRaw || {}).forEach(([k,v])=>{ const n = BG_KEY_ALIAS[k] || k; if(bg[n] === undefined || n === k) bg[n] = v; });
   const MAP = {
-    'base':     {el:'layer-bg-base',    def:'default-bg'},
+    'background': {el:'layer-background', def:'default-bg'},
     'caustic':  {el:'layer-bg-caustic', def:'default-caustic'},
     'volume':   {el:'layer-bg-volume',  def:null},
     'farobj':   {el:'layer-far-obj',    def:null},
-    'midobj':   {el:'layer-mid-obj',    def:null},
+    'nearobj':  {el:'layer-near-obj',   def:null},
     'floor':    {el:'layer-floor-base', def:null},
     'floorobj': {el:'layer-floor-obj',  def:null},
     'shimmer':  {el:'layer-shimmer-img',def:null},
@@ -1389,15 +1394,15 @@ function applyBgFromData(bg){
       el.src = src;
       el.style.display = 'block';
       if(map.def){ const d=document.getElementById(map.def); if(d) d.style.display='none'; }
-      // base 이미지 로드 완료 시 대수조 월드 높이 자동 재계산
-      if(key === 'base' && isGrandTank()){
+      // background 이미지 로드 완료 시 대수조 월드 높이 자동 재계산
+      if(key === 'background' && isGrandTank()){
         el.onload = () => recalcGrandWorld();
         if(el.complete && el.naturalWidth) recalcGrandWorld();
       }
     } else {
       el.src = '';
       el.style.display = 'none';
-      if(map.def){ const d=document.getElementById(map.def); if(d) d.style.display='block'; }
+      if(map.def){ const d=document.getElementById(map.def); if(d) d.style.display = (key === 'caustic' && !defaultLight) ? 'none' : 'block'; }
     }
   });
 }
@@ -1439,7 +1444,8 @@ async function applyTankData(tankId){
   const bg   = localTank?.bg   || remoteTank?.bg   || {};
   let fish = (localTank?.fish?.length) ? localTank.fish : (remoteTank?.fish || []);
   if(getTank(tankId)?.userTank) fish = userTankFish();     // 나의 수조: 발견한 물고기를 1종씩
-  applyBgFromData(bg);
+  const defaultLight = (localTank && localTank.defaultLight !== undefined) ? localTank.defaultLight : remoteTank?.defaultLight;   // false = caustic 이미지가 없어도 기본 빛을 켜지 않음 (없으면 true)
+  applyBgFromData(bg, {defaultLight});
   applyFishFromData(fish);
   onTankChanged(tankId);
 }
