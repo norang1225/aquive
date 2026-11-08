@@ -1062,7 +1062,8 @@
       "bg": {
         "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank5_farobj.png",
         "base": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank5_base.png",
-        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank5_caustic.png"
+        "caustic": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank5_caustic.png",
+        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank5_volume.png"
       }
     },
     "6": {
