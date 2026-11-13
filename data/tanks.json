@@ -1059,10 +1059,7 @@
           "src": "https://raw.githubusercontent.com/norang1225/aquive/main/images/fish/tank5_1792991038902.png"
         }
       ],
-      "bg": {
-        "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank5_farobj.png",
-        "floorobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank5_floorobj.png"
-      }
+      "bg": {}
     },
     "6": {
       "fish": [
