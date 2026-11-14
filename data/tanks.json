@@ -1590,7 +1590,8 @@
         "farobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank13_farobj.png",
         "floorobj": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank13_floorobj.png",
         "floor": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank13_floor.png",
-        "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank13_shimmer.png"
+        "shimmer": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank13_shimmer.png",
+        "volume": "https://raw.githubusercontent.com/norang1225/aquive/main/images/bg/tank13_volume.png"
       }
     }
   }
